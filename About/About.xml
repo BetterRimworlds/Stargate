@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+	<name>ED-Stargate</name>
+	<author>Jaxxa</author>
+	<url>https://ludeon.com/forums/index.php?topic=15606.0</url>
+	<description>
+	Requires: ED-Core, ED-Autoloader
+The Stargate system allows you to transport materials over the great distances between colonies.
+	</description>
+</ModMetaData>
