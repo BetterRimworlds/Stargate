@@ -398,8 +398,7 @@ namespace Enhanced_Development.Stargate
                         foundThing.DeSpawn();
 
                         //Building_OrbitalRelay.listOfThingLists.Add(thingList);
-
-
+                        
                         //Recursively Call to get Everything
                         this.AddResources();
                     }
@@ -430,9 +429,9 @@ namespace Enhanced_Development.Stargate
                         {
                             List<Thing> thingList = new List<Thing>();
                             listOfBufferThings.Add(currentPawn);
-                            //currentPawn.DeSpawn();
+                            currentPawn.DeSpawn();
                             int tempHealth = currentPawn.HitPoints;
-                            currentPawn.Destroy(DestroyMode.Vanish);
+                            //currentPawn.Destroy(DestroyMode.Vanish);
                             currentPawn.HitPoints = tempHealth;
                         }
                     }
