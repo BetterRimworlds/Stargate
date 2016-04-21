@@ -430,6 +430,7 @@ namespace Enhanced_Development.Stargate
                             List<Thing> thingList = new List<Thing>();
                             listOfBufferThings.Add(currentPawn);
                             currentPawn.DeSpawn();
+                            //currentPawn.outfits.CurrentOutfit = null;
                             int tempHealth = currentPawn.HitPoints;
                             //currentPawn.Destroy(DestroyMode.Vanish);
                             currentPawn.HitPoints = tempHealth;
