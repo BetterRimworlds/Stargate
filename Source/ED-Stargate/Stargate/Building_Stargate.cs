@@ -8,6 +8,8 @@ using RimWorld;
 
 namespace Enhanced_Development.Stargate
 {
+
+    [StaticConstructorOnStartup]
     class Building_Stargate : Building
     {
 
@@ -133,7 +135,7 @@ namespace Enhanced_Development.Stargate
             Scribe_Values.LookValue<bool>(ref DropPodAddResources, "DropPodAddResources");*/
 
             //Log.Message("Expose Data - look list");
-            Scribe_Collections.LookList<Thing>(ref listOfBufferThings, "listOfBufferThings", LookMode.Deep, (object)null);
+            Scribe_Collections.LookList<Thing>(ref listOfBufferThings, "listOfBufferThings", LookMode.Deep);
             //Scribe_Collections.LookList<Thing>(ref listOfOffworldThings, "listOfOffworldThings", LookMode.Deep, (object)null);
 
             //Log.Message("Expose Data about to start");

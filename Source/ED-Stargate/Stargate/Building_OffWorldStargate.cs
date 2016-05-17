@@ -8,6 +8,8 @@ using RimWorld;
 
 namespace Enhanced_Development.Stargate
 {
+
+    [StaticConstructorOnStartup]
     class Building_OffWorldStargate : Building
     {
 
