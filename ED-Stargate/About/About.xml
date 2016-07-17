@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
 	<name>ED-Stargate</name>
+	<targetVersion>0.14.1230</targetVersion>
 	<author>Jaxxa</author>
-	<url>https://ludeon.com/forums/index.php?topic=15606.0</url>
+	<url>https://ludeon.com/forums/index.php?topic=18995.0</url>
 	<description>
 WARNING: This mod uses the Rimworld Base Save Functionality in ways that it was never designed to support, mainly saving specific things into a separate file instead of saving everything on the map to one file at once. Because of this there may be adverse effects. The main one that I have found is that after traveling through the Stargate Social opinions relating to that colonist will be lost, they will effectively be meeting everyone for the first time again. At this time I do not know of a practical way to resolve this issue.
 

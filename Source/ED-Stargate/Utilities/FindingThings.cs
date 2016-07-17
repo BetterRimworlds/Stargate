@@ -15,7 +15,7 @@ namespace Enhanced_Development.Utilities
             //IEnumerable<Pawn> pawns = Find.ListerPawns.FreeColonists;
             //IEnumerable<Pawn> pawns = Find.ListerPawns.AllPawns.Where(item => item.IsColonistPlayerControlled || item.IsColonistPlayerControlled);
 
-            IEnumerable<Pawn> pawns = Find.MapPawns.PawnsInFaction(Faction.OfColony);
+            IEnumerable<Pawn> pawns = Find.MapPawns.PawnsInFaction(Faction.OfPlayer);
 
             IEnumerable<Pawn> closePawns;
 

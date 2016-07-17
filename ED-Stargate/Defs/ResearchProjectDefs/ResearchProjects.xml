@@ -7,7 +7,8 @@
 		<description>
 By studying the symbols on the device you have discovered and cross-referencing with stellar constellations you have found out how to activate it and travel to other locations.
 		</description>
-		<totalCost>2000</totalCost>
+		<baseCost>2000</baseCost>
+		<techLevel>Spacer</techLevel>
 		<prerequisites></prerequisites>
 	</ResearchProjectDef>
 	
