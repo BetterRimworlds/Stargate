@@ -11,3 +11,9 @@ ED-Autoloader is supported to more easily load resources.
 
 01.00.01
 * Fixing crash when loading with Stargates that locally have things in the Buffer.
+
+02.00.00
+*Alpha 14 Update
+
+02.00.01
+*Fix for potentially not loading Graphical Resources on loading a saved game.

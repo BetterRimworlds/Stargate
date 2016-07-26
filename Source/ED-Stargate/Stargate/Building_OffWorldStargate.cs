@@ -21,13 +21,17 @@ namespace Enhanced_Development.Stargate
 
         #endregion
 
+        static Building_OffWorldStargate()
+        {
+            UI_ACTIVATE_GATE = ContentFinder<Texture2D>.Get("UI/nuke", true);
+        }
+
         #region Override
 
         public override void SpawnSetup()
         {
             base.SpawnSetup();
 
-            UI_ACTIVATE_GATE = ContentFinder<Texture2D>.Get("UI/nuke", true);
         }
 
         //Saving game

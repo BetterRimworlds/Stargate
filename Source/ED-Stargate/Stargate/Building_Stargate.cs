@@ -39,8 +39,8 @@ namespace Enhanced_Development.Stargate
         private string FileLocationPrimary;
         private string FileLocationSecondary;
 
-        Graphic graphicActive;
-        Graphic graphicInactive;
+        static Graphic graphicActive;
+        static Graphic graphicInactive;
 
         CompPowerTrader power;
 
@@ -50,14 +50,8 @@ namespace Enhanced_Development.Stargate
 
         #endregion
 
-        #region Override
-
-        public override void SpawnSetup()
+        static Building_Stargate()
         {
-            base.SpawnSetup();
-
-            this.power = base.GetComp<CompPowerTrader>();
-
             UI_ADD_RESOURCES = ContentFinder<Texture2D>.Get("UI/ADD_RESOURCES", true);
             UI_ADD_COLONIST = ContentFinder<Texture2D>.Get("UI/ADD_COLONIST", true);
 
@@ -68,18 +62,33 @@ namespace Enhanced_Development.Stargate
             UI_POWER_UP = ContentFinder<Texture2D>.Get("UI/PowerUp", true);
             UI_POWER_DOWN = ContentFinder<Texture2D>.Get("UI/PowerDown", true);
 
-            //GraphicRequest requestActive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate-Active", def.graphic.Shader, new Vector2(3, 3), Color.white, Color.white);
 
-            GraphicRequest requestActive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate-Active", def.graphic.Shader, new Vector2(3, 3), Color.white, Color.white, new GraphicData());
+
+
+            //GraphicRequest requestActive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate-Active", def.graphic.Shader, new Vector2(3, 3), Color.white, Color.white, new GraphicData());
+
+            GraphicRequest requestActive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate-Active",   ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData());
 
             graphicActive = new Graphic_Single();
             graphicActive.Init(requestActive);
 
-            GraphicRequest requestInactive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate", def.graphic.Shader, new Vector2(3, 3), Color.white, Color.white, new GraphicData());
+            GraphicRequest requestInactive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData());
 
             graphicInactive = new Graphic_Single();
             graphicInactive.Init(requestInactive);
-            
+
+            //GraphicRequest requestActive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate-Active", def.graphic.Shader, new Vector2(3, 3), Color.white, Color.white);
+
+        }
+
+        #region Override
+
+        public override void SpawnSetup()
+        {
+            base.SpawnSetup();
+
+            this.power = base.GetComp<CompPowerTrader>();
+
             if (def is StargateThingDef)
             {
                 //Read in variables from the custom MyThingDef
@@ -106,7 +115,7 @@ namespace Enhanced_Development.Stargate
             if (String.IsNullOrEmpty(FileLocationSecondary))
             {
                 FileLocationSecondary = Verse.GenFilePaths.SaveDataFolderPath + @"\Stargate\StargateBackup.xml";
-     
+
                 if (!System.IO.Directory.Exists(Verse.GenFilePaths.SaveDataFolderPath + @"\Stargate\"))
                 {
                     System.IO.Directory.CreateDirectory(Verse.GenFilePaths.SaveDataFolderPath + @"\Stargate\");
@@ -400,7 +409,7 @@ namespace Enhanced_Development.Stargate
                         foundThing.DeSpawn();
 
                         //Building_OrbitalRelay.listOfThingLists.Add(thingList);
-                        
+
                         //Recursively Call to get Everything
                         this.AddResources();
                     }
@@ -545,11 +554,11 @@ namespace Enhanced_Development.Stargate
             {
                 if (this.listOfBufferThings.Count > 0)
                 {
-                    return this.graphicActive;
+                    return Building_Stargate.graphicActive;
                 }
                 else
                 {
-                    return this.graphicInactive;
+                    return Building_Stargate.graphicInactive;
 
                 }
                 //return base.Graphic;
