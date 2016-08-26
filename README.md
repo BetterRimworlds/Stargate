@@ -17,3 +17,6 @@ ED-Autoloader is supported to more easily load resources.
 
 02.00.01
 *Fix for potentially not loading Graphical Resources on loading a saved game.
+
+02.00.02
+* Building against 1249
