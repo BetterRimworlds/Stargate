@@ -31,8 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\..\lib\A14.1234\Assembly-CSharp.dll</HintPath>
+    <Reference Include="Assembly-CSharp, Version=0.14.6054.28678, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\lib\A14.1249\Assembly-CSharp.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -42,7 +43,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\..\lib\A14.1234\UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\..\lib\A14.1249\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
