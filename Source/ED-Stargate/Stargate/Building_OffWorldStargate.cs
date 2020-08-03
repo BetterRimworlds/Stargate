@@ -28,9 +28,9 @@ namespace Enhanced_Development.Stargate
 
         #region Override
 
-        public override void SpawnSetup()
+        public override void SpawnSetup(Map map)
         {
-            base.SpawnSetup();
+            base.SpawnSetup(map);
 
         }
 
@@ -120,9 +120,9 @@ namespace Enhanced_Development.Stargate
                 Messages.Message("Ok Fine.", MessageSound.SeriousAlert);
 
                 this.Destroy(DestroyMode.Vanish);
-                GenSpawn.Spawn(ThingDef.Named("Stargate"), this.Position);
+                GenSpawn.Spawn(ThingDef.Named("Stargate"), this.Position, this.Map);
 
-                foreach (Pawn currentPawn in Find.MapPawns.FreeColonistsAndPrisoners.ToList())
+                foreach (Pawn currentPawn in Find.VisibleMap.mapPawns.FreeColonistsAndPrisoners.ToList())
                 {
                     currentPawn.Destroy(DestroyMode.Vanish);
                 }

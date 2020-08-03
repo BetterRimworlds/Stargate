@@ -15,7 +15,7 @@ namespace Enhanced_Development.Utilities
             //IEnumerable<Pawn> pawns = Find.ListerPawns.FreeColonists;
             //IEnumerable<Pawn> pawns = Find.ListerPawns.AllPawns.Where(item => item.IsColonistPlayerControlled || item.IsColonistPlayerControlled);
 
-            IEnumerable<Pawn> pawns = Find.MapPawns.PawnsInFaction(Faction.OfPlayer);
+            IEnumerable<Pawn> pawns = Find.VisibleMap.mapPawns.PawnsInFaction(Faction.OfPlayer);
 
             IEnumerable<Pawn> closePawns;
 
@@ -38,7 +38,7 @@ namespace Enhanced_Development.Utilities
             {
                 Thing thingAmmo = (Thing)null;
                 Thing thingContainer = (Thing)null;
-                foreach (Thing tempThing in Find.ThingGrid.ThingsAt(sq))
+                foreach (Thing tempThing in Find.VisibleMap.thingGrid.ThingsAt(sq))
                 {
                     //if (tempThing is ThingWithComponents)
                     //{
@@ -64,9 +64,9 @@ namespace Enhanced_Development.Utilities
             return (Thing)null;
         }
 
-        static public Thing FindItemThingsNearBuilding(Thing centerBuilding, int radius)
+        static public Thing FindItemThingsNearBuilding(Thing centerBuilding, int radius, Map map)
         {
-            IEnumerable<Thing> closeThings = GenRadial.RadialDistinctThingsAround(centerBuilding.Position, radius, true);
+            IEnumerable<Thing> closeThings = GenRadial.RadialDistinctThingsAround(centerBuilding.Position, map, radius, true);
 
             foreach (Thing tempThing in closeThings)
             {
