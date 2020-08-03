@@ -20,3 +20,7 @@ ED-Autoloader is supported to more easily load resources.
 
 02.00.02
 * Building against 1249
+
+02.00.03
+* Alpha 15 Update (only had to change the supported version number)
+
