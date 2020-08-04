@@ -24,3 +24,5 @@ ED-Autoloader is supported to more easily load resources.
 02.00.03
 * Alpha 15 Update (only had to change the supported version number)
 
+02.00.04
+* Alpha 16 Update (lots of small compatibility changes, esp regarding multiple maps).

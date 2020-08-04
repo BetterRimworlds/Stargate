@@ -48,6 +48,8 @@ namespace Enhanced_Development.Stargate
         int requiredCapacitorCharge = 1000;
         int chargeSpeed = 1;
 
+        private Map currentMap;
+
         #endregion
 
         static Building_Stargate()
@@ -85,6 +87,7 @@ namespace Enhanced_Development.Stargate
 
         public override void SpawnSetup(Map map)
         {
+            this.currentMap = map;
             base.SpawnSetup(map);
 
             this.power = base.GetComp<CompPowerTrader>();
@@ -397,7 +400,7 @@ namespace Enhanced_Development.Stargate
             {
 
                 //Thing foundThing = Enhanced_Development.Utilities.Utilities.FindItemThingsInAutoLoader(this);
-                Thing foundThing = Enhanced_Development.Utilities.Utilities.FindItemThingsNearBuilding(this, Building_Stargate.ADDITION_DISTANCE, this.Map);
+                Thing foundThing = Enhanced_Development.Utilities.Utilities.FindItemThingsNearBuilding(this, Building_Stargate.ADDITION_DISTANCE, this.currentMap);
 
                 if (foundThing != null)
                 {
@@ -508,7 +511,7 @@ namespace Enhanced_Development.Stargate
 
                     currentThing.SetFactionDirect(RimWorld.Faction.OfPlayer);
 
-                    GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.Map, ThingPlaceMode.Near);
+                    GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near);
                 }
                 //Log.Message("End of Placing");
                 inboundBuffer.Clear();

@@ -19,6 +19,8 @@ namespace Enhanced_Development.Stargate
 
         public int warned = 0;
 
+        private Map currentMap;
+
         #endregion
 
         static Building_OffWorldStargate()
@@ -30,8 +32,8 @@ namespace Enhanced_Development.Stargate
 
         public override void SpawnSetup(Map map)
         {
+            this.currentMap = map;
             base.SpawnSetup(map);
-
         }
 
         //Saving game
@@ -120,7 +122,7 @@ namespace Enhanced_Development.Stargate
                 Messages.Message("Ok Fine.", MessageSound.SeriousAlert);
 
                 this.Destroy(DestroyMode.Vanish);
-                GenSpawn.Spawn(ThingDef.Named("Stargate"), this.Position, this.Map);
+                GenSpawn.Spawn(ThingDef.Named("Stargate"), this.Position, this.currentMap);
 
                 foreach (Pawn currentPawn in Find.VisibleMap.mapPawns.FreeColonistsAndPrisoners.ToList())
                 {
