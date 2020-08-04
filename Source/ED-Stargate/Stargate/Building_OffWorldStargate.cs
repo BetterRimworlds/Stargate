@@ -109,7 +109,7 @@ namespace Enhanced_Development.Stargate
         {
             if (warned == 0)
             {
-                Messages.Message("Warning this will remove all Colonists from the Map!", MessageSound.SeriousAlert);
+                Messages.Message("Warning!! Trans-dimentional construction will cause a huge psionic blast that will affect all normal biological life in the area!", MessageSound.SeriousAlert);
                 warned += 1;
             }
             else if (warned == 1)
@@ -124,22 +124,106 @@ namespace Enhanced_Development.Stargate
                 this.Destroy(DestroyMode.Vanish);
                 GenSpawn.Spawn(ThingDef.Named("Stargate"), this.Position, this.currentMap);
 
-                foreach (Pawn currentPawn in Find.VisibleMap.mapPawns.FreeColonistsAndPrisoners.ToList())
+                foreach (Pawn pawn in Find.VisibleMap.mapPawns.AllPawns.ToList())
                 {
-                    currentPawn.Destroy(DestroyMode.Vanish);
+                    if (pawn.def.race.fleshType != FleshType.Normal)
+                    {
+                        continue;
+                    }
+
+                    this.AddPsionicShock(pawn);
                 }
             }
         }
 
         #endregion
 
+        private void CauseHeartAttack(Pawn pawn)
+        {
+            HediffDef heartAttack = HediffDef.Named("HeartAttack");
+
+            BodyPartRecord heart = pawn.RaceProps.body.AllParts.Find(bpr => bpr.def.defName == "Heart");
+            Log.Message("Heart: " + heart.ToString());
+
+            pawn.health.AddHediff(heartAttack, heart, null);
+        }
+
+        private void CauseSedation(Pawn pawn)
+        {
+            pawn.health.AddHediff(HediffDefOf.Anesthetic, null, null);
+        }
+
+        private void AddPsionicShock(Pawn pawn)
+        {
+            System.Random rand = new System.Random();
+
+            int psychicSensitivity = 0;
+            bool? shouldGiveHeartAttack = null;
+            bool? shouldSedate = null;
+
+            if (pawn.story?.traits != null && pawn.story.traits.HasTrait(TraitDef.Named("PsychicSensitivity")))
+            {
+                Trait psychicSensitivityTrait = pawn.story.traits.GetTrait(TraitDef.Named("PsychicSensitivity"));
+                psychicSensitivity = psychicSensitivityTrait.Degree;
+            }
+
+            // If they're Psychically Deaf, do nothing:
+            if (psychicSensitivity == -2)
+            {
+                return;
+            }
+            // If they're Psychically Dull, don't give them a heart attack.
+            else if (psychicSensitivity == -1)
+            {
+                shouldGiveHeartAttack = false;
+            }
+            // If they're Psychically Sensitive, make sure they're passed out for a few hours.
+            else if (psychicSensitivity == 1)
+            {
+                shouldSedate = true;
+            }
+            // If they're Psychically Hypersensitive, unfortunately, it will mean instant death :-(
+            else if (psychicSensitivity >= 2)
+            {
+                Messages.Message(pawn.NameStringShort + " was psychically supersensitive and died because of the psionic blast.", MessageSound.SeriousAlert);
+                HealthUtility.GiveInjuriesToKill(pawn);
+            }
+
+            Hediff shock = HediffMaker.MakeHediff(HediffDefOf.PsychicShock, pawn, null);
+            pawn.health.AddHediff(shock, null, null);
+
+            if (shouldGiveHeartAttack == null)
+            {
+                shouldGiveHeartAttack = rand.Next(1, 11) >= 3;
+            }
+
+            if (shouldGiveHeartAttack == true)
+            {
+                this.CauseHeartAttack(pawn);
+            }
+
+            if (shouldSedate == null)
+            {
+                int likelihood = rand.Next(1, 11);
+                Log.Message(pawn.NameStringShort + " should sedate? " + likelihood);
+                shouldSedate = likelihood >= 6;
+            }
+
+            if (shouldSedate == true)
+            {
+                this.CauseSedation(pawn);
+            }
+
+            DamageInfo psionicIntensity = new DamageInfo(DamageDefOf.Stun, 50);
+            pawn.TakeDamage(psionicIntensity);
+        }
+
         #region Graphics-text
         public override string GetInspectString()
         {
 
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine("WARNING: Activating this Gate will remove all Colonists from the Map.");
-            stringBuilder.AppendLine("but will create a gate for other teams to arrive from.");
+            stringBuilder.AppendLine("WARNING: Activating this Gate will cause most Creatures on the map to have a heart attack.");
 
             return stringBuilder.ToString();
         }
