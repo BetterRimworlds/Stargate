@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-	<name>ED-Stargate</name>
+	<name>Stargate</name>
 	<targetVersion>0.16.1393</targetVersion>
 	<author>Jaxxa + HopeSeekr</author>
 	<url>https://ludeon.com/forums/index.php?topic=18995.0</url>
-	<description>Version: 02.00.03
+	<description>Version: 04.00.00
 Discussion, Non Steam Downloads and GitHub Repositories of this mod is available at: https://ludeon.com/forums/index.php?topic=18995
 Please Use that Thread for Discussion / Feedback that would like me to reply to. 
 Ideally Bugs should be logged on GitHub although in the discussion thread is also fine.
+https://github.com/hopeseekr/Rimworld-Stargate/
+
 
 The Stargate system allows you to transport materials over the great distances between colonies.
 ED-Autoloader is supported to more easily load resources.
 
 **ALERT: The transdimensional construction of an Offworld Stargate has *devastating* consequences for all higher lifeforms on the map!** 
 
-WARNING: This mod uses the Rimworld Base Save Functionality in ways that it was never designed to support, mainly saving specific things into a separate file instead of saving everything on the map to one file at once. Because of this there may be adverse effects. The main one that I have found is that after traveling through the Stargate Social opinions relating to that colonist will be lost, they will effectively be meeting everyone for the first time again. At this time I do not know of a practical way to resolve this issue.
+		WARNING: This mod uses the Rimworld Base Save Functionality in ways that it was never designed to support, mainly saving specific things into a separate file instead of saving everything on the map to one file at once. Because of this there may be adverse effects. The main one that I have found is that after traveling through the Stargate Social opinions relating to that colonist will be lost, they will effectively be meeting everyone for the first time again. At this time I do not know of a practical way to resolve this issue.
+
+Forked from Jaxxa's ED-Stargate.
 	</description>
 </ModMetaData>
