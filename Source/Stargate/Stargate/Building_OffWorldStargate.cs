@@ -109,17 +109,17 @@ namespace Enhanced_Development.Stargate
         {
             if (warned == 0)
             {
-                Messages.Message("Warning!! Trans-dimentional construction will cause a huge psionic blast that will affect all normal biological life in the area!", MessageSound.SeriousAlert);
+                Messages.Message("Warning!! Trans-dimentional construction will cause a huge psionic blast that will affect all normal biological life in the area!", MessageTypeDefOf.ThreatBig);
                 warned += 1;
             }
             else if (warned == 1)
             {
-                Messages.Message("Are you really certain you want to do that?", MessageSound.SeriousAlert);
+                Messages.Message("Are you really certain you want to do that?", MessageTypeDefOf.ThreatBig);
                 warned += 1;
             }
             else if (warned >= 2)
             {
-                Messages.Message("Ok Fine.", MessageSound.SeriousAlert);
+                Messages.Message("BOOOOM!", MessageTypeDefOf.ThreatBig);
 
                 this.Destroy(DestroyMode.Vanish);
                 GenSpawn.Spawn(ThingDef.Named("Stargate"), this.Position, this.currentMap);
@@ -185,7 +185,7 @@ namespace Enhanced_Development.Stargate
             // If they're Psychically Hypersensitive, unfortunately, it will mean instant death :-(
             else if (psychicSensitivity >= 2)
             {
-                Messages.Message(pawn.NameStringShort + " was psychically supersensitive and died because of the psionic blast.", MessageSound.SeriousAlert);
+                Messages.Message(pawn.NameStringShort + " was psychically supersensitive and died because of the psionic blast.", MessageTypeDefOf.ThreatSmall);
                 HealthUtility.DamageUntilDead(pawn);
             }
 

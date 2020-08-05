@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
 	<name>Stargate</name>
-	<targetVersion>0.17.1557</targetVersion>
+	<targetVersion>0.18.1722</targetVersion>
 	<author>Jaxxa + HopeSeekr</author>
 	<url>https://ludeon.com/forums/index.php?topic=18995.0</url>
-	<description>Version: 04.01.00
->>>>>>> 986517e... Upgraded to A17-0.17.1557.:ED-Stargate/About/About.xml
+	<description>Version: 04.02.00
 Discussion, Non Steam Downloads and GitHub Repositories of this mod is available at: https://ludeon.com/forums/index.php?topic=18995
 Please Use that Thread for Discussion / Feedback that would like me to reply to. 
 Ideally Bugs should be logged on GitHub although in the discussion thread is also fine.

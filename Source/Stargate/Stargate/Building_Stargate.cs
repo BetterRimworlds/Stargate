@@ -423,7 +423,7 @@ namespace Enhanced_Development.Stargate
             }
             else
             {
-                Messages.Message("Insufficient Power to add Resources", MessageSound.RejectInput);
+                Messages.Message("Insufficient Power to add Resources", MessageTypeDefOf.RejectInput);
             }
 
         }
@@ -457,7 +457,7 @@ namespace Enhanced_Development.Stargate
             }
             else
             {
-                Messages.Message("Insufficient Power to add Colonist", MessageSound.RejectInput);
+                Messages.Message("Insufficient Power to add Colonist", MessageTypeDefOf.RejectInput);
             }
         }
 
@@ -468,7 +468,7 @@ namespace Enhanced_Development.Stargate
             {
                 if (System.IO.File.Exists(this.FileLocationPrimary))
                 {
-                    Messages.Message("Please Recall Offworld Teams First", MessageSound.RejectInput);
+                    Messages.Message("Please Recall Offworld Teams First", MessageTypeDefOf.RejectInput);
                 }
                 else
                 {
@@ -484,7 +484,7 @@ namespace Enhanced_Development.Stargate
             }
             else
             {
-                Messages.Message("Insufficient power to establish connection.", MessageSound.RejectInput);
+                Messages.Message("Insufficient power to establish connection.", MessageTypeDefOf.RejectInput);
             }
         }
 
@@ -492,7 +492,7 @@ namespace Enhanced_Development.Stargate
         {
             if (System.IO.File.Exists(this.FileLocationPrimary))
             {
-                Messages.Message("Recalling Offworld Teams", MessageSound.Benefit);
+                Messages.Message("Recalling Offworld Teams", MessageTypeDefOf.PositiveEvent);
 
                 //List<Thing> inboundBuffer = new List<Thing>();
                 List<Thing> inboundBuffer = (List<Thing>)null;
@@ -525,7 +525,7 @@ namespace Enhanced_Development.Stargate
             else
             {
 
-                Messages.Message("No Offworld Teams Found", MessageSound.RejectInput);
+                Messages.Message("No Offworld Teams Found", MessageTypeDefOf.RejectInput);
                 //Log.Message("Building_Stargate.StargateIncomingWormhole() unable to find file at FileLocationPrimary");
             }
         }
