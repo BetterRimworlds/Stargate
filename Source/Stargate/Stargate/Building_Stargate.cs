@@ -69,12 +69,12 @@ namespace Enhanced_Development.Stargate
 
             //GraphicRequest requestActive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate-Active", def.graphic.Shader, new Vector2(3, 3), Color.white, Color.white, new GraphicData());
 
-            GraphicRequest requestActive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate-Active",   ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData(), 0);
+            GraphicRequest requestActive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate-Active",   ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData(), 0, null);
 
             graphicActive = new Graphic_Single();
             graphicActive.Init(requestActive);
 
-            GraphicRequest requestInactive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData(), 0);
+            GraphicRequest requestInactive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData(), 0, null);
 
             graphicInactive = new Graphic_Single();
             graphicInactive.Init(requestInactive);
@@ -419,7 +419,7 @@ namespace Enhanced_Development.Stargate
                 }
 
                 // Tell the MapDrawer that here is something thats changed
-                Find.VisibleMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
+                Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
             }
             else
             {
@@ -453,7 +453,7 @@ namespace Enhanced_Development.Stargate
                 }
 
                 // Tell the MapDrawer that here is something thats changed
-                Find.VisibleMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
+                Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
             }
             else
             {
@@ -477,7 +477,7 @@ namespace Enhanced_Development.Stargate
                     this.listOfBufferThings.Clear();
 
                     // Tell the MapDrawer that here is something thats changed
-                    Find.VisibleMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
+                    Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
 
                     this.currentCapacitorCharge -= this.requiredCapacitorCharge;
                 }
@@ -517,7 +517,7 @@ namespace Enhanced_Development.Stargate
                 inboundBuffer.Clear();
 
                 // Tell the MapDrawer that here is something thats changed
-                Find.VisibleMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
+                Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
 
                 this.MoveToBackup();
 

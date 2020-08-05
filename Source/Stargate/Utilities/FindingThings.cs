@@ -15,7 +15,7 @@ namespace Enhanced_Development.Utilities
             //IEnumerable<Pawn> pawns = Find.ListerPawns.FreeColonists;
             //IEnumerable<Pawn> pawns = Find.ListerPawns.AllPawns.Where(item => item.IsColonistPlayerControlled || item.IsColonistPlayerControlled);
 
-            IEnumerable<Pawn> pawns = Find.VisibleMap.mapPawns.PawnsInFaction(Faction.OfPlayer);
+            IEnumerable<Pawn> pawns = Find.CurrentMap.mapPawns.PawnsInFaction(Faction.OfPlayer);
 
             IEnumerable<Pawn> closePawns;
 
@@ -38,7 +38,7 @@ namespace Enhanced_Development.Utilities
             {
                 Thing thingAmmo = (Thing)null;
                 Thing thingContainer = (Thing)null;
-                foreach (Thing tempThing in Find.VisibleMap.thingGrid.ThingsAt(sq))
+                foreach (Thing tempThing in Find.CurrentMap.thingGrid.ThingsAt(sq))
                 {
                     //if (tempThing is ThingWithComponents)
                     //{

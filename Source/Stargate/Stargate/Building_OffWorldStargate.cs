@@ -124,7 +124,7 @@ namespace Enhanced_Development.Stargate
                 this.Destroy(DestroyMode.Vanish);
                 GenSpawn.Spawn(ThingDef.Named("Stargate"), this.Position, this.currentMap);
 
-                foreach (Pawn pawn in Find.VisibleMap.mapPawns.AllPawns.ToList())
+                foreach (Pawn pawn in Find.CurrentMap.mapPawns.AllPawns.ToList())
                 {
                     if (pawn.RaceProps.FleshType != FleshTypeDefOf.Normal)
                     {
@@ -143,7 +143,6 @@ namespace Enhanced_Development.Stargate
             HediffDef heartAttack = HediffDef.Named("HeartAttack");
 
             BodyPartRecord heart = pawn.RaceProps.body.AllParts.Find(bpr => bpr.def.defName == "Heart");
-            Log.Message("Heart: " + heart.ToString());
 
             pawn.health.AddHediff(heartAttack, heart, null);
         }
@@ -185,7 +184,11 @@ namespace Enhanced_Development.Stargate
             // If they're Psychically Hypersensitive, unfortunately, it will mean instant death :-(
             else if (psychicSensitivity >= 2)
             {
-                Messages.Message(pawn.NameStringShort + " was psychically supersensitive and died because of the psionic blast.", MessageTypeDefOf.ThreatSmall);
+                if (pawn.IsColonist)
+                {
+                    Messages.Message(pawn.Name.ToStringShort + " was psychically supersensitive and died because of the psionic blast.", MessageTypeDefOf.ThreatSmall);
+                }
+
                 HealthUtility.DamageUntilDead(pawn);
             }
 
@@ -205,7 +208,15 @@ namespace Enhanced_Development.Stargate
             if (shouldSedate == null)
             {
                 int likelihood = rand.Next(1, 11);
-                Log.Message(pawn.NameStringShort + " should sedate? " + likelihood);
+                if (pawn.Name?.ToStringShort != null)
+                {
+                    Log.Message(pawn.Name.ToStringShort + " should sedate? " + likelihood);
+                }
+                else
+                {
+                    Log.Message(pawn.def.label + " should sedate? " + likelihood);
+                }
+
                 shouldSedate = likelihood >= 6;
             }
 
@@ -229,7 +240,5 @@ namespace Enhanced_Development.Stargate
         }
 
         #endregion
-
-
     }
 }
