@@ -69,12 +69,12 @@ namespace Enhanced_Development.Stargate
 
             //GraphicRequest requestActive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate-Active", def.graphic.Shader, new Vector2(3, 3), Color.white, Color.white, new GraphicData());
 
-            GraphicRequest requestActive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate-Active",   ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData());
+            GraphicRequest requestActive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate-Active",   ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData(), 0);
 
             graphicActive = new Graphic_Single();
             graphicActive.Init(requestActive);
 
-            GraphicRequest requestInactive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData());
+            GraphicRequest requestInactive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData(), 0);
 
             graphicInactive = new Graphic_Single();
             graphicInactive.Init(requestInactive);
@@ -85,10 +85,10 @@ namespace Enhanced_Development.Stargate
 
         #region Override
 
-        public override void SpawnSetup(Map map)
+        public override void SpawnSetup(Map map, bool respawningAfterLoad)
         {
             this.currentMap = map;
-            base.SpawnSetup(map);
+            base.SpawnSetup(map, respawningAfterLoad);
 
             this.power = base.GetComp<CompPowerTrader>();
 
@@ -137,9 +137,9 @@ namespace Enhanced_Development.Stargate
 
             //Scribe_Deep.LookDeep(ref listOfThingLists, "listOfThingLists");
 
-            Scribe_Values.LookValue<int>(ref currentCapacitorCharge, "currentCapacitorCharge");
-            Scribe_Values.LookValue<int>(ref requiredCapacitorCharge, "requiredCapacitorCharge");
-            Scribe_Values.LookValue<int>(ref chargeSpeed, "chargeSpeed");
+            Scribe_Values.Look<int>(ref currentCapacitorCharge, "currentCapacitorCharge");
+            Scribe_Values.Look<int>(ref requiredCapacitorCharge, "requiredCapacitorCharge");
+            Scribe_Values.Look<int>(ref chargeSpeed, "chargeSpeed");
 
 
             /*Scribe_Values.LookValue<bool>(ref DropPodDeepStrike, "DropPodDeepStrike");
@@ -147,7 +147,7 @@ namespace Enhanced_Development.Stargate
             Scribe_Values.LookValue<bool>(ref DropPodAddResources, "DropPodAddResources");*/
 
             //Log.Message("Expose Data - look list");
-            Scribe_Collections.LookList<Thing>(ref listOfBufferThings, "listOfBufferThings", LookMode.Deep);
+            Scribe_Collections.Look<Thing>(ref listOfBufferThings, "listOfBufferThings", LookMode.Deep);
             //Scribe_Collections.LookList<Thing>(ref listOfOffworldThings, "listOfOffworldThings", LookMode.Deep, (object)null);
 
             //Log.Message("Expose Data about to start");

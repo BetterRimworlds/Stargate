@@ -28,9 +28,6 @@ The Stargate system allows you to transport materials over the great distances b
 * Alpha 15 Update (only had to change the supported version number)
 
 02.00.04
-<<<<<<< HEAD
-* Alpha 16 Update (lots of small compatibility changes, esp regarding multiple maps).
-=======
 * Alpha 16 Update (lots of small compatibility changes, esp regarding multiple maps).
 
 03.00.00
@@ -51,4 +48,4 @@ This mod is forked off of the incredible engineering work by Jaxxa in his [**ED-
 I asked him for years to port this to A16, but then I learned C# and ported it myself ;-)
 
 Then I made it even better!
->>>>>>> 3354eb6... Officially forked from jaxxa/ED-Stargate.
+

@@ -30,10 +30,10 @@ namespace Enhanced_Development.Stargate
 
         #region Override
 
-        public override void SpawnSetup(Map map)
+        public override void SpawnSetup(Map map, bool respawningAfterLoad)
         {
             this.currentMap = map;
-            base.SpawnSetup(map);
+            base.SpawnSetup(map, respawningAfterLoad);
         }
 
         //Saving game
@@ -126,7 +126,7 @@ namespace Enhanced_Development.Stargate
 
                 foreach (Pawn pawn in Find.VisibleMap.mapPawns.AllPawns.ToList())
                 {
-                    if (pawn.def.race.fleshType != FleshType.Normal)
+                    if (pawn.RaceProps.FleshType != FleshTypeDefOf.Normal)
                     {
                         continue;
                     }
@@ -186,7 +186,7 @@ namespace Enhanced_Development.Stargate
             else if (psychicSensitivity >= 2)
             {
                 Messages.Message(pawn.NameStringShort + " was psychically supersensitive and died because of the psionic blast.", MessageSound.SeriousAlert);
-                HealthUtility.GiveInjuriesToKill(pawn);
+                HealthUtility.DamageUntilDead(pawn);
             }
 
             Hediff shock = HediffMaker.MakeHediff(HediffDefOf.PsychicShock, pawn, null);

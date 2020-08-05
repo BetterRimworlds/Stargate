@@ -12,7 +12,7 @@ namespace Enhanced_Development.Stargate.Saving
         public static void save(List<Thing> thingsToSave, string fileLocation, Thing source)
         {
             Log.Message("Saving to: " + fileLocation);
-            Scribe.InitWriting(fileLocation,"Stargate");
+            Scribe.saver.InitSaving(fileLocation, "Stargate");
 
             //Log.Message("Starting Save");
             //Save Pawn
@@ -22,7 +22,7 @@ namespace Enhanced_Development.Stargate.Saving
             //Scribe.EnterNode("map");
             //Scribe.EnterNode("things");
             //source.ExposeData();
-            Scribe_Collections.LookList<Thing>(ref thingsToSave, "things", LookMode.Deep, (object)null);
+            Scribe_Collections.Look<Thing>(ref thingsToSave, "things", LookMode.Deep, (object)null);
             //Scribe.ExitNode();
 
             //Scribe.ExitNode();
@@ -33,7 +33,7 @@ namespace Enhanced_Development.Stargate.Saving
                 Scribe_Deep.LookDeep<Thing>(ref thingsToSave[i], thingsToSave[i].ThingID);
             }*/
 
-            Scribe.FinalizeWriting();
+            Scribe.saver.FinalizeSaving();
             Scribe.mode = LoadSaveMode.Inactive;
             //Log.Message("End Save");
         }
@@ -41,7 +41,7 @@ namespace Enhanced_Development.Stargate.Saving
         public static void load(ref List<Thing> thingsToLoad, string fileLocation, Thing currentSource)
         {
             Log.Message("ScribeINIT, loding from:" + fileLocation);
-            Scribe.InitLoading(fileLocation);
+            Scribe.loader.InitLoading(fileLocation);
 
             //Scribe.EnterNode("Stargate");
 
@@ -50,7 +50,7 @@ namespace Enhanced_Development.Stargate.Saving
 
            // List<Thing> list2 = (List<Thing>)null;
             Log.Message("Scribe_Collections.LookList");
-            Scribe_Collections.LookList<Thing>(ref thingsToLoad, "things", LookMode.Deep);
+            Scribe_Collections.Look<Thing>(ref thingsToLoad, "things", LookMode.Deep);
             Log.Message("List1Count:" + thingsToLoad.Count);
 
             Log.Message("DeepProfiler.End()");
@@ -67,15 +67,15 @@ namespace Enhanced_Development.Stargate.Saving
 
 
             Log.Message("ResolveAllCrossReferences");
-            CrossRefResolver.ResolveAllCrossReferences();
-
+            //CrossRefHandler
+            var c = new CrossRefHandler();
+            c.ResolveAllCrossReferences();
 
             Log.Message("DoAllPostLoadInits");
-            PostLoadInitter.DoAllPostLoadInits();
+            var p = new PostLoadIniter();
+            p.DoAllPostLoadInits();
 
             Log.Message("Return");
-
         }
-
     }
 }
