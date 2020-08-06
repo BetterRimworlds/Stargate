@@ -48,6 +48,12 @@ The Stargate system allows you to transport materials over the great distances b
 04.03.00
 * Beta 19 Update (v0.19.2009)
 
+04.04.00
+* v1.0 Update (v1.0.2559)
+* Fixed the "inspect string for * contains empty lines" console error.
+* Fixed all of the "can't assign items to a faction" error messages.
+* Fixed the bug since B19 where colonists went *crazy* if they had ever been drafted.
+
 ## Contributors
 
 This mod is forked off of the incredible engineering work by Jaxxa in his [**ED-Stargate mod**](https://github.com/jaxxa/ED-Stargate).
