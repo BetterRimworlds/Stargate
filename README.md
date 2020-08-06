@@ -60,6 +60,7 @@ The Stargate system allows you to transport materials over the great distances b
 * The Off-world Gate now falls into ruin upon the first off-world recall.
 * The cost for constructing the Stargate has been greatly, and appropriately, increased.
 * Only one Off-world Gate is allowed per area.
+* Lots of code cleanup.
 
 ## Contributors
 
