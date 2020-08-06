@@ -509,7 +509,10 @@ namespace Enhanced_Development.Stargate
                     currentThing.thingIDNumber = -1;
                     Verse.ThingIDMaker.GiveIDTo(currentThing);
 
-                    currentThing.SetFactionDirect(RimWorld.Faction.OfPlayer);
+                    if (currentThing.def.CanHaveFaction)
+                    {
+                        currentThing.SetFactionDirect(RimWorld.Faction.OfPlayer);
+                    }
 
                     GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near);
                 }
