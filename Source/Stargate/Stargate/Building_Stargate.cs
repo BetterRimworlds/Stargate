@@ -514,6 +514,13 @@ namespace Enhanced_Development.Stargate
                         currentThing.SetFactionDirect(RimWorld.Faction.OfPlayer);
                     }
 
+                    // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
+                    // if they enter a Stargate after they've ever been drafted.
+                    if (currentThing is Pawn pawn && pawn.IsColonist)
+                    {
+                        pawn.verbTracker = new VerbTracker(pawn);
+                    }
+
                     GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near);
                 }
                 //Log.Message("End of Placing");
