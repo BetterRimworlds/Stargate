@@ -132,6 +132,11 @@ namespace Enhanced_Development.Stargate
             Scribe_Collections.Look<Thing>(ref listOfBufferThings, "listOfBufferThings", LookMode.Deep);
         }
 
+        protected void BaseTickRare()
+        {
+            base.TickRare();
+        }
+
         public override void TickRare()
         {
             base.TickRare();
@@ -309,6 +314,13 @@ namespace Enhanced_Development.Stargate
                     {
                         if (currentPawn.Spawned)
                         {
+                            // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
+                            // if they enter a Stargate after they've ever been drafted.
+                            if (currentPawn.verbTracker != null)
+                            {
+                                currentPawn.verbTracker = new VerbTracker(currentPawn);
+                            }
+
                             List<Thing> thingList = new List<Thing>();
                             listOfBufferThings.Add(currentPawn);
                             currentPawn.DeSpawn();
@@ -373,6 +385,9 @@ namespace Enhanced_Development.Stargate
 
             foreach (Thing currentThing in inboundBuffer)
             {
+                currentThing.thingIDNumber = -1;
+                Verse.ThingIDMaker.GiveIDTo(currentThing);
+                
                 if (currentThing.def.CanHaveFaction)
                 {
                     currentThing.SetFactionDirect(Faction.OfPlayer);
@@ -434,7 +449,6 @@ namespace Enhanced_Development.Stargate
                 }
             }
         }
-
         public override string GetInspectString()
         {
             return base.GetInspectString() + "\n"

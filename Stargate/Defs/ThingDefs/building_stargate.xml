@@ -120,6 +120,9 @@
         <researchPrerequisites>
             <li>Building_Stargate_research</li>
         </researchPrerequisites>
+        <comps>
+            <li Class="CompProperties_Breakdownable"/>
+        </comps>
         <size>(3,3)</size>
         <costList>
             <Plasteel>20000000</Plasteel>

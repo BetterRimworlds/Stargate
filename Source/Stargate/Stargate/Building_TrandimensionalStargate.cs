@@ -11,6 +11,14 @@ namespace Enhanced_Development.Stargate
     [StaticConstructorOnStartup]
     class Building_TransdimensionalStargate : Building_Stargate
     {
+        /**
+         * This is needed because Transdimensional Stargates are powered via the Zero-Point Field.
+         */
+        public override void TickRare()
+        {
+            base.BaseTickRare();
+        }
+
         public override IEnumerable<Gizmo> GetGizmos()
         {
             Command_Action act = new Command_Action();
@@ -38,6 +46,11 @@ namespace Enhanced_Development.Stargate
             Messages.Message("The Transdimensional Transfer was a success!", MessageTypeDefOf.PositiveEvent);
 
             return true;
+        }
+
+        public override string GetInspectString()
+        {
+            return "Waiting for incoming off-world activation.";
         }
     }
 }
