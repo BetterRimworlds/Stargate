@@ -12,7 +12,6 @@ namespace Enhanced_Development.Stargate
     [StaticConstructorOnStartup]
     class Building_OffWorldStargate : Building
     {
-
         #region Variables
 
         private static Texture2D UI_ACTIVATE_GATE;
@@ -29,24 +28,11 @@ namespace Enhanced_Development.Stargate
         }
 
         #region Override
-
         public override void SpawnSetup(Map map, bool respawningAfterLoad)
         {
             this.currentMap = map;
             base.SpawnSetup(map, respawningAfterLoad);
         }
-
-        //Saving game
-        public override void ExposeData()
-        {
-            base.ExposeData();
-        }
-
-        public override void TickRare()
-        {
-            base.TickRare();
-        }
-
         #endregion
 
         #region Commands
@@ -58,7 +44,6 @@ namespace Enhanced_Development.Stargate
             {
                 yield return g;
             }
-
 
             if (true)
             {
@@ -75,36 +60,6 @@ namespace Enhanced_Development.Stargate
             }
         }
 
-        /*
-        public override IEnumerable<Command> GetCommands()
-        {
-            IList<Command> CommandList = new List<Command>();
-            IEnumerable<Command> baseCommands = base.GetCommands();
-
-            if (baseCommands != null)
-            {
-                CommandList = baseCommands.ToList();
-            }
-
-            if (true)
-            {
-                //Upgrading
-                Command_Action command_Action_AddResources = new Command_Action();
-
-                command_Action_AddResources.defaultLabel = "Activate Gate";
-
-                command_Action_AddResources.icon = UI_ACTIVATE_GATE;
-                command_Action_AddResources.defaultDesc = "Activate Gate";
-
-                command_Action_AddResources.activateSound = SoundDef.Named("Click");
-                command_Action_AddResources.action = new Action(this.ActivateGate);
-
-                CommandList.Add(command_Action_AddResources);
-            }
-
-            return CommandList.AsEnumerable<Command>();
-        }
-        */
         public void ActivateGate()
         {
             if (warned == 0)
@@ -122,7 +77,9 @@ namespace Enhanced_Development.Stargate
                 Messages.Message("BOOOOM!", MessageTypeDefOf.ThreatBig);
 
                 this.Destroy(DestroyMode.Vanish);
-                GenSpawn.Spawn(ThingDef.Named("Stargate"), this.Position, this.currentMap);
+                Building stargate = (Building)GenSpawn.Spawn(ThingDef.Named("TransdimensionalStargate"), this.Position, this.currentMap);
+                stargate.SetFactionDirect(Faction.OfPlayer);
+                this.currentMap.listerBuildings.Add(stargate);
 
                 foreach (Pawn pawn in Find.CurrentMap.mapPawns.AllPawns.ToList())
                 {

@@ -16,10 +16,10 @@ The Stargate system allows you to transport materials over the great distances b
 * Fixing crash when loading with Stargates that locally have things in the Buffer.
 
 02.00.00
-*Alpha 14 Update
+* Alpha 14 Update
 
 02.00.01
-*Fix for potentially not loading Graphical Resources on loading a saved game.
+* Fix for potentially not loading Graphical Resources on loading a saved game.
 
 02.00.02
 * Building against 1249
@@ -54,10 +54,17 @@ The Stargate system allows you to transport materials over the great distances b
 * Fixed all of the "can't assign items to a faction" error messages.
 * Fixed the bug since B19 where colonists went *crazy* if they had ever been drafted.
 
+05.00.00
+* Made the Stargate research much more difficult to achieve.
+* The Off-world Gate will no longer allow outgoing travel.
+* The Off-world Gate now falls into ruin upon the first off-world recall.
+* The cost for constructing the Stargate has been greatly, and appropriately, increased.
+* Only one Off-world Gate is allowed per area.
+* Lots of code cleanup.
+
 ## Contributors
 
 This mod is forked off of the incredible engineering work by Jaxxa in his [**ED-Stargate mod**](https://github.com/jaxxa/ED-Stargate).
 I asked him for years to port this to A16, but then I learned C# and ported it myself ;-)
 
 Then I made it even better!
-

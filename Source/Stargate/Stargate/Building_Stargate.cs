@@ -23,14 +23,14 @@ namespace Enhanced_Development.Stargate
         //TODO: Saving the Building
         List<Thing> listOfBufferThings = new List<Thing>();
 
-        private static Texture2D UI_ADD_RESOURCES;
-        private static Texture2D UI_ADD_COLONIST;
+        protected static Texture2D UI_ADD_RESOURCES;
+        protected static Texture2D UI_ADD_COLONIST;
 
-        private static Texture2D UI_GATE_IN;
-        private static Texture2D UI_GATE_OUT;
+        protected static Texture2D UI_GATE_IN;
+        protected static Texture2D UI_GATE_OUT;
 
-        private static Texture2D UI_POWER_UP;
-        private static Texture2D UI_POWER_DOWN;
+        protected static Texture2D UI_POWER_UP;
+        protected static Texture2D UI_POWER_DOWN;
 
         public bool StargateAddResources = true;
         public bool StargateAddUnits = true;
@@ -48,7 +48,7 @@ namespace Enhanced_Development.Stargate
         int requiredCapacitorCharge = 1000;
         int chargeSpeed = 1;
 
-        private Map currentMap;
+        protected Map currentMap;
 
         #endregion
 
@@ -64,11 +64,6 @@ namespace Enhanced_Development.Stargate
             UI_POWER_UP = ContentFinder<Texture2D>.Get("UI/PowerUp", true);
             UI_POWER_DOWN = ContentFinder<Texture2D>.Get("UI/PowerDown", true);
 
-
-
-
-            //GraphicRequest requestActive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate-Active", def.graphic.Shader, new Vector2(3, 3), Color.white, Color.white, new GraphicData());
-
             GraphicRequest requestActive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate-Active",   ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData(), 0, null);
 
             graphicActive = new Graphic_Single();
@@ -78,9 +73,6 @@ namespace Enhanced_Development.Stargate
 
             graphicInactive = new Graphic_Single();
             graphicInactive.Init(requestInactive);
-
-            //GraphicRequest requestActive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate-Active", def.graphic.Shader, new Vector2(3, 3), Color.white, Color.white);
-
         }
 
         #region Override
@@ -128,30 +120,21 @@ namespace Enhanced_Development.Stargate
 
         }
 
-        //Saving game
+        // Saving game
         public override void ExposeData()
         {
-
-            //Log.Message("Expose Data start");
             base.ExposeData();
-
-            //Scribe_Deep.LookDeep(ref listOfThingLists, "listOfThingLists");
 
             Scribe_Values.Look<int>(ref currentCapacitorCharge, "currentCapacitorCharge");
             Scribe_Values.Look<int>(ref requiredCapacitorCharge, "requiredCapacitorCharge");
             Scribe_Values.Look<int>(ref chargeSpeed, "chargeSpeed");
 
-
-            /*Scribe_Values.LookValue<bool>(ref DropPodDeepStrike, "DropPodDeepStrike");
-            Scribe_Values.LookValue<bool>(ref DropPodAddUnits, "DropPodAddUnits");
-            Scribe_Values.LookValue<bool>(ref DropPodAddResources, "DropPodAddResources");*/
-
-            //Log.Message("Expose Data - look list");
             Scribe_Collections.Look<Thing>(ref listOfBufferThings, "listOfBufferThings", LookMode.Deep);
-            //Scribe_Collections.LookList<Thing>(ref listOfOffworldThings, "listOfOffworldThings", LookMode.Deep, (object)null);
+        }
 
-            //Log.Message("Expose Data about to start");
-
+        protected void BaseTickRare()
+        {
+            base.TickRare();
         }
 
         public override void TickRare()
@@ -173,7 +156,6 @@ namespace Enhanced_Development.Stargate
                 this.chargeSpeed = 0;
                 this.updatePowerDrain();
             }
-
         }
 
         #endregion
@@ -188,9 +170,14 @@ namespace Enhanced_Development.Stargate
             }
         }
 
+        protected IEnumerable<Gizmo> GetDefaultGizmos()
+        {
+            return base.GetGizmos();
+        }
+
         public override IEnumerable<Gizmo> GetGizmos()
         {
-            //Add the stock Gizmoes
+            // Add the stock Gizmoes
             foreach (var g in base.GetGizmos())
             {
                 yield return g;
@@ -282,124 +269,10 @@ namespace Enhanced_Development.Stargate
 
         }
 
-
-        /*
-        public override IEnumerable<Command> GetCommands()
-        {
-            IList<Command> CommandList = new List<Command>();
-            IEnumerable<Command> baseCommands = base.GetCommands();
-
-            if (baseCommands != null)
-            {
-                CommandList = baseCommands.ToList();
-            }
-
-            if (true)
-            {
-                //Upgrading
-                Command_Action command_Action_AddResources = new Command_Action();
-
-                command_Action_AddResources.defaultLabel = "Add Resources";
-
-                command_Action_AddResources.icon = UI_ADD_RESOURCES;
-                command_Action_AddResources.defaultDesc = "Add Resources";
-
-                command_Action_AddResources.activateSound = SoundDef.Named("Click");
-                command_Action_AddResources.action = new Action(this.AddResources);
-
-                CommandList.Add(command_Action_AddResources);
-            }
-
-            if (true)
-            {
-                Command_Action command_Action_AddColonist = new Command_Action();
-
-                command_Action_AddColonist.defaultLabel = "Add Colonist";
-
-                command_Action_AddColonist.icon = UI_ADD_COLONIST;
-                command_Action_AddColonist.defaultDesc = "Add Colonist";
-
-                command_Action_AddColonist.activateSound = SoundDef.Named("Click");
-                command_Action_AddColonist.action = new Action(this.AddColonist);
-
-                CommandList.Add(command_Action_AddColonist);
-            }
-
-            if (true)
-            {
-                //Upgrading
-                Command_Action command_Action_DialOut = new Command_Action();
-
-                command_Action_DialOut.defaultLabel = "Dial Out";
-
-                command_Action_DialOut.icon = UI_GATE_OUT;
-                command_Action_DialOut.defaultDesc = "Dial Out";
-
-                command_Action_DialOut.activateSound = SoundDef.Named("Click");
-                command_Action_DialOut.action = new Action(this.StargateDialOut);
-
-                CommandList.Add(command_Action_DialOut);
-            }
-
-            if (true)
-            {
-                //Upgrading
-                Command_Action command_Action_IncomingWormhole = new Command_Action();
-
-                command_Action_IncomingWormhole.defaultLabel = "Inbound WormHole";
-
-                command_Action_IncomingWormhole.icon = UI_GATE_IN;
-                command_Action_IncomingWormhole.defaultDesc = "Inbound Wormhole";
-
-                command_Action_IncomingWormhole.activateSound = SoundDef.Named("Click");
-                command_Action_IncomingWormhole.action = new Action(this.StargateIncomingWormhole);
-
-                CommandList.Add(command_Action_IncomingWormhole);
-            }
-
-            if (true)
-            {
-                //Upgrading
-                Command_Action command_Action_IncreasePower = new Command_Action();
-
-                command_Action_IncreasePower.defaultLabel = "Increase Power";
-
-                command_Action_IncreasePower.icon = UI_GATE_IN;
-                command_Action_IncreasePower.defaultDesc = "Increase Power";
-
-                command_Action_IncreasePower.activateSound = SoundDef.Named("Click");
-                command_Action_IncreasePower.action = new Action(this.PowerRateIncrease);
-
-                CommandList.Add(command_Action_IncreasePower);
-            }
-
-            if (true)
-            {
-                //Upgrading
-                Command_Action command_Action_DecreasePower = new Command_Action();
-
-                command_Action_DecreasePower.defaultLabel = "Decrease Power";
-
-                command_Action_DecreasePower.icon = UI_GATE_IN;
-                command_Action_DecreasePower.defaultDesc = "Decrease Power";
-
-                command_Action_DecreasePower.activateSound = SoundDef.Named("Click");
-                command_Action_DecreasePower.action = new Action(this.PowerRateDecrease);
-
-                CommandList.Add(command_Action_DecreasePower);
-            }
-
-
-            return CommandList.AsEnumerable<Command>();
-        }
-        */
         public void AddResources()
         {
-
             if (this.fullyCharged)
             {
-
-                //Thing foundThing = Enhanced_Development.Utilities.Utilities.FindItemThingsInAutoLoader(this);
                 Thing foundThing = Enhanced_Development.Utilities.Utilities.FindItemThingsNearBuilding(this, Building_Stargate.ADDITION_DISTANCE, this.currentMap);
 
                 if (foundThing != null)
@@ -441,6 +314,13 @@ namespace Enhanced_Development.Stargate
                     {
                         if (currentPawn.Spawned)
                         {
+                            // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
+                            // if they enter a Stargate after they've ever been drafted.
+                            if (currentPawn.verbTracker != null)
+                            {
+                                currentPawn.verbTracker = new VerbTracker(currentPawn);
+                            }
+
                             List<Thing> thingList = new List<Thing>();
                             listOfBufferThings.Add(currentPawn);
                             currentPawn.DeSpawn();
@@ -463,7 +343,6 @@ namespace Enhanced_Development.Stargate
 
         public void StargateDialOut()
         {
-
             if (this.fullyCharged)
             {
                 if (System.IO.File.Exists(this.FileLocationPrimary))
@@ -488,56 +367,50 @@ namespace Enhanced_Development.Stargate
             }
         }
 
-        public void StargateRecall()
+        public virtual bool StargateRecall()
         {
-            if (System.IO.File.Exists(this.FileLocationPrimary))
+            if (!System.IO.File.Exists(this.FileLocationPrimary))
             {
-                Messages.Message("Recalling Offworld Teams", MessageTypeDefOf.PositiveEvent);
+                Messages.Message("No Off-world Teams were found", MessageTypeDefOf.RejectInput);
 
-                //List<Thing> inboundBuffer = new List<Thing>();
-                List<Thing> inboundBuffer = (List<Thing>)null;
+                return false;
+            }
 
-                //Log.Message("start list contains: " + inboundBuffer.Count);
-                Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary, this);
-                //Log.Message("end list contains: " + inboundBuffer.Count);
+            Messages.Message("Recalling Off-world Teams", MessageTypeDefOf.PositiveEvent);
 
-                foreach (Thing currentThing in inboundBuffer)
+            //List<Thing> inboundBuffer = new List<Thing>();
+            List<Thing> inboundBuffer = (List<Thing>)null;
+
+            Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary, this);
+
+            foreach (Thing currentThing in inboundBuffer)
+            {
+                currentThing.thingIDNumber = -1;
+                Verse.ThingIDMaker.GiveIDTo(currentThing);
+                
+                if (currentThing.def.CanHaveFaction)
                 {
-                    //Log.Message("Placing Thing");
-
-                    //Setup the New ID for the Thing
-                    currentThing.thingIDNumber = -1;
-                    Verse.ThingIDMaker.GiveIDTo(currentThing);
-
-                    if (currentThing.def.CanHaveFaction)
-                    {
-                        currentThing.SetFactionDirect(RimWorld.Faction.OfPlayer);
-                    }
-
-                    // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
-                    // if they enter a Stargate after they've ever been drafted.
-                    if (currentThing is Pawn pawn && pawn.IsColonist)
-                    {
-                        pawn.verbTracker = new VerbTracker(pawn);
-                    }
-
-                    GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near);
+                    currentThing.SetFactionDirect(Faction.OfPlayer);
                 }
-                //Log.Message("End of Placing");
-                inboundBuffer.Clear();
+                
+                // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
+                // if they enter a Stargate after they've ever been drafted.
+                if (currentThing is Pawn pawn && pawn.IsColonist)
+                {
+                    pawn.verbTracker = new VerbTracker(pawn);
+                }
 
-                // Tell the MapDrawer that here is something thats changed
-                Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
-
-                this.MoveToBackup();
-
+                GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near);
             }
-            else
-            {
 
-                Messages.Message("No Offworld Teams Found", MessageTypeDefOf.RejectInput);
-                //Log.Message("Building_Stargate.StargateIncomingWormhole() unable to find file at FileLocationPrimary");
-            }
+            inboundBuffer.Clear();
+
+            // Tell the MapDrawer that here is something that's changed
+            Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
+
+            this.MoveToBackup();
+
+            return true;
         }
 
         private void PowerRateIncrease()
@@ -574,10 +447,8 @@ namespace Enhanced_Development.Stargate
                     return Building_Stargate.graphicInactive;
 
                 }
-                //return base.Graphic;
             }
         }
-
         public override string GetInspectString()
         {
             return base.GetInspectString() + "\n"
@@ -599,11 +470,6 @@ namespace Enhanced_Development.Stargate
             {
                 System.IO.File.Move(this.FileLocationPrimary, this.FileLocationSecondary);
             }
-            else
-            {
-                //Log.Warning("Building_Stargate.MoveToBackup(), file at FileLocationPrimary not found.");
-            }
         }
-
     }
 }
