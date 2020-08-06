@@ -89,6 +89,9 @@
         <designationCategory>Misc</designationCategory>
         <staticSunShadowHeight>0.75</staticSunShadowHeight>
         <leaveResourcesWhenKilled>false</leaveResourcesWhenKilled>
+        <placeWorkers>
+            <li>Stargate.Placeworker_OnlyOneStargate</li>
+        </placeWorkers>
     </ThingDef>
 
     <ThingDef Class="Enhanced_Development.Stargate.StargateThingDef" ParentName="BuildingBase">

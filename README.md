@@ -59,6 +59,7 @@ The Stargate system allows you to transport materials over the great distances b
 * The Off-world Gate will no longer allow outgoing travel.
 * The Off-world Gate now falls into ruin upon the first off-world recall.
 * The cost for constructing the Stargate has been greatly, and appropriately, increased.
+* Only one Off-world Gate is allowed per area.
 
 ## Contributors
 
@@ -66,4 +67,3 @@ This mod is forked off of the incredible engineering work by Jaxxa in his [**ED-
 I asked him for years to port this to A16, but then I learned C# and ported it myself ;-)
 
 Then I made it even better!
-

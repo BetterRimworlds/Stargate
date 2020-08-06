@@ -51,6 +51,8 @@
     <Compile Include="Stargate\Building_OffWorldStargate.cs" />
     <Compile Include="Stargate\Building_Stargate.cs" />
     <Compile Include="Stargate\Building_TrandimensionalStargate.cs" />
+    <Compile Include="Stargate\PlaceWorker_OnlyOneBuilding.cs" />
+    <Compile Include="Stargate\PlaceWorker_OnlyOneStargate.cs" />
     <Compile Include="Stargate\Saving\Dialog\Dialog_LoadPreset.cs" />
     <Compile Include="Stargate\Saving\Dialog\Dialog_Preset.cs" />
     <Compile Include="Stargate\Saving\Dialog\Dialog_SavePreset.cs" />
