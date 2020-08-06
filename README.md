@@ -58,6 +58,7 @@ The Stargate system allows you to transport materials over the great distances b
 * Made the Stargate research much more difficult to achieve.
 * The Off-world Gate will no longer allow outgoing travel.
 * The Off-world Gate now falls into ruin upon the first off-world recall.
+* The cost for constructing the Stargate has been greatly, and appropriately, increased.
 
 ## Contributors
 
