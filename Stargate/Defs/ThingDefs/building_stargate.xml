@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Defs>
-	<ThingDef Name="BuildingBase" Abstract="True">
-		<category>Building</category>
-		<soundImpactDefault>BulletImpact_Metal</soundImpactDefault>
-		<selectable>true</selectable>
-		<drawerType>MapMeshAndRealTime</drawerType>
-		<terrainAffordanceNeeded>Light</terrainAffordanceNeeded>
-		<repairEffect>Repair</repairEffect>
-	</ThingDef>
+    <ThingDef Name="BuildingBase" Abstract="True">
+        <category>Building</category>
+        <soundImpactDefault>BulletImpact_Metal</soundImpactDefault>
+        <selectable>true</selectable>
+        <drawerType>MapMeshAndRealTime</drawerType>
+        <terrainAffordanceNeeded>Light</terrainAffordanceNeeded>
+        <repairEffect>Repair</repairEffect>
+    </ThingDef>
 
-	<ThingDef Class="Enhanced_Development.Stargate.StargateThingDef" ParentName="BuildingBase">
-		<defName>Stargate</defName>
-		<label>Stargate</label>
-		<thingClass>Enhanced_Development.Stargate.Building_Stargate</thingClass>
-		<graphicData>
-			<texPath>Things/Buildings/Stargate</texPath>
-			<graphicClass>Graphic_Single</graphicClass>
-			<drawSize>(3,3)</drawSize>
-		</graphicData>
-		<altitudeLayer>Building</altitudeLayer>
-		<passability>Impassable</passability>
-		<castEdgeShadows>true</castEdgeShadows>
-		<fillPercent>1</fillPercent>
-		<specialDisplayRadius>3</specialDisplayRadius>
-		<tickerType>Rare</tickerType>
-		<FileLocationPrimary></FileLocationPrimary>
-		<FileLocationSecondary></FileLocationSecondary>
-		<statBases>
-			<WorkToMake>20000</WorkToMake>
-			<MaxHitPoints>1000000</MaxHitPoints>
-			<Flammability>0.0</Flammability>
-		</statBases>
-		<description>Stargate</description>
-		<researchPrerequisites>
-			<li>Building_Stargate_research</li>
-		</researchPrerequisites>
-		<building>
-			<wantsHopperAdjacent>true</wantsHopperAdjacent>
-		</building>
+    <ThingDef Class="Enhanced_Development.Stargate.StargateThingDef" ParentName="BuildingBase">
+        <defName>Stargate</defName>
+        <label>Stargate</label>
+        <thingClass>Enhanced_Development.Stargate.Building_Stargate</thingClass>
+        <graphicData>
+            <texPath>Things/Buildings/Stargate</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawSize>(3,3)</drawSize>
+        </graphicData>
+        <altitudeLayer>Building</altitudeLayer>
+        <passability>Impassable</passability>
+        <castEdgeShadows>true</castEdgeShadows>
+        <fillPercent>1</fillPercent>
+        <specialDisplayRadius>3</specialDisplayRadius>
+        <tickerType>Rare</tickerType>
+        <FileLocationPrimary></FileLocationPrimary>
+        <FileLocationSecondary></FileLocationSecondary>
+        <statBases>
+            <WorkToMake>20000</WorkToMake>
+            <MaxHitPoints>1000000</MaxHitPoints>
+            <Flammability>0.0</Flammability>
+        </statBases>
+        <description>Stargate</description>
+        <researchPrerequisites>
+            <li>Building_Stargate_research</li>
+        </researchPrerequisites>
+        <building>
+            <wantsHopperAdjacent>true</wantsHopperAdjacent>
+        </building>
     <comps>
       <li Class="CompProperties_Power">
         <compClass>CompPowerTrader</compClass>
@@ -46,50 +46,50 @@
       </li>
       <li Class="CompProperties_Flickable"/>
     </comps>
-		<size>(3,3)</size>
-		<costList>
-			<Steel>2000</Steel>
-			<Uranium>500</Uranium>
-		</costList>
-		<hasInteractionCell>False</hasInteractionCell>
-		<terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
-		<designationCategory>Misc</designationCategory>
-		<staticSunShadowHeight>0.75</staticSunShadowHeight>
-		<leaveResourcesWhenKilled>true</leaveResourcesWhenKilled>
-	</ThingDef>
+        <size>(3,3)</size>
+        <costList>
+            <Steel>2000</Steel>
+            <Uranium>500</Uranium>
+        </costList>
+        <hasInteractionCell>False</hasInteractionCell>
+        <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
+        <designationCategory>Misc</designationCategory>
+        <staticSunShadowHeight>0.75</staticSunShadowHeight>
+        <leaveResourcesWhenKilled>true</leaveResourcesWhenKilled>
+    </ThingDef>
 
-	<ThingDef ParentName="BuildingBase">
-		<defName>OffWorldStargate</defName>
-		<label>Off World Stargate</label>
-		<thingClass>Enhanced_Development.Stargate.Building_OffWorldStargate</thingClass>
-		<graphicData>
-			<texPath>Things/Buildings/Stargate</texPath>
-			<graphicClass>Graphic_Single</graphicClass>
-			<drawSize>(3,3)</drawSize>
-		</graphicData>
-		<altitudeLayer>Building</altitudeLayer>
-		<passability>Impassable</passability>
-		<castEdgeShadows>true</castEdgeShadows>
-		<fillPercent>1</fillPercent>
-		<specialDisplayRadius>5</specialDisplayRadius>
-		<tickerType>Rare</tickerType>
-		<uiIconPath>UI/nuke</uiIconPath>
-		<statBases>
-			<WorkToMake>0</WorkToMake>
-			<MaxHitPoints>1000000</MaxHitPoints>
-			<Flammability>0.0</Flammability>
-		</statBases>
-		<description>WARNING: Activating this Gate will cause devastation to all life in the area!</description>
-		<building>
-			<wantsHopperAdjacent>true</wantsHopperAdjacent>
-		</building>
-		<size>(3,3)</size>
-		<costList>
-		</costList>
-		<hasInteractionCell>false</hasInteractionCell>
-		<terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
-		<designationCategory>Misc</designationCategory>
-		<staticSunShadowHeight>0.75</staticSunShadowHeight>
-		<leaveResourcesWhenKilled>false</leaveResourcesWhenKilled>
-	</ThingDef>
+    <ThingDef ParentName="BuildingBase">
+        <defName>OffWorldStargate</defName>
+        <label>Off World Stargate</label>
+        <thingClass>Enhanced_Development.Stargate.Building_OffWorldStargate</thingClass>
+        <graphicData>
+            <texPath>Things/Buildings/Stargate</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawSize>(3,3)</drawSize>
+        </graphicData>
+        <altitudeLayer>Building</altitudeLayer>
+        <passability>Impassable</passability>
+        <castEdgeShadows>true</castEdgeShadows>
+        <fillPercent>1</fillPercent>
+        <specialDisplayRadius>5</specialDisplayRadius>
+        <tickerType>Rare</tickerType>
+        <uiIconPath>UI/nuke</uiIconPath>
+        <statBases>
+            <WorkToMake>0</WorkToMake>
+            <MaxHitPoints>1000000</MaxHitPoints>
+            <Flammability>0.0</Flammability>
+        </statBases>
+        <description>WARNING: Activating this Gate will cause devastation to all life in the area!</description>
+        <building>
+            <wantsHopperAdjacent>true</wantsHopperAdjacent>
+        </building>
+        <size>(3,3)</size>
+        <costList>
+        </costList>
+        <hasInteractionCell>false</hasInteractionCell>
+        <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
+        <designationCategory>Misc</designationCategory>
+        <staticSunShadowHeight>0.75</staticSunShadowHeight>
+        <leaveResourcesWhenKilled>false</leaveResourcesWhenKilled>
+    </ThingDef>
 </Defs>
