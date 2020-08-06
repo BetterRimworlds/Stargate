@@ -232,11 +232,7 @@ namespace Enhanced_Development.Stargate
         #region Graphics-text
         public override string GetInspectString()
         {
-
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine("WARNING: Activating this Gate will cause most Creatures on the map to have a heart attack.");
-
-            return stringBuilder.ToString();
+            return "WARNING: Activating this Gate will cause a huge psionic blast affecting the entire area!";
         }
 
         #endregion

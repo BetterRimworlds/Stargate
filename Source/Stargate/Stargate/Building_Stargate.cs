@@ -570,13 +570,9 @@ namespace Enhanced_Development.Stargate
 
         public override string GetInspectString()
         {
-
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine(base.GetInspectString());
-            stringBuilder.AppendLine("Buffer Items: " + this.listOfBufferThings.Count);
-            stringBuilder.AppendLine("Capacitor Charge: " + this.currentCapacitorCharge + " / " + this.requiredCapacitorCharge);
-
-            return stringBuilder.ToString();
+            return base.GetInspectString() + "\n"
+                + "Buffer Items: " + this.listOfBufferThings.Count + "\n"
+                + "Capacitor Charge: " + this.currentCapacitorCharge + " / " + this.requiredCapacitorCharge;
         }
 
         #endregion
