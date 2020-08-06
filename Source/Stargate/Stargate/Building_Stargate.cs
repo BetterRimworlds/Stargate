@@ -23,14 +23,14 @@ namespace Enhanced_Development.Stargate
         //TODO: Saving the Building
         List<Thing> listOfBufferThings = new List<Thing>();
 
-        private static Texture2D UI_ADD_RESOURCES;
-        private static Texture2D UI_ADD_COLONIST;
+        protected static Texture2D UI_ADD_RESOURCES;
+        protected static Texture2D UI_ADD_COLONIST;
 
-        private static Texture2D UI_GATE_IN;
-        private static Texture2D UI_GATE_OUT;
+        protected static Texture2D UI_GATE_IN;
+        protected static Texture2D UI_GATE_OUT;
 
-        private static Texture2D UI_POWER_UP;
-        private static Texture2D UI_POWER_DOWN;
+        protected static Texture2D UI_POWER_UP;
+        protected static Texture2D UI_POWER_DOWN;
 
         public bool StargateAddResources = true;
         public bool StargateAddUnits = true;
@@ -48,7 +48,7 @@ namespace Enhanced_Development.Stargate
         int requiredCapacitorCharge = 1000;
         int chargeSpeed = 1;
 
-        private Map currentMap;
+        protected Map currentMap;
 
         #endregion
 
@@ -186,6 +186,11 @@ namespace Enhanced_Development.Stargate
             {
                 return (this.currentCapacitorCharge >= this.requiredCapacitorCharge);
             }
+        }
+
+        protected IEnumerable<Gizmo> GetDefaultGizmos()
+        {
+            return base.GetGizmos();
         }
 
         public override IEnumerable<Gizmo> GetGizmos()
@@ -488,56 +493,50 @@ namespace Enhanced_Development.Stargate
             }
         }
 
-        public void StargateRecall()
+        public virtual bool StargateRecall()
         {
-            if (System.IO.File.Exists(this.FileLocationPrimary))
+            if (!System.IO.File.Exists(this.FileLocationPrimary))
             {
-                Messages.Message("Recalling Offworld Teams", MessageTypeDefOf.PositiveEvent);
+                Messages.Message("No Off-world Teams were found", MessageTypeDefOf.RejectInput);
 
-                //List<Thing> inboundBuffer = new List<Thing>();
-                List<Thing> inboundBuffer = (List<Thing>)null;
+                return false;
+            }
 
-                //Log.Message("start list contains: " + inboundBuffer.Count);
-                Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary, this);
-                //Log.Message("end list contains: " + inboundBuffer.Count);
+            Messages.Message("Recalling Off-world Teams", MessageTypeDefOf.PositiveEvent);
 
-                foreach (Thing currentThing in inboundBuffer)
+            //List<Thing> inboundBuffer = new List<Thing>();
+            List<Thing> inboundBuffer = (List<Thing>)null;
+
+            //Log.Message("start list contains: " + inboundBuffer.Count);
+            Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary, this);
+            //Log.Message("end list contains: " + inboundBuffer.Count);
+
+            foreach (Thing currentThing in inboundBuffer)
+            {
+                //Log.Message("Placing Thing");
+                if (currentThing.def.CanHaveFaction)
                 {
-                    //Log.Message("Placing Thing");
-
-                    //Setup the New ID for the Thing
-                    currentThing.thingIDNumber = -1;
-                    Verse.ThingIDMaker.GiveIDTo(currentThing);
-
-                    if (currentThing.def.CanHaveFaction)
-                    {
-                        currentThing.SetFactionDirect(RimWorld.Faction.OfPlayer);
-                    }
-
-                    // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
-                    // if they enter a Stargate after they've ever been drafted.
-                    if (currentThing is Pawn pawn && pawn.IsColonist)
-                    {
-                        pawn.verbTracker = new VerbTracker(pawn);
-                    }
-
-                    GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near);
+                    currentThing.SetFactionDirect(Faction.OfPlayer);
                 }
-                //Log.Message("End of Placing");
-                inboundBuffer.Clear();
+                
+                // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
+                // if they enter a Stargate after they've ever been drafted.
+                if (currentThing is Pawn pawn && pawn.IsColonist)
+                {
+                    pawn.verbTracker = new VerbTracker(pawn);
+                }
 
-                // Tell the MapDrawer that here is something thats changed
-                Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
-
-                this.MoveToBackup();
-
+                GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near);
             }
-            else
-            {
+            //Log.Message("End of Placing");
+            inboundBuffer.Clear();
 
-                Messages.Message("No Offworld Teams Found", MessageTypeDefOf.RejectInput);
-                //Log.Message("Building_Stargate.StargateIncomingWormhole() unable to find file at FileLocationPrimary");
-            }
+            // Tell the MapDrawer that here is something thats changed
+            Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
+
+            this.MoveToBackup();
+
+            return true;
         }
 
         private void PowerRateIncrease()

@@ -122,7 +122,9 @@ namespace Enhanced_Development.Stargate
                 Messages.Message("BOOOOM!", MessageTypeDefOf.ThreatBig);
 
                 this.Destroy(DestroyMode.Vanish);
-                GenSpawn.Spawn(ThingDef.Named("Stargate"), this.Position, this.currentMap);
+                Building stargate = (Building)GenSpawn.Spawn(ThingDef.Named("TransdimensionalStargate"), this.Position, this.currentMap);
+                stargate.SetFactionDirect(Faction.OfPlayer);
+                this.currentMap.listerBuildings.Add(stargate);
 
                 foreach (Pawn pawn in Find.CurrentMap.mapPawns.AllPawns.ToList())
                 {

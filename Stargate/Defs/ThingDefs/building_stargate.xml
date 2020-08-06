@@ -60,7 +60,7 @@
 
     <ThingDef ParentName="BuildingBase">
         <defName>OffWorldStargate</defName>
-        <label>Off World Stargate</label>
+        <label>Off-world Stargate</label>
         <thingClass>Enhanced_Development.Stargate.Building_OffWorldStargate</thingClass>
         <graphicData>
             <texPath>Things/Buildings/Stargate</texPath>
@@ -89,6 +89,48 @@
         <hasInteractionCell>false</hasInteractionCell>
         <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
         <designationCategory>Misc</designationCategory>
+        <staticSunShadowHeight>0.75</staticSunShadowHeight>
+        <leaveResourcesWhenKilled>false</leaveResourcesWhenKilled>
+    </ThingDef>
+
+    <ThingDef Class="Enhanced_Development.Stargate.StargateThingDef" ParentName="BuildingBase">
+        <defName>TransdimensionalStargate</defName>
+        <label>Transdimensional Stargate</label>
+        <description>This Transdimensional Stargate gan only recall an Offworld Team once.</description>
+        <thingClass>Enhanced_Development.Stargate.Building_TransdimensionalStargate</thingClass>
+        <graphicData>
+            <texPath>Things/Buildings/Stargate</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawSize>(3,3)</drawSize>
+        </graphicData>
+        <altitudeLayer>Building</altitudeLayer>
+        <passability>Impassable</passability>
+        <castEdgeShadows>true</castEdgeShadows>
+        <fillPercent>1</fillPercent>
+        <specialDisplayRadius>3</specialDisplayRadius>
+        <tickerType>Rare</tickerType>
+        <FileLocationPrimary></FileLocationPrimary>
+        <FileLocationSecondary></FileLocationSecondary>
+        <statBases>
+            <WorkToMake>30000</WorkToMake>
+            <MaxHitPoints>1000000</MaxHitPoints>
+            <Flammability>0.0</Flammability>
+        </statBases>
+        <researchPrerequisites>
+            <li>Building_Stargate_research</li>
+        </researchPrerequisites>
+        <building>
+            <wantsHopperAdjacent>true</wantsHopperAdjacent>
+        </building>
+        <size>(3,3)</size>
+        <costList>
+            <Plasteel>20000000</Plasteel>
+            <Uranium>500000000</Uranium>
+            <ComponentIndustrial>500000</ComponentIndustrial>
+            <ComponentSpacer>500000</ComponentSpacer>
+        </costList>
+        <hasInteractionCell>False</hasInteractionCell>
+        <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
         <staticSunShadowHeight>0.75</staticSunShadowHeight>
         <leaveResourcesWhenKilled>false</leaveResourcesWhenKilled>
     </ThingDef>
