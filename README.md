@@ -16,10 +16,10 @@ The Stargate system allows you to transport materials over the great distances b
 * Fixing crash when loading with Stargates that locally have things in the Buffer.
 
 02.00.00
-*Alpha 14 Update
+* Alpha 14 Update
 
 02.00.01
-*Fix for potentially not loading Graphical Resources on loading a saved game.
+* Fix for potentially not loading Graphical Resources on loading a saved game.
 
 02.00.02
 * Building against 1249
@@ -53,6 +53,9 @@ The Stargate system allows you to transport materials over the great distances b
 * Fixed the "inspect string for * contains empty lines" console error.
 * Fixed all of the "can't assign items to a faction" error messages.
 * Fixed the bug since B19 where colonists went *crazy* if they had ever been drafted.
+
+05.00.00
+* Made the Stargate research much more difficult to achieve.
 
 ## Contributors
 
