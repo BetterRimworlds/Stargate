@@ -1,22 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ResearchProjectDefs>
-
-	<ResearchProjectDef>
-		<defName>Building_Stargate_research</defName>
-		<label>Stargate Astro Navigation</label>
-		<description>
-By studying the symbols on the device you have discovered and cross-referencing with stellar constellations you have found out how to activate it and travel to other locations.
-		</description>
-		<baseCost>2000</baseCost>
-		<techLevel>Spacer</techLevel>
-		<prerequisites></prerequisites>
-	</ResearchProjectDef>
-	
-</ResearchProjectDefs>
-
-<!--
-    <prerequisites>
-      <li>Building_Stargate_research</li>
-    </prerequisites>
-	
--->
+<Defs>
+    <ResearchProjectDef>
+        <defName>Building_Stargate_research</defName>
+        <label>Stargate Astro Navigation</label>
+        <description>By studying the symbols on the device you have discovered and cross-referencing with stellar constellations you have found out how to activate it and travel to other locations.</description>
+        <baseCost>10000</baseCost>
+        <techLevel>Spacer</techLevel>
+        <prerequisites></prerequisites>
+    </ResearchProjectDef>
+</Defs>

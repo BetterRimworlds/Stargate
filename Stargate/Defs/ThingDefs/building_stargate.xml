@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ThingDefs>
-
+<Defs>
 	<ThingDef Name="BuildingBase" Abstract="True">
 		<category>Building</category>
-		<soundImpactDefault>BulletImpactMetal</soundImpactDefault>
+		<soundImpactDefault>BulletImpact_Metal</soundImpactDefault>
 		<selectable>true</selectable>
 		<drawerType>MapMeshAndRealTime</drawerType>
 		<terrainAffordanceNeeded>Light</terrainAffordanceNeeded>
 		<repairEffect>Repair</repairEffect>
-		<leaveResourcesWhenKilled>true</leaveResourcesWhenKilled>
-		<filthLeaving>BuildingRubble</filthLeaving>
 	</ThingDef>
 
 	<ThingDef Class="Enhanced_Development.Stargate.StargateThingDef" ParentName="BuildingBase">
@@ -44,7 +41,7 @@
     <comps>
       <li Class="CompProperties_Power">
         <compClass>CompPowerTrader</compClass>
-        <startElectricalFires>true</startElectricalFires>
+        <shortCircuitInRain>false</shortCircuitInRain>
         <basePowerConsumption>1600</basePowerConsumption>
       </li>
       <li Class="CompProperties_Flickable"/>
@@ -58,6 +55,7 @@
 		<terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
 		<designationCategory>Misc</designationCategory>
 		<staticSunShadowHeight>0.75</staticSunShadowHeight>
+		<leaveResourcesWhenKilled>true</leaveResourcesWhenKilled>
 	</ThingDef>
 
 	<ThingDef ParentName="BuildingBase">
@@ -79,9 +77,9 @@
 		<statBases>
 			<WorkToMake>0</WorkToMake>
 			<MaxHitPoints>1000000</MaxHitPoints>
-			<Flammability>1.0</Flammability>
+			<Flammability>0.0</Flammability>
 		</statBases>
-		<description>WARNING: Activating this Gate will remove all Colonists from the Map, but will create a gate for other teams to arrive from.</description>
+		<description>WARNING: Activating this Gate will cause devastation to all life in the area!</description>
 		<building>
 			<wantsHopperAdjacent>true</wantsHopperAdjacent>
 		</building>
@@ -92,6 +90,6 @@
 		<terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
 		<designationCategory>Misc</designationCategory>
 		<staticSunShadowHeight>0.75</staticSunShadowHeight>
+		<leaveResourcesWhenKilled>false</leaveResourcesWhenKilled>
 	</ThingDef>
-
-</ThingDefs>
+</Defs>

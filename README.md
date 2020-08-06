@@ -48,6 +48,9 @@ The Stargate system allows you to transport materials over the great distances b
 04.03.00
 * Beta 19 Update (v0.19.2009)
 
+04.04.00
+* v1.0 Update (v1.0.2559)
+
 ## Contributors
 
 This mod is forked off of the incredible engineering work by Jaxxa in his [**ED-Stargate mod**](https://github.com/jaxxa/ED-Stargate).
