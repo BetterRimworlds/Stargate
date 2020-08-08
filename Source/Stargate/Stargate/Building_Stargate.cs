@@ -310,25 +310,17 @@ namespace Enhanced_Development.Stargate
 
                 if (closePawns != null)
                 {
-                    foreach (Pawn currentPawn in closePawns.ToList())
+                    foreach (Pawn pawn in closePawns.ToList())
                     {
-                        if (currentPawn.Spawned)
-                        {
-                            // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
-                            // if they enter a Stargate after they've ever been drafted.
-                            if (currentPawn.verbTracker != null)
-                            {
-                                currentPawn.verbTracker = new VerbTracker(currentPawn);
-                            }
+                        if (!pawn.Spawned) continue;
 
-                            List<Thing> thingList = new List<Thing>();
-                            listOfBufferThings.Add(currentPawn);
-                            currentPawn.DeSpawn();
-                            //currentPawn.outfits.CurrentOutfit = null;
-                            int tempHealth = currentPawn.HitPoints;
-                            //currentPawn.Destroy(DestroyMode.Vanish);
-                            currentPawn.HitPoints = tempHealth;
-                        }
+                        // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
+                        // if they enter a Stargate after they've ever been drafted.
+                        pawn.verbTracker = new VerbTracker(pawn);
+                        pawn.meleeVerbs = new Pawn_MeleeVerbs(pawn);
+
+                        pawn.DeSpawn();
+                        listOfBufferThings.Add(pawn);
                     }
                 }
 
