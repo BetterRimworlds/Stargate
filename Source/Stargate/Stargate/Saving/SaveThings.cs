@@ -40,10 +40,14 @@ namespace Enhanced_Development.Stargate.Saving
 
         public static void load(ref List<Thing> thingsToLoad, string fileLocation, Thing currentSource)
         {
-            Log.Message("ScribeINIT, loding from:" + fileLocation);
+            Log.Message("ScribeINIT, loading from:" + fileLocation);
             Scribe.loader.InitLoading(fileLocation);
 
             //Scribe.EnterNode("Stargate");
+
+            // Reset all of the load IDs to avoid "Cannot register X (id=Y in loaded object directory. Id already used by X)
+            var loadedObjectDirectory = new LoadedObjectDirectory();
+            loadedObjectDirectory.Clear();
 
             Log.Message("DeepProfiler.Start()");
             DeepProfiler.Start("Load non-compressed things");

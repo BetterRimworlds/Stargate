@@ -9,7 +9,7 @@ namespace Stargate
 {
     class PlaceWorker_OnlyOneStargate : PlaceWorker_OnlyOneBuilding
     {
-        public override AcceptanceReport AllowsPlacing(BuildableDef checkingDef, IntVec3 loc, Rot4 rot, Map map, Thing thingToIgnore = null)
+        public override AcceptanceReport AllowsPlacing(BuildableDef checkingDef, IntVec3 loc, Rot4 rot, Map map, Thing thingToIgnore = null, Thing thing = null)
         {
             //Messages.Message("Has transdimensional? " + map.listerBuildings.ColonistsHaveBuilding(ThingDef.Named("TransdimensionalStargate")), MessageTypeDefOf.NeutralEvent);
             List<Thing> blueprints = map.listerThings.ThingsOfDef(checkingDef.blueprintDef);

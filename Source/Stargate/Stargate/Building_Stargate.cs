@@ -1,18 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Verse;
 using UnityEngine;
 using RimWorld;
 
 namespace Enhanced_Development.Stargate
 {
-
     [StaticConstructorOnStartup]
     class Building_Stargate : Building
     {
-
         #region Constants
 
         const int ADDITION_DISTANCE = 3;
@@ -317,10 +314,11 @@ namespace Enhanced_Development.Stargate
                         // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
                         // if they enter a Stargate after they've ever been drafted.
                         pawn.verbTracker = new VerbTracker(pawn);
-                        pawn.meleeVerbs = new Pawn_MeleeVerbs(pawn);
-
-                        pawn.DeSpawn();
+                        //pawn.meleeVerbs = new Pawn_MeleeVerbs(pawn);
+                        pawn.meleeVerbs = null;
+                        
                         listOfBufferThings.Add(pawn);
+                        pawn.DeSpawn();
                     }
                 }
 
@@ -330,6 +328,25 @@ namespace Enhanced_Development.Stargate
             else
             {
                 Messages.Message("Insufficient Power to add Colonist", MessageTypeDefOf.RejectInput);
+            }
+        }
+
+        private void cleanseParadoxicalMemories(Pawn pawn, Dictionary<string, string> knownPawnIDs)
+        {
+            // if (pawn.needs == null || pawn.needs.mood == null || pawn.needs.mood.thoughts == null || pawn.needs.mood.thoughts.memories == null)
+            if (pawn?.needs?.mood?.thoughts?.memories == null)
+            {
+                return;
+            }
+
+            // Remove any crazy-making memories from a now-invalid timeline due to traveling across an Einstein-Rosen bridge
+            // (basically, selective amnesia about everyone not going with us.)
+            foreach (var paradox in pawn.needs.mood.thoughts.memories.Memories.ToList())
+            {
+                if (paradox.otherPawn != null)
+                {
+                    pawn.needs.mood.thoughts.memories.RemoveMemory(paradox);
+                }
             }
         }
 
@@ -343,6 +360,24 @@ namespace Enhanced_Development.Stargate
                 }
                 else
                 {
+                    var knownPawnIDs = new Dictionary<string, string>();
+                    // foreach (var thing in listOfBufferThings)
+                    // {
+                    //     if (thing is Pawn pawn)
+                    //     {
+                    //         knownPawnIDs.Add(thing.ThingID, pawn.Name.ToStringFull);
+                    //     }
+                    // }
+
+                    //Log.Error("Known Pawns: " + string.Join("; ", knownPawnIDs.Select(x => x.Key + "=" + x.Value)));
+                    foreach (var thing in listOfBufferThings)
+                    {
+                        if (thing is Pawn pawn)
+                        {
+                            this.cleanseParadoxicalMemories(pawn, knownPawnIDs);
+                        }
+                    }
+
                     Enhanced_Development.Stargate.Saving.SaveThings.save(listOfBufferThings, this.FileLocationPrimary, this);
 
                     this.listOfBufferThings.Clear();
@@ -384,7 +419,7 @@ namespace Enhanced_Development.Stargate
                 {
                     currentThing.SetFactionDirect(Faction.OfPlayer);
                 }
-                
+
                 // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
                 // if they enter a Stargate after they've ever been drafted.
                 if (currentThing is Pawn pawn && pawn.IsColonist)
@@ -392,7 +427,12 @@ namespace Enhanced_Development.Stargate
                     pawn.verbTracker = new VerbTracker(pawn);
                 }
 
-                GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near);
+                GenPlace.TryPlaceThing(
+                    currentThing,
+                    this.Position + new IntVec3(0, 0, -2),
+                    this.currentMap,
+                    ThingPlaceMode.Near
+                );
             }
 
             inboundBuffer.Clear();
