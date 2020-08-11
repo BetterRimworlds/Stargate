@@ -314,8 +314,8 @@ namespace Enhanced_Development.Stargate
                         // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
                         // if they enter a Stargate after they've ever been drafted.
                         pawn.verbTracker = new VerbTracker(pawn);
-                        //pawn.meleeVerbs = new Pawn_MeleeVerbs(pawn);
-                        pawn.meleeVerbs = null;
+                        // pawn.meleeVerbs = new Pawn_MeleeVerbs(pawn);
+                        //pawn.meleeVerbs = null;
                         
                         listOfBufferThings.Add(pawn);
                         pawn.DeSpawn();
