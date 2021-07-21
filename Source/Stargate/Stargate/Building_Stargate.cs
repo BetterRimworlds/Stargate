@@ -10,7 +10,7 @@ using Verse.AI;
 namespace Enhanced_Development.Stargate
 {
     [StaticConstructorOnStartup]
-    class Building_Stargate : Building, IThingHolder
+    class Building_Stargate : Building_Storage, IThingHolder
     {
 
         #region Constants
