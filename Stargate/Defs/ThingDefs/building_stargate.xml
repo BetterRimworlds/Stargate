@@ -50,9 +50,13 @@
         <costList>
             <Steel>2000</Steel>
             <Uranium>500</Uranium>
+            <Plasteel>2000</Plasteel>
+            <Gold>2000</Gold>
+            <AIPersonaCore>1</AIPersonaCore>
             <ComponentIndustrial>5</ComponentIndustrial>
-            <ComponentSpacer>5</ComponentSpacer>
+            <ComponentSpacer>25</ComponentSpacer>
         </costList>
+        <constructionSkillPrerequisite>15</constructionSkillPrerequisite>
         <hasInteractionCell>False</hasInteractionCell>
         <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
         <designationCategory>Misc</designationCategory>
