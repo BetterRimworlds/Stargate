@@ -157,7 +157,8 @@ namespace Enhanced_Development.Stargate
                 currentCapacitorCharge += chargeSpeed;
             }
 
-            if (currentCapacitorCharge > requiredCapacitorCharge)
+            // Stop using power if it's full.
+            if (currentCapacitorCharge >= requiredCapacitorCharge)
             {
                 currentCapacitorCharge = requiredCapacitorCharge;
             }
@@ -522,6 +523,12 @@ namespace Enhanced_Development.Stargate
             return true;
         }
 
+        private void PowerStopUsing()
+        {
+            this.chargeSpeed = 0;
+            this.updatePowerDrain();
+        }
+
         private void PowerRateIncrease()
         {
             this.chargeSpeed += 1;
@@ -558,6 +565,7 @@ namespace Enhanced_Development.Stargate
                 }
             }
         }
+
         public override string GetInspectString()
         {
             return base.GetInspectString() + "\n"
