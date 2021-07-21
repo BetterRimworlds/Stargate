@@ -5,6 +5,7 @@ using System.Text;
 using Verse;
 using UnityEngine;
 using RimWorld;
+using Verse.AI;
 
 namespace Enhanced_Development.Stargate
 {
@@ -321,6 +322,12 @@ namespace Enhanced_Development.Stargate
                                 currentPawn.verbTracker = new VerbTracker(currentPawn);
                             }
 
+                            // Remove memories or they will go insane...
+                            if (currentPawn.def.defName == "Human")
+                            {
+                                currentPawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(currentPawn);
+                            }
+
                             List<Thing> thingList = new List<Thing>();
                             listOfBufferThings.Add(currentPawn);
                             currentPawn.DeSpawn();
@@ -387,7 +394,15 @@ namespace Enhanced_Development.Stargate
             {
                 currentThing.thingIDNumber = -1;
                 Verse.ThingIDMaker.GiveIDTo(currentThing);
-                
+
+                // If it's an equippable object, like a gun, reset its verbs or ANY colonist that equips it *will* go insane...
+                // This is actually probably the root cause of Colonist Insanity (holding an out-of-phase item with IDs belonging
+                // to an alternate dimension). This is the equivalent of how Olivia goes insane in the TV series Fringe.
+                if (currentThing is ThingWithComps item)
+                {
+                    item.InitializeComps();
+                }
+
                 if (currentThing.def.CanHaveFaction)
                 {
                     currentThing.SetFactionDirect(Faction.OfPlayer);
@@ -395,9 +410,81 @@ namespace Enhanced_Development.Stargate
                 
                 // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
                 // if they enter a Stargate after they've ever been drafted.
-                if (currentThing is Pawn pawn && pawn.IsColonist)
+                if (currentThing is Pawn pawn)
                 {
-                    pawn.verbTracker = new VerbTracker(pawn);
+                    if (pawn.IsColonist)
+                    {
+                        pawn.verbTracker = new VerbTracker(pawn);
+                        pawn.carryTracker = new Pawn_CarryTracker(pawn);
+                        pawn.rotationTracker = new Pawn_RotationTracker(pawn);
+                        pawn.thinker = new Pawn_Thinker(pawn);
+                        pawn.mindState = new Pawn_MindState(pawn);
+                        pawn.jobs = new Pawn_JobTracker(pawn);
+                        pawn.ownership = new Pawn_Ownership(pawn);
+                        pawn.drafter = new Pawn_DraftController(pawn);
+                        pawn.health = new Pawn_HealthTracker(pawn);
+                        pawn.natives = null;
+                        // pawn.outfits = new Pawn_OutfitTracker(pawn);
+                        pawn.pather = new Pawn_PathFollower(pawn);
+                        // pawn.records = new Pawn_RecordsTracker(pawn);
+                        pawn.relations = new Pawn_RelationsTracker(pawn);
+                        pawn.caller = new Pawn_CallTracker(pawn);
+                        // pawn.needs = new Pawn_NeedsTracker(pawn);
+                        pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
+                        pawn.interactions = new Pawn_InteractionsTracker(pawn);
+                        pawn.stances = new Pawn_StanceTracker(pawn);
+                        // pawn.story = new Pawn_StoryTracker(pawn);
+                        // pawn.playerSettings = new Pawn_PlayerSettings(pawn);
+                        // pawn.psychicEntropy = new Pawn_PsychicEntropyTracker(pawn);
+                        // pawn.workSettings = new Pawn_WorkSettings(pawn);
+
+                        pawn.meleeVerbs = new Pawn_MeleeVerbs(pawn);
+
+                        pawn.skills.SkillsTick();
+                        // Reset Skills Since Midnight.
+                        foreach (SkillRecord skill in pawn.skills.skills)
+                        {
+                            skill.xpSinceMidnight = 0;
+                            //lastXpSinceMidnightResetTimestamp
+                            
+                        }
+                    }
+
+                    if (pawn.RaceProps.ToolUser)
+                    {
+                        if (pawn.equipment == null)
+                            pawn.equipment = new Pawn_EquipmentTracker(pawn);
+                        if (pawn.apparel == null)
+                            pawn.apparel = new Pawn_ApparelTracker(pawn);
+
+                        // Reset their equipped weapon's verbTrackers as well, or they'll go insane if they're carrying an out-of-phase weapon...
+                        if (pawn.equipment.Primary != null)
+                        {
+                            pawn.equipment.Primary.InitializeComps();
+                            pawn.equipment.PrimaryEq.verbTracker = new VerbTracker(pawn);
+                            // pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
+                        }
+
+                        // Quickly draft and undraft the Colonist. This will cause them to become aware of the newly-in-phase weapon they are holding,
+                        // if any. This is effectively the cure of Stargate Insanity.
+                        pawn.drafter.Drafted = true;
+                        pawn.drafter.Drafted = false;
+
+                    }               
+
+                    // Remove memories or they will go insane...
+                    if (pawn.RaceProps.Humanlike)
+                    {
+                        pawn.guest = new Pawn_GuestTracker(pawn);
+                        pawn.guilt = new Pawn_GuiltTracker(pawn);
+                        pawn.abilities = new Pawn_AbilityTracker(pawn);
+                        pawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(pawn);
+                    }
+                    
+                    // Give them a brief psychic shock so that they will be given proper Melee Verbs and not act like a Visitor.
+                    // Hediff shock = HediffMaker.MakeHediff(HediffDefOf.PsychicShock, pawn, null);
+                    // pawn.health.AddHediff(shock, null, null);
+                    PawnComponentsUtility.AddAndRemoveDynamicComponents(pawn, true);
                 }
 
                 GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near);
