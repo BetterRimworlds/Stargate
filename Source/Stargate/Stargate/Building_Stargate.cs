@@ -381,13 +381,38 @@ namespace Enhanced_Development.Stargate
             return this.stargateBuffer.Count > 0;
         }
 
+        public List<Thing> Teleport()
+        {
+            var itemsToTeleport = new List<Thing>();
+            itemsToTeleport.AddRange(this.stargateBuffer);
+            this.stargateBuffer.Clear();
+
+            // Tell the MapDrawer that here is something thats changed
+            Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
+
+            this.currentCapacitorCharge -= this.requiredCapacitorCharge;
+
+            return itemsToTeleport;
+        }
+
         public virtual bool StargateRecall()
         {
-            if (!System.IO.File.Exists(this.FileLocationPrimary))
+            // List<Thing> inboundBuffer = (List<Thing>)null;
+            var inboundBuffer = new List<Thing>();
+            Log.Message("Number of stargates on this planet: " + GateNetwork.Count);
+            // See if any of the stargates on this planet (including this gate) have items in their buffer...
+            // and if so, recall them here.
+            // @FIXME: Use  DefDatabase<ThingDef>.AllDefs.Where((ThingDef def) => typeof(Building_Stargate)
+            foreach (var stargate in GateNetwork)
             {
-                Messages.Message("No Off-world Teams were found", MessageTypeDefOf.RejectInput);
+                Log.Message("Found a Stargate with the ID of " + stargate.ThingID);
+                if (!stargate.HasThingsInBuffer())
+                {
+                    continue;
+                }
 
-                return false;
+                Log.Warning($"Stargate {stargate.ThingID} has something in its buffer.");
+                inboundBuffer.AddRange(stargate.Teleport());
             }
 
             // Load off-world teams only if there isn't a local teleportation taking place.
