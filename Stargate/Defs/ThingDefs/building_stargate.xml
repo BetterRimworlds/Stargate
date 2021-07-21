@@ -27,7 +27,7 @@
         <FileLocationPrimary></FileLocationPrimary>
         <FileLocationSecondary></FileLocationSecondary>
         <statBases>
-            <WorkToMake>30000</WorkToMake>
+            <WorkToBuild>30000</WorkToBuild>
             <MaxHitPoints>1000000</MaxHitPoints>
             <Flammability>0.0</Flammability>
         </statBases>
@@ -77,7 +77,7 @@
         <tickerType>Rare</tickerType>
         <uiIconPath>UI/nuke</uiIconPath>
         <statBases>
-            <WorkToMake>0</WorkToMake>
+            <WorkToBuild>0</WorkToBuild>
             <MaxHitPoints>1000000</MaxHitPoints>
             <Flammability>0.0</Flammability>
         </statBases>
