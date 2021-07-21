@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using BetterRimworlds.Stargate;
 using Verse;
 using UnityEngine;
 using RimWorld;
@@ -9,9 +9,8 @@ using Verse.AI;
 
 namespace Enhanced_Development.Stargate
 {
-
     [StaticConstructorOnStartup]
-    class Building_Stargate : Building
+    class Building_Stargate : Building, IThingHolder
     {
 
         #region Constants
@@ -19,6 +18,8 @@ namespace Enhanced_Development.Stargate
         const int ADDITION_DISTANCE = 3;
 
         #endregion
+
+        protected StargateBuffer stargateBuffer = new StargateBuffer();
 
         #region Variables
         //TODO: Saving the Building
@@ -52,6 +53,8 @@ namespace Enhanced_Development.Stargate
         protected Map currentMap;
 
         #endregion
+
+        public Building_Stargate() : base() { }
 
         static Building_Stargate()
         {
@@ -117,9 +120,12 @@ namespace Enhanced_Development.Stargate
                     System.IO.Directory.CreateDirectory(Verse.GenFilePaths.SaveDataFolderPath + @"\Stargate\");
                 }
             }
-
-
         }
+
+        // For displaying contents to the user.
+        public ThingOwner GetDirectlyHeldThings() => this.stargateBuffer;
+
+        public void GetChildHolders(List<IThingHolder> outChildren) => ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, (IList<Thing>) this.GetDirectlyHeldThings());
 
         // Saving game
         public override void ExposeData()
@@ -282,8 +288,7 @@ namespace Enhanced_Development.Stargate
                     {
                         List<Thing> thingList = new List<Thing>();
                         //thingList.Add(foundThing);
-                        listOfBufferThings.Add(foundThing);
-                        foundThing.DeSpawn();
+                        this.stargateBuffer.TryAdd(foundThing);
 
                         //Building_OrbitalRelay.listOfThingLists.Add(thingList);
 
@@ -328,13 +333,7 @@ namespace Enhanced_Development.Stargate
                                 currentPawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(currentPawn);
                             }
 
-                            List<Thing> thingList = new List<Thing>();
-                            listOfBufferThings.Add(currentPawn);
-                            currentPawn.DeSpawn();
-                            //currentPawn.outfits.CurrentOutfit = null;
-                            int tempHealth = currentPawn.HitPoints;
-                            //currentPawn.Destroy(DestroyMode.Vanish);
-                            currentPawn.HitPoints = tempHealth;
+                            this.stargateBuffer.TryAdd(currentPawn);
                         }
                     }
                 }
@@ -350,28 +349,30 @@ namespace Enhanced_Development.Stargate
 
         public void StargateDialOut()
         {
-            if (this.fullyCharged)
-            {
-                if (System.IO.File.Exists(this.FileLocationPrimary))
-                {
-                    Messages.Message("Please Recall Offworld Teams First", MessageTypeDefOf.RejectInput);
-                }
-                else
-                {
-                    Enhanced_Development.Stargate.Saving.SaveThings.save(listOfBufferThings, this.FileLocationPrimary, this);
-
-                    this.listOfBufferThings.Clear();
-
-                    // Tell the MapDrawer that here is something thats changed
-                    Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
-
-                    this.currentCapacitorCharge -= this.requiredCapacitorCharge;
-                }
-            }
-            else
+            if (!this.fullyCharged)
             {
                 Messages.Message("Insufficient power to establish connection.", MessageTypeDefOf.RejectInput);
+                return;
             }
+
+            if (System.IO.File.Exists(this.FileLocationPrimary))
+            {
+                Messages.Message("Please Recall Offworld Teams First", MessageTypeDefOf.RejectInput);
+                return;
+            }
+
+            Enhanced_Development.Stargate.Saving.SaveThings.save(this.stargateBuffer.ToList(), this.FileLocationPrimary, this);
+            this.stargateBuffer.Clear();
+
+            // Tell the MapDrawer that here is something thats changed
+            Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
+
+            this.currentCapacitorCharge -= this.requiredCapacitorCharge;
+        }
+
+        public bool HasThingsInBuffer()
+        {
+            return this.stargateBuffer.Count > 0;
         }
 
         public virtual bool StargateRecall()
@@ -383,12 +384,25 @@ namespace Enhanced_Development.Stargate
                 return false;
             }
 
-            Messages.Message("Recalling Off-world Teams", MessageTypeDefOf.PositiveEvent);
+            // Load off-world teams only if there isn't a local teleportation taking place.
+            bool offworldEvent = this.stargateBuffer.Count == 0;
+            // Log.Warning("Is offworldEvent? " + this.stargateBuffer.Count);
+            // Log.Warning("Inbound Buffer Count? " + inboundBuffer.Count);
+            if (offworldEvent && !inboundBuffer.Any())
+            {
+                // Log.Warning("Found an off-world wormhole.");
+                if (!System.IO.File.Exists(this.FileLocationPrimary))
+                {
+                    Messages.Message("No Off-world Teams were found", MessageTypeDefOf.RejectInput);
 
-            //List<Thing> inboundBuffer = new List<Thing>();
-            List<Thing> inboundBuffer = (List<Thing>)null;
+                    return false;
+                }
 
-            Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary, this);
+                Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary, this);
+                // Log.Warning("Number of items in the wormhole: " + inboundBuffer.Count);
+            }
+
+            Messages.Message("Incoming wormhole!", MessageTypeDefOf.PositiveEvent);
 
             foreach (Thing currentThing in inboundBuffer)
             {
@@ -495,7 +509,10 @@ namespace Enhanced_Development.Stargate
             // Tell the MapDrawer that here is something that's changed
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
 
-            this.MoveToBackup();
+            if (offworldEvent)
+            {
+                // this.MoveToBackup();
+            }
 
             return true;
         }
@@ -525,7 +542,7 @@ namespace Enhanced_Development.Stargate
         {
             get
             {
-                if (this.listOfBufferThings.Count > 0)
+                if (this.HasThingsInBuffer())
                 {
                     return Building_Stargate.graphicActive;
                 }
