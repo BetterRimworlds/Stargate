@@ -19,6 +19,7 @@ namespace Enhanced_Development.Stargate
 
         #endregion
 
+        private static List<Building_Stargate> GateNetwork = new List<Building_Stargate>();
         protected StargateBuffer stargateBuffer = new StargateBuffer();
 
         #region Variables
@@ -120,6 +121,10 @@ namespace Enhanced_Development.Stargate
                     System.IO.Directory.CreateDirectory(Verse.GenFilePaths.SaveDataFolderPath + @"\Stargate\");
                 }
             }
+
+            // Register this gate in the Gate Network.
+            Log.Warning($"Registering this Gate ({this.ThingID}) in the Gate Network.");
+            GateNetwork.Add(this);
         }
 
         // For displaying contents to the user.
