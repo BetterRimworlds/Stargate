@@ -290,7 +290,7 @@ namespace Enhanced_Development.Stargate
 
                 if (foundThing != null)
                 {
-                    if (foundThing.Spawned)
+                    if (foundThing.Spawned && this.stargateBuffer.Count < 500)
                     {
                         List<Thing> thingList = new List<Thing>();
                         //thingList.Add(foundThing);
@@ -594,7 +594,7 @@ namespace Enhanced_Development.Stargate
         public override string GetInspectString()
         {
             return base.GetInspectString() + "\n"
-                + "Buffer Items: " + this.listOfBufferThings.Count + "\n"
+                + "Buffer Items: " + this.stargateBuffer.Count + " / 500\n"
                 + "Capacitor Charge: " + this.currentCapacitorCharge + " / " + this.requiredCapacitorCharge;
         }
 
