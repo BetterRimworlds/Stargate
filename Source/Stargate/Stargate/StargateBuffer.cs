@@ -7,6 +7,12 @@ namespace BetterRimworlds.Stargate
     {
         List<Thing> bufferedThingsList = new List<Thing>();
 
+        public StargateBuffer(IThingHolder owner): base(owner)
+        {
+            this.maxStacks = 999999;
+            this.contentsLookMode = LookMode.Deep;
+        }
+        
         public override int Count
         {
             get

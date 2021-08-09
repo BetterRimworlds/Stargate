@@ -20,11 +20,9 @@ namespace Enhanced_Development.Stargate
         #endregion
 
         private static List<Building_Stargate> GateNetwork = new List<Building_Stargate>();
-        protected StargateBuffer stargateBuffer = new StargateBuffer();
+        protected StargateBuffer stargateBuffer;
 
         #region Variables
-        //TODO: Saving the Building
-        List<Thing> listOfBufferThings = new List<Thing>();
 
         protected static Texture2D UI_ADD_RESOURCES;
         protected static Texture2D UI_ADD_COLONIST;
@@ -55,8 +53,6 @@ namespace Enhanced_Development.Stargate
 
         #endregion
 
-        public Building_Stargate() : base() { }
-
         static Building_Stargate()
         {
             UI_ADD_RESOURCES = ContentFinder<Texture2D>.Get("UI/ADD_RESOURCES", true);
@@ -78,6 +74,11 @@ namespace Enhanced_Development.Stargate
 
             graphicInactive = new Graphic_Single();
             graphicInactive.Init(requestInactive);
+        }
+
+        public Building_Stargate()
+        {
+            this.stargateBuffer = new StargateBuffer(this);
         }
 
         #region Override
@@ -125,6 +126,8 @@ namespace Enhanced_Development.Stargate
             // Register this gate in the Gate Network.
             Log.Warning($"Registering this Gate ({this.ThingID}) in the Gate Network.");
             GateNetwork.Add(this);
+            
+            Log.Warning("Found some things in the stargate's buffer: " + this.stargateBuffer.Count);
         }
 
         // For displaying contents to the user.
@@ -141,7 +144,10 @@ namespace Enhanced_Development.Stargate
             Scribe_Values.Look<int>(ref requiredCapacitorCharge, "requiredCapacitorCharge");
             Scribe_Values.Look<int>(ref chargeSpeed, "chargeSpeed");
 
-            Scribe_Collections.Look<Thing>(ref listOfBufferThings, "listOfBufferThings", LookMode.Deep);
+            Scribe_Deep.Look<StargateBuffer>(ref this.stargateBuffer, "stargateBuffer", new object[]
+            {
+                this
+            });
         }
 
         protected void BaseTickRare()
@@ -417,8 +423,8 @@ namespace Enhanced_Development.Stargate
 
             // Load off-world teams only if there isn't a local teleportation taking place.
             bool offworldEvent = this.stargateBuffer.Count == 0;
-            // Log.Warning("Is offworldEvent? " + this.stargateBuffer.Count);
-            // Log.Warning("Inbound Buffer Count? " + inboundBuffer.Count);
+            Log.Warning("Is offworldEvent? " + this.stargateBuffer.Count);
+            Log.Warning("Inbound Buffer Count? " + inboundBuffer.Count);
             if (offworldEvent && !inboundBuffer.Any())
             {
                 // Log.Warning("Found an off-world wormhole.");
