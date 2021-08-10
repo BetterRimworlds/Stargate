@@ -62,6 +62,21 @@ The Stargate system allows you to transport materials over the great distances b
 * Only one Off-world Gate is allowed per area.
 * Lots of code cleanup.
 
+06.00.00
+* Upgraded to C# v8.0.
+* Disorient, sicken or kill nearly every pawn on the map after activating an Transdimensional Stargate.
+* [Fixed] Fixed Humans being afflicted with Wormhole Insanity Disorder.
+* Created a new StargateBuffer to hold Things in Rimworld v1.0 fashion.
+* Stop drawing power if the circuits are full.
+* Added a Stargate Network system.
+* Added Teleportation between on-world gates.
+* Changes necessary for Rimworld v1.2.
+* Made Stargates substantially more expensive to build.
+* [Fixed] Colonists' max-XP-per-day now resets after jumping through a gate.
+* You can now view the contents of the Stargate's outgoing buffer!
+* Limit the number of item sets held in the stargate buffer to 500.
+
+
 ## Contributors
 
 This mod is forked off of the incredible engineering work by Jaxxa in his [**ED-Stargate mod**](https://github.com/jaxxa/ED-Stargate).
