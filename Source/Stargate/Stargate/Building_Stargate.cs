@@ -463,6 +463,16 @@ namespace Enhanced_Development.Stargate
                 // if they enter a Stargate after they've ever been drafted.
                 if (currentThing is Pawn pawn)
                 {
+                    // Carry over injuries, sicknesses, addictions, and artificial body parts.
+                    var hediffSet = pawn.health.hediffSet;
+
+                    pawn.health = new Pawn_HealthTracker(pawn);
+
+                    foreach (var hediff in hediffSet.hediffs.ToList())
+                    {
+                        pawn.health.AddHediff(hediff.def, hediff.Part);
+                    }
+
                     if (pawn.IsColonist)
                     {
                         pawn.verbTracker = new VerbTracker(pawn);
@@ -473,7 +483,6 @@ namespace Enhanced_Development.Stargate
                         pawn.jobs = new Pawn_JobTracker(pawn);
                         pawn.ownership = new Pawn_Ownership(pawn);
                         pawn.drafter = new Pawn_DraftController(pawn);
-                        pawn.health = new Pawn_HealthTracker(pawn);
                         pawn.natives = null;
                         // pawn.outfits = new Pawn_OutfitTracker(pawn);
                         pawn.pather = new Pawn_PathFollower(pawn);
