@@ -36,6 +36,18 @@ namespace Enhanced_Development.Stargate.Saving
             Scribe.saver.FinalizeSaving();
             Scribe.mode = LoadSaveMode.Inactive;
             //Log.Message("End Save");
+
+            // Edit the XML to tweak things that the Rimworld devs won't let us change via C#.
+            XmlDocument doc = new XmlDocument();
+            doc.Load(fileLocation);
+            XmlNode root = doc.DocumentElement;
+            XmlNodeList xpResetTimestampNodes = root.SelectNodes("//lastXpSinceMidnightResetTimestamp");
+            foreach (XmlNode xpResetTimestampNode in xpResetTimestampNodes)
+            {
+                xpResetTimestampNode.InnerText = "-1";
+            }
+
+            doc.Save(fileLocation);
         }
 
         public static void load(ref List<Thing> thingsToLoad, string fileLocation, Thing currentSource)
