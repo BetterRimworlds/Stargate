@@ -9,60 +9,63 @@ The Stargate system allows you to transport materials over the great distances b
 
 ## Change Log
 
-01.00.00
+**v1.0.0: 2016-04-21** [by Jaxxa]
 * Initial Release
 
-01.00.01
+**v1.0.1: 2016-05-29** [by Jaxxa]
 * Fixing crash when loading with Stargates that locally have things in the Buffer.
 
-02.00.00
+**v2.0.0: 2016-07-17** [by Jaxxa]
 * Alpha 14 Update
 
-02.00.01
+**v2.0.1: 2016-07-26** [by Jaxxa]
 * Fix for potentially not loading Graphical Resources on loading a saved game.
 
-02.00.02
+**v2.0.2: 2016-08-27** [by Jaxxa]
 * Building against 1249
 
-02.00.03
+--------------------------------------------------------------------------------------
+* Officially forked from jaxxa/ED-Stargate.
+--------------------------------------------------------------------------------------
+
+**v2.0.3: 2020-08-03**
 * Alpha 15 Update (only had to change the supported version number)
 
-02.00.04
+**v2.5.0: 2020-08-03**
 * Alpha 16 Update (lots of small compatibility changes, esp regarding multiple maps).
 
-03.00.00
+**v3.0.0: 2020-08-04**
 * Alpha 16: Reworked the Offworld Gate so that when it's activated, all higher 
   lifeforms on the map are damaged by a huge psionic blast.
 
---------------------------------------------------------------------------------------
+**v4.0.0: 2020-08-05**
+* Officially ported the mod to the Better Rimworlds organization as a member project.
 
-04.00.00
-* Officially forked from jaxxa/ED-Stargate.
-
-04.01.00
+**v4.1.0: 2020-08-05**
 * Alpha 17 Update (v0.17.1557)
 
-04.02.00
+**v4.2.0: 2020-08-05**
 * Beta 18 Update (v0.18.1722)
 
-04.03.00
+**v4.3.0: 2020-08-05**
 * Beta 19 Update (v0.19.2009)
 
-04.04.00
+**v4.4.0: 2020-08-06**
 * v1.0 Update (v1.0.2559)
 * Fixed the "inspect string for * contains empty lines" console error.
 * Fixed all of the "can't assign items to a faction" error messages.
 * Fixed the bug since B19 where colonists went *crazy* if they had ever been drafted.
 
-05.00.00
+**v5.5.0: 2020-08-06**
 * Made the Stargate research much more difficult to achieve.
-* The Off-world Gate will no longer allow outgoing travel.
-* The Off-world Gate now falls into ruin upon the first off-world recall.
+* Added the single-use Transdimensional Stargate.
+  * The Off-world Gate will no longer allow outgoing travel.
+  * The Off-world Gate now falls into ruin upon the first off-world recall.
 * The cost for constructing the Stargate has been greatly, and appropriately, increased.
-* Only one Off-world Gate is allowed per area.
+* Only one Transdimensional Gate is allowed per area.
 * Lots of code cleanup.
 
-06.00.00
+**v6.0.0: 2021-08-10**
 * Upgraded to C# v8.0.
 * Disorient, sicken or kill nearly every pawn on the map after activating an Transdimensional Stargate.
 * [Fixed] Fixed Humans being afflicted with Wormhole Insanity Disorder.
@@ -75,6 +78,12 @@ The Stargate system allows you to transport materials over the great distances b
 * [Fixed] Colonists' max-XP-per-day now resets after jumping through a gate.
 * You can now view the contents of the Stargate's outgoing buffer!
 * Limit the number of item sets held in the stargate buffer to 500.
+
+**v6.1.0: 2021-10-30**
+* Automatically recall items Transdimensional Gates on activation.
+* Fixed: Prevent the Stargate from demolecularizing bionics.
+* Fixed: Recalled animals won't "collapse due to extreme exhaustion" anymore.
+* Offset pawns' chronological age in reference to the time differential of when they entered the stargate.
 
 
 ## Contributors
