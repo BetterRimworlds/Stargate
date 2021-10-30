@@ -470,6 +470,10 @@ namespace Enhanced_Development.Stargate
 
                     foreach (var hediff in hediffSet.hediffs.ToList())
                     {
+                        if (hediff is Hediff_MissingPart)
+                        {
+                            continue;
+                        }
                         pawn.health.AddHediff(hediff.def, hediff.Part);
                     }
 
