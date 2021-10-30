@@ -323,6 +323,9 @@ namespace Enhanced_Development.Stargate
         {
             if (this.fullyCharged)
             {
+                // 60,000 ticks per day.
+                var ticksPassed = GenDate.DaysPassed * 60_000L;
+
                 //Log.Message("CLick AddColonist");
                 IEnumerable<Pawn> closePawns = Enhanced_Development.Utilities.Utilities.findPawnsInColony(this.Position, Building_Stargate.ADDITION_DISTANCE);
 
@@ -332,6 +335,10 @@ namespace Enhanced_Development.Stargate
                     {
                         if (currentPawn.Spawned)
                         {
+                            // Offset their chronological age by the current time in the game and offset by the Year 5500.
+                            // We will reduce their age if they come in after the Year 5500...
+                            currentPawn.ageTracker.AgeChronologicalTicks -= ticksPassed;
+
                             // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
                             // if they enter a Stargate after they've ever been drafted.
                             if (currentPawn.verbTracker != null)
@@ -441,6 +448,9 @@ namespace Enhanced_Development.Stargate
 
             Messages.Message("Incoming wormhole!", MessageTypeDefOf.PositiveEvent);
 
+            // 60,000 ticks per day.
+            var ticksPassed = GenDate.DaysPassed * 60_000L;
+
             foreach (Thing currentThing in inboundBuffer)
             {
                 currentThing.thingIDNumber = -1;
@@ -463,6 +473,10 @@ namespace Enhanced_Development.Stargate
                 // if they enter a Stargate after they've ever been drafted.
                 if (currentThing is Pawn pawn)
                 {
+                    // Offset their chronological age by the current time in the game and offset by the Year 5500.
+                    // We will reduce their age if they come in after the Year 5500...
+                    pawn.ageTracker.AgeChronologicalTicks += ticksPassed;
+
                     // Carry over injuries, sicknesses, addictions, and artificial body parts.
                     var hediffSet = pawn.health.hediffSet;
 
