@@ -77,7 +77,7 @@ namespace Enhanced_Development.Stargate
                 Messages.Message("BOOOOM!", MessageTypeDefOf.ThreatBig);
 
                 this.Destroy(DestroyMode.Vanish);
-                Building stargate = (Building)GenSpawn.Spawn(ThingDef.Named("TransdimensionalStargate"), this.Position, this.currentMap);
+                var stargate = (Building_TransdimensionalStargate)GenSpawn.Spawn(ThingDef.Named("TransdimensionalStargate"), this.Position, this.currentMap);
                 stargate.SetFactionDirect(Faction.OfPlayer);
                 this.currentMap.listerBuildings.Add(stargate);
 
@@ -90,6 +90,8 @@ namespace Enhanced_Development.Stargate
 
                     this.AddPsionicShock(pawn);
                 }
+
+                stargate.StargateRecall();
             }
         }
 
