@@ -477,32 +477,31 @@ namespace Enhanced_Development.Stargate
                         pawn.health.AddHediff(hediff.def, hediff.Part);
                     }
 
+                    pawn.verbTracker = new VerbTracker(pawn);
+                    pawn.caller = new Pawn_CallTracker(pawn);
+                    pawn.carryTracker = new Pawn_CarryTracker(pawn);
+                    pawn.rotationTracker = new Pawn_RotationTracker(pawn);
+                    pawn.thinker = new Pawn_Thinker(pawn);
+                    pawn.mindState = new Pawn_MindState(pawn);
+                    pawn.jobs = new Pawn_JobTracker(pawn);
+                    pawn.meleeVerbs = new Pawn_MeleeVerbs(pawn);
+                    pawn.pather = new Pawn_PathFollower(pawn);
+                    pawn.drafter = new Pawn_DraftController(pawn);
+                    pawn.natives = null;
+                    pawn.interactions = new Pawn_InteractionsTracker(pawn);
+
                     if (pawn.IsColonist)
                     {
-                        pawn.verbTracker = new VerbTracker(pawn);
-                        pawn.carryTracker = new Pawn_CarryTracker(pawn);
-                        pawn.rotationTracker = new Pawn_RotationTracker(pawn);
-                        pawn.thinker = new Pawn_Thinker(pawn);
-                        pawn.mindState = new Pawn_MindState(pawn);
-                        pawn.jobs = new Pawn_JobTracker(pawn);
-                        pawn.ownership = new Pawn_Ownership(pawn);
-                        pawn.drafter = new Pawn_DraftController(pawn);
-                        pawn.natives = null;
+                        //pawn.ownership = new Pawn_Ownership(pawn);
                         // pawn.outfits = new Pawn_OutfitTracker(pawn);
-                        pawn.pather = new Pawn_PathFollower(pawn);
                         // pawn.records = new Pawn_RecordsTracker(pawn);
-                        pawn.relations = new Pawn_RelationsTracker(pawn);
-                        pawn.caller = new Pawn_CallTracker(pawn);
-                        // pawn.needs = new Pawn_NeedsTracker(pawn);
+                        //pawn.relations = new Pawn_RelationsTracker(pawn);
                         pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
-                        pawn.interactions = new Pawn_InteractionsTracker(pawn);
                         pawn.stances = new Pawn_StanceTracker(pawn);
                         // pawn.story = new Pawn_StoryTracker(pawn);
                         // pawn.playerSettings = new Pawn_PlayerSettings(pawn);
                         // pawn.psychicEntropy = new Pawn_PsychicEntropyTracker(pawn);
                         // pawn.workSettings = new Pawn_WorkSettings(pawn);
-
-                        pawn.meleeVerbs = new Pawn_MeleeVerbs(pawn);
 
                         pawn.skills.SkillsTick();
                         // Reset Skills Since Midnight.
@@ -513,7 +512,11 @@ namespace Enhanced_Development.Stargate
                             
                         }
                     }
-
+                    else
+                    {
+                        pawn.needs = new Pawn_NeedsTracker(pawn);
+                    }
+ 
                     if (pawn.RaceProps.ToolUser)
                     {
                         if (pawn.equipment == null)
