@@ -62,6 +62,9 @@
         <designationCategory>Misc</designationCategory>
         <staticSunShadowHeight>0.75</staticSunShadowHeight>
         <leaveResourcesWhenKilled>true</leaveResourcesWhenKilled>
+        <inspectorTabs>
+            <li>BetterRimworlds.Stargate.ITab_StargateBuffer</li><!--Contents tab: Good call, sumghai-->
+        </inspectorTabs>
     </ThingDef>
 
     <ThingDef ParentName="BuildingBase">
