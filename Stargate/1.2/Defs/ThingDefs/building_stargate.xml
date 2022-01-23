@@ -9,10 +9,10 @@
         <repairEffect>Repair</repairEffect>
     </ThingDef>
 
-    <ThingDef Class="Enhanced_Development.Stargate.StargateThingDef" ParentName="BuildingBase">
+    <ThingDef Class="BetterRimworlds.Stargate.StargateThingDef" ParentName="BuildingBase">
         <defName>Stargate</defName>
         <label>Stargate</label>
-        <thingClass>Enhanced_Development.Stargate.Building_Stargate</thingClass>
+        <thingClass>BetterRimworlds.Stargate.Building_Stargate</thingClass>
         <graphicData>
             <texPath>Things/Buildings/Stargate</texPath>
             <graphicClass>Graphic_Single</graphicClass>
@@ -67,7 +67,7 @@
     <ThingDef ParentName="BuildingBase">
         <defName>OffWorldStargate</defName>
         <label>Off-world Stargate</label>
-        <thingClass>Enhanced_Development.Stargate.Building_OffWorldStargate</thingClass>
+        <thingClass>BetterRimworlds.Stargate.Building_OffWorldStargate</thingClass>
         <graphicData>
             <texPath>Things/Buildings/Stargate</texPath>
             <graphicClass>Graphic_Single</graphicClass>
@@ -98,11 +98,11 @@
         </placeWorkers>
     </ThingDef>
 
-    <ThingDef Class="Enhanced_Development.Stargate.StargateThingDef" ParentName="BuildingBase">
+    <ThingDef Class="BetterRimworlds.Stargate.StargateThingDef" ParentName="BuildingBase">
         <defName>TransdimensionalStargate</defName>
         <label>Transdimensional Stargate</label>
         <description>This Transdimensional Stargate gan only recall an Offworld Team once.</description>
-        <thingClass>Enhanced_Development.Stargate.Building_TransdimensionalStargate</thingClass>
+        <thingClass>BetterRimworlds.Stargate.Building_TransdimensionalStargate</thingClass>
         <graphicData>
             <texPath>Things/Buildings/Stargate</texPath>
             <graphicClass>Graphic_Single</graphicClass>

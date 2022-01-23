@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Verse;
 using UnityEngine;
 using RimWorld;
 
-namespace Enhanced_Development.Stargate
+namespace BetterRimworlds.Stargate
 {
 
     [StaticConstructorOnStartup]

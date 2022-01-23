@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BetterRimworlds.Stargate;
 using Verse;
 using UnityEngine;
 using RimWorld;
 using Verse.AI;
 
-namespace Enhanced_Development.Stargate
+namespace BetterRimworlds.Stargate
 {
     [StaticConstructorOnStartup]
     class Building_Stargate : Building_Storage, IThingHolder
