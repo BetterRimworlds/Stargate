@@ -78,8 +78,9 @@ namespace BetterRimworlds.Stargate
 
         public Building_Stargate()
         {
-            this.stargateBuffer = new StargateBuffer(this);
+            this.stargateBuffer = new StargateBuffer(this, false, LookMode.Deep);
         }
+
 
         #region Override
 
@@ -138,7 +139,6 @@ namespace BetterRimworlds.Stargate
         // Saving game
         public override void ExposeData()
         {
-            base.ExposeData();
 
             Scribe_Values.Look<int>(ref currentCapacitorCharge, "currentCapacitorCharge");
             Scribe_Values.Look<int>(ref requiredCapacitorCharge, "requiredCapacitorCharge");
@@ -148,6 +148,8 @@ namespace BetterRimworlds.Stargate
             {
                 this
             });
+
+            base.ExposeData();
         }
 
         protected void BaseTickRare()
@@ -292,31 +294,25 @@ namespace BetterRimworlds.Stargate
         {
             if (this.fullyCharged)
             {
-                Thing foundThing = Enhanced_Development.Utilities.Utilities.FindItemThingsNearBuilding(this, Building_Stargate.ADDITION_DISTANCE, this.currentMap);
+                List<Thing> foundThings = Enhanced_Development.Utilities.Utilities.FindItemThingsNearBuilding(this, Building_Stargate.ADDITION_DISTANCE, this.currentMap);
 
-                if (foundThing != null)
+                foreach (Thing foundThing in foundThings)
                 {
                     if (foundThing.Spawned && this.stargateBuffer.Count < 500)
                     {
-                        List<Thing> thingList = new List<Thing>();
-                        //thingList.Add(foundThing);
                         this.stargateBuffer.TryAdd(foundThing);
 
                         //Building_OrbitalRelay.listOfThingLists.Add(thingList);
-
-                        //Recursively Call to get Everything
-                        this.AddResources();
                     }
                 }
 
-                // Tell the MapDrawer that here is something thats changed
+                // Tell the MapDrawer that here is something that's changed.
                 Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
             }
             else
             {
                 Messages.Message("Insufficient Power to add Resources", MessageTypeDefOf.RejectInput);
             }
-
         }
 
         public void AddColonist()
