@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Verse;
 using UnityEngine;
@@ -92,8 +93,8 @@ namespace BetterRimworlds.Stargate
             if (def is StargateThingDef)
             {
                 //Read in variables from the custom MyThingDef
-                FileLocationPrimary = ((Enhanced_Development.Stargate.StargateThingDef)def).FileLocationPrimary;
-                FileLocationSecondary = ((Enhanced_Development.Stargate.StargateThingDef)def).FileLocationSecondary;
+                FileLocationPrimary = ((StargateThingDef)def).FileLocationPrimary;
+                FileLocationSecondary = ((StargateThingDef)def).FileLocationSecondary;
 
                 //Log.Message("Setting FileLocationPrimary:" + FileLocationPrimary + " and FileLocationSecondary:" + FileLocationSecondary);
             }
@@ -102,30 +103,30 @@ namespace BetterRimworlds.Stargate
                 Log.Error("Stargate definition not of type \"StargateThingDef\"");
             }
 
+            string stargateDirectory = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate");
+            Log.Warning("Stargate Directory: " + stargateDirectory);
+
             if (String.IsNullOrEmpty(FileLocationPrimary))
             {
-                FileLocationPrimary = Verse.GenFilePaths.SaveDataFolderPath + @"\Stargate\Stargate.xml";
+                FileLocationPrimary = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate", "Stargate.xml");
+                Log.Warning("Stargate File: " + FileLocationPrimary);
 
-                if (!System.IO.Directory.Exists(Verse.GenFilePaths.SaveDataFolderPath + @"\Stargate\"))
+                if (!System.IO.Directory.Exists(stargateDirectory))
                 {
-                    System.IO.Directory.CreateDirectory(Verse.GenFilePaths.SaveDataFolderPath + @"\Stargate\");
+                    System.IO.Directory.CreateDirectory(stargateDirectory);
                 }
             }
 
             if (String.IsNullOrEmpty(FileLocationSecondary))
             {
-                FileLocationSecondary = Verse.GenFilePaths.SaveDataFolderPath + @"\Stargate\StargateBackup.xml";
-
-                if (!System.IO.Directory.Exists(Verse.GenFilePaths.SaveDataFolderPath + @"\Stargate\"))
-                {
-                    System.IO.Directory.CreateDirectory(Verse.GenFilePaths.SaveDataFolderPath + @"\Stargate\");
-                }
+                FileLocationSecondary = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate", "StargateBackup.xml");
+                Log.Warning("Stargate Backup: " + FileLocationSecondary);
             }
 
             // Register this gate in the Gate Network.
             Log.Warning($"Registering this Gate ({this.ThingID}) in the Gate Network.");
             GateNetwork.Add(this);
-            
+
             Log.Warning("Found some things in the stargate's buffer: " + this.stargateBuffer.Count);
         }
 
