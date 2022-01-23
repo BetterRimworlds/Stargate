@@ -553,7 +553,7 @@ namespace BetterRimworlds.Stargate
                     if (pawn.RaceProps.Humanlike)
                     {
                         pawn.guest = new Pawn_GuestTracker(pawn);
-                        pawn.guilt = new Pawn_GuiltTracker(pawn);
+                        pawn.guilt = new Pawn_GuiltTracker();
                         pawn.abilities = new Pawn_AbilityTracker(pawn);
                         pawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(pawn);
                     }
