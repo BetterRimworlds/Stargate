@@ -227,7 +227,7 @@ namespace BetterRimworlds.Stargate
             {
                 Command_Action act = new Command_Action();
                 //act.action = () => Designator_Deconstruct.DesignateDeconstruct(this);
-                act.action = () => this.AddColonist();
+                act.action = () => this.AddPawns();
                 act.icon = UI_ADD_COLONIST;
                 act.defaultLabel = "Add Colonist";
                 act.defaultDesc = "Add Colonist";
@@ -320,7 +320,7 @@ namespace BetterRimworlds.Stargate
             }
         }
 
-        public void AddColonist()
+        public void AddPawns()
         {
             if (this.fullyCharged)
             {
@@ -332,29 +332,27 @@ namespace BetterRimworlds.Stargate
 
                 if (closePawns != null)
                 {
-                    foreach (Pawn currentPawn in closePawns.ToList())
+                    foreach (Pawn pawn in closePawns.ToList())
                     {
-                        if (currentPawn.Spawned)
+                        if (!pawn.Spawned)
                         {
-                            // Offset their chronological age by the current time in the game and offset by the Year 5500.
-                            // We will reduce their age if they come in after the Year 5500...
-                            currentPawn.ageTracker.AgeChronologicalTicks -= ticksPassed;
-
-                            // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
-                            // if they enter a Stargate after they've ever been drafted.
-                            if (currentPawn.verbTracker != null)
-                            {
-                                currentPawn.verbTracker = new VerbTracker(currentPawn);
-                            }
-
-                            // Remove memories or they will go insane...
-                            if (currentPawn.def.defName == "Human")
-                            {
-                                currentPawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(currentPawn);
-                            }
-
-                            this.stargateBuffer.TryAdd(currentPawn);
+                            continue;
                         }
+
+                        // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
+                        // if they enter a Stargate after they've ever been drafted.
+                        if (pawn.verbTracker != null)
+                        {
+                            pawn.verbTracker = new VerbTracker(pawn);
+                        }
+
+                        // Remove memories or they will go insane...
+                        if (pawn.def.defName == "Human")
+                        {
+                            pawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(pawn);
+                        }
+
+                        this.stargateBuffer.TryAdd(pawn);
                     }
                 }
 
@@ -623,7 +621,6 @@ namespace BetterRimworlds.Stargate
                 else
                 {
                     return Building_Stargate.graphicInactive;
-
                 }
             }
         }
