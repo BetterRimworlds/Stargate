@@ -480,14 +480,14 @@ namespace BetterRimworlds.Stargate
                     var hediffSet = pawn.health.hediffSet;
 
                     pawn.health = new Pawn_HealthTracker(pawn);
-
                     foreach (var hediff in hediffSet.hediffs.ToList())
                     {
                         if (hediff is Hediff_MissingPart)
                         {
                             continue;
                         }
-                        pawn.health.AddHediff(hediff.def, hediff.Part);
+                        hediff.pawn = pawn;
+                        pawn.health.AddHediff(hediff, hediff.Part);
                     }
 
                     pawn.verbTracker = new VerbTracker(pawn);
