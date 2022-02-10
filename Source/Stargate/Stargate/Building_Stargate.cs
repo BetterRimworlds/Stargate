@@ -587,7 +587,7 @@ namespace BetterRimworlds.Stargate
 
             if (offworldEvent)
             {
-                // this.MoveToBackup();
+                this.MoveToBackup();
             }
 
             return true;

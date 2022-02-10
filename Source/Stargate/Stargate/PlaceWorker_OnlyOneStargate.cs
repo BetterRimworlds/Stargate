@@ -1,6 +1,7 @@
 ﻿﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+ using System.IO;
+ using System.Linq;
 using System.Text;
 using RimWorld;
 using Verse;
@@ -23,6 +24,12 @@ namespace Stargate
                )
             {
                 return "You can only build one Off-world Stargate per map.";
+            }
+
+            var stargateFileLocation = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate", "Stargate.xml");
+            if (!System.IO.File.Exists(stargateFileLocation))
+            {
+                return "No Off-world Teams were found";
             }
 
             return true;

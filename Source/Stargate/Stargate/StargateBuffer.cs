@@ -43,13 +43,15 @@ namespace BetterRimworlds.Stargate
 
             if (item is Pawn pawn)
             {
+                pawn.Discard();
                 pawn.DeSpawn();
             }
             else
             {
+                item.Discard();
                 item.DeSpawn();
             }
-        
+
             return true;
         }
     }
