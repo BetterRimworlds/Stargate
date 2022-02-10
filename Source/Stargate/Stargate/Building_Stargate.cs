@@ -490,18 +490,12 @@ namespace BetterRimworlds.Stargate
                         pawn.health.AddHediff(hediff, hediff.Part);
                     }
 
-                    pawn.verbTracker = new VerbTracker(pawn);
-                    pawn.caller = new Pawn_CallTracker(pawn);
-                    pawn.carryTracker = new Pawn_CarryTracker(pawn);
-                    pawn.rotationTracker = new Pawn_RotationTracker(pawn);
-                    pawn.thinker = new Pawn_Thinker(pawn);
-                    pawn.mindState = new Pawn_MindState(pawn);
-                    pawn.jobs = new Pawn_JobTracker(pawn);
-                    pawn.meleeVerbs = new Pawn_MeleeVerbs(pawn);
-                    pawn.pather = new Pawn_PathFollower(pawn);
-                    pawn.drafter = new Pawn_DraftController(pawn);
-                    pawn.natives = null;
-                    pawn.interactions = new Pawn_InteractionsTracker(pawn);
+                    // @FIXME: Animals still have partial Stargate Insanity and many times will never fall asleep
+                    //         on the new planet. They will drop-down from sheer exhaustion.
+                    //         Some of them also become Godlings, literally unkillable except via the Dev Mode.
+                    // Quickly draft and undraft the Colonist. This will cause them to become aware of the newly-in-phase weapon they are holding,
+                    // if any. This is effectively the cure of Stargate Insanity.
+                    pawn.needs = new Pawn_NeedsTracker(pawn);
 
                     if (pawn.IsColonist)
                     {
