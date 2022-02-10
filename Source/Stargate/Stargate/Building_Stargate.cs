@@ -410,6 +410,8 @@ namespace BetterRimworlds.Stargate
         public virtual bool StargateRecall()
         {
             // List<Thing> inboundBuffer = (List<Thing>)null;
+            int originalTimelineTicks = Current.Game.tickManager.TicksAbs;
+
             var inboundBuffer = new List<Thing>();
             Log.Message("Number of stargates on this planet: " + GateNetwork.Count);
             // See if any of the stargates on this planet (including this gate) have items in their buffer...
@@ -441,7 +443,7 @@ namespace BetterRimworlds.Stargate
                     return false;
                 }
 
-                Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary, this);
+                originalTimelineTicks = Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary, this);
                 // Log.Warning("Number of items in the wormhole: " + inboundBuffer.Count);
             }
 
@@ -550,11 +552,25 @@ namespace BetterRimworlds.Stargate
                     if (pawn.RaceProps.Humanlike)
                     {
                         pawn.guest = new Pawn_GuestTracker(pawn);
+#if RIMWORLD12
                         pawn.guilt = new Pawn_GuiltTracker();
+#else
+                        pawn.guilt = new Pawn_GuiltTracker(pawn);
+#endif
                         pawn.abilities = new Pawn_AbilityTracker(pawn);
                         pawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(pawn);
                     }
                     
+                    // Alter the pawn's chronological age based upon the temporal drift between their origin universe
+                    // and the destination universe.
+                    //
+                    // This is the only way in which even the pawns themselves and their co-travelers, dopplegangers
+                    // in parallel realities, and the Observer can possibly tell how Old they really are...
+                    long timelineTicksDiff = Current.Game.tickManager.TicksAbs - originalTimelineTicks;
+                    long newAbsBirthdate = pawn.ageTracker.BirthAbsTicks + timelineTicksDiff;
+                    Log.Message($"Subtracting {timelineTicksDiff} from the pawn's absolute ticks. From {pawn.ageTracker.BirthAbsTicks} to {newAbsBirthdate}");
+                    pawn.ageTracker.BirthAbsTicks = newAbsBirthdate;
+
                     // Give them a brief psychic shock so that they will be given proper Melee Verbs and not act like a Visitor.
                     // Hediff shock = HediffMaker.MakeHediff(HediffDefOf.PsychicShock, pawn, null);
                     // pawn.health.AddHediff(shock, null, null);

@@ -22,6 +22,8 @@ namespace Enhanced_Development.Stargate.Saving
             //Scribe.EnterNode("map");
             //Scribe.EnterNode("things");
             //source.ExposeData();
+            int currentTimelineTicks = Current.Game.tickManager.TicksAbs;
+            Scribe_Values.Look<int>(ref currentTimelineTicks, "originalTimelineTicks");
             Scribe_Collections.Look<Thing>(ref thingsToSave, "things", LookMode.Deep, (object)null);
             //Scribe.ExitNode();
 
@@ -50,7 +52,10 @@ namespace Enhanced_Development.Stargate.Saving
             doc.Save(fileLocation);
         }
 
-        public static void load(ref List<Thing> thingsToLoad, string fileLocation, Thing currentSource)
+        /**
+         * @return int The absolute ticks from when the team was first dematerialized.
+         */
+        public static int load(ref List<Thing> thingsToLoad, string fileLocation, Thing currentSource)
         {
             Log.Message("ScribeINIT, loding from:" + fileLocation);
             Scribe.loader.InitLoading(fileLocation);
@@ -60,7 +65,9 @@ namespace Enhanced_Development.Stargate.Saving
             Log.Message("DeepProfiler.Start()");
             DeepProfiler.Start("Load non-compressed things");
 
-           // List<Thing> list2 = (List<Thing>)null;
+            int originalTimelineTicks = 0;
+            Scribe_Values.Look<int>(ref originalTimelineTicks, "originalTimelineTicks");
+
             Log.Message("Scribe_Collections.LookList");
             Scribe_Collections.Look<Thing>(ref thingsToLoad, "things", LookMode.Deep);
             Log.Message("List1Count:" + thingsToLoad.Count);
@@ -68,7 +75,6 @@ namespace Enhanced_Development.Stargate.Saving
             Log.Message("DeepProfiler.End()");
             DeepProfiler.End();
 
-            //Scribe.ExitNode();
             Scribe.mode = LoadSaveMode.Inactive;
 
             //Log.Message("list: " + thingsToLoad.Count.ToString());
@@ -87,7 +93,7 @@ namespace Enhanced_Development.Stargate.Saving
             var p = new PostLoadIniter();
             p.DoAllPostLoadInits();
 
-            Log.Message("Return");
+            return originalTimelineTicks;
         }
     }
 }
