@@ -78,6 +78,7 @@ namespace BetterRimworlds.Stargate
                 var stargate = (Building_TransdimensionalStargate)GenSpawn.Spawn(ThingDef.Named("TransdimensionalStargate"), this.Position, this.currentMap);
                 stargate.SetFactionDirect(Faction.OfPlayer);
                 this.currentMap.listerBuildings.Add(stargate);
+                stargate.StargateRecall();
 
                 foreach (Pawn pawn in Find.CurrentMap.mapPawns.AllPawns.ToList())
                 {
