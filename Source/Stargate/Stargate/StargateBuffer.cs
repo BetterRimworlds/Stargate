@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using RimWorld;
 using Verse;
 
 namespace BetterRimworlds.Stargate
 {
     public class StargateBuffer : ThingOwner<Thing>, IList<Thing>
     {
+        private Dictionary<string, Dictionary<string, PawnRelationDef>> relationships = new Dictionary<string, Dictionary<string, PawnRelationDef>>();
         Thing IList<Thing>.this[int index]
         {
             get => this.GetAt(index);
