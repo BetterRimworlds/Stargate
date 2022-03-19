@@ -278,7 +278,7 @@ namespace BetterRimworlds.Stargate
                 //act.groupKey = 689736;
                 yield return act;
             }
-
+            // +57 320-637-6544
             if (true)
             {
                 Command_Action act = new Command_Action();
@@ -292,7 +292,6 @@ namespace BetterRimworlds.Stargate
                 //act.groupKey = 689736;
                 yield return act;
             }
-
         }
 
         public void AddResources()
@@ -505,12 +504,14 @@ namespace BetterRimworlds.Stargate
                         // pawn.outfits = new Pawn_OutfitTracker(pawn);
                         // pawn.records = new Pawn_RecordsTracker(pawn);
                         //pawn.relations = new Pawn_RelationsTracker(pawn);
+                        pawn.caller = new Pawn_CallTracker(pawn);
+                        // pawn.needs = new Pawn_NeedsTracker(pawn);
                         pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
                         pawn.stances = new Pawn_StanceTracker(pawn);
-                        // pawn.story = new Pawn_StoryTracker(pawn);
-                        // pawn.playerSettings = new Pawn_PlayerSettings(pawn);
-                        // pawn.psychicEntropy = new Pawn_PsychicEntropyTracker(pawn);
-                        // pawn.workSettings = new Pawn_WorkSettings(pawn);
+                        pawn.story = new Pawn_StoryTracker(pawn);
+                        pawn.playerSettings = new Pawn_PlayerSettings(pawn);
+                        pawn.psychicEntropy = new Pawn_PsychicEntropyTracker(pawn);
+                        pawn.workSettings = new Pawn_WorkSettings(pawn);
 
                         pawn.skills.SkillsTick();
                         // Reset Skills Since Midnight.
@@ -538,7 +539,7 @@ namespace BetterRimworlds.Stargate
                         {
                             pawn.equipment.Primary.InitializeComps();
                             pawn.equipment.PrimaryEq.verbTracker = new VerbTracker(pawn);
-                            // pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
+                            pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
                         }
 
                         // Quickly draft and undraft the Colonist. This will cause them to become aware of the newly-in-phase weapon they are holding,
@@ -646,7 +647,6 @@ namespace BetterRimworlds.Stargate
 
         private void MoveToBackup()
         {
-
             if (System.IO.File.Exists(this.FileLocationSecondary))
             {
                 System.IO.File.Delete(this.FileLocationSecondary);
