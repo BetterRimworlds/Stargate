@@ -406,7 +406,7 @@ namespace BetterRimworlds.Stargate
             return itemsToTeleport;
         }
 
-        public virtual bool StargateRecall()
+        public Tuple<int, List<Thing>> recall1()
         {
             // List<Thing> inboundBuffer = (List<Thing>)null;
             int originalTimelineTicks = Current.Game.tickManager.TicksAbs;
@@ -439,7 +439,7 @@ namespace BetterRimworlds.Stargate
                 {
                     Messages.Message("No Off-world Teams were found", MessageTypeDefOf.RejectInput);
 
-                    return false;
+                    return null;
                 }
 
                 originalTimelineTicks = Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary, this);
@@ -448,20 +448,43 @@ namespace BetterRimworlds.Stargate
 
             Messages.Message("Incoming wormhole!", MessageTypeDefOf.PositiveEvent);
 
-            // 60,000 ticks per day.
-            var ticksPassed = GenDate.DaysPassed * 60_000L;
+            return new Tuple<int, List<Thing>>(originalTimelineTicks, inboundBuffer);
+        }
+
+        public void recall2()
+        {
+            
+        }
+
+        public void recall3()
+        {
+            
+        }
+
+        public virtual bool StargateRecall()
+        {
+            /* Tuple<int, List<Thing>> **/
+            var recallData = this.recall1();
+            if (recallData == null)
+            {
+                return false;
+            }
+            
+            int originalTimelineTicks = recallData.Item1;
+            List<Thing> inboundBuffer = recallData.Item2;
+            bool offworldEvent = this.stargateBuffer.Count == 0;
 
             foreach (Thing currentThing in inboundBuffer)
             {
-                currentThing.thingIDNumber = -1;
-                Verse.ThingIDMaker.GiveIDTo(currentThing);
+                // currentThing.thingIDNumber = -1;
+                // Verse.ThingIDMaker.GiveIDTo(currentThing);
 
                 // If it's an equippable object, like a gun, reset its verbs or ANY colonist that equips it *will* go insane...
                 // This is actually probably the root cause of Colonist Insanity (holding an out-of-phase item with IDs belonging
                 // to an alternate dimension). This is the equivalent of how Olivia goes insane in the TV series Fringe.
                 if (currentThing is ThingWithComps item)
                 {
-                    item.InitializeComps();
+                    // item.InitializeComps();
                 }
 
                 if (currentThing.def.CanHaveFaction)
