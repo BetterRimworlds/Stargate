@@ -173,9 +173,7 @@ namespace Enhanced_Development.Stargate.Saving
                     {
                         continue;
                     }
-            
-                    
-            
+
                     relationships.Add(new StargateRelation(pawn.ThingID, relation.otherPawn.ThingID, relation.def.defName));
                 }
             }
@@ -218,7 +216,7 @@ namespace Enhanced_Development.Stargate.Saving
         /**
          * @return int The absolute ticks from when the team was first dematerialized.
          */
-        public static int load(ref List<Thing> thingsToLoad, string fileLocation, Thing currentSource)
+        public static Tuple<int, List<StargateRelation>> load(ref List<Thing> thingsToLoad, string fileLocation, Thing currentSource)
         {
             Log.Message("ScribeINIT, loding from:" + fileLocation);
             Scribe.loader.InitLoading(fileLocation);
@@ -236,32 +234,10 @@ namespace Enhanced_Development.Stargate.Saving
 
             DeepProfiler.End();
 
-            // Re-add the relationships.
-            // var relationshipsList = new List<StargateRelation>();
-            // Scribe_Collections.Look<StargateRelation>(ref relationshipsList, "relationships", LookMode.Deep);
-            //Log.Error(String.Join(",", relationshipsList.ToList()));
-            // foreach (var item in relationshipsList)
-            // {
-            //     Log.Error($"Loaded the relationship between {item.pawn1ID} and {item.pawn2ID}: {item.relationship}");
-            // }
+            var relationshipsList = new List<StargateRelation>();
+            Scribe_Collections.Look<StargateRelation>(ref relationshipsList, "relationships", LookMode.Deep);
+            Log.Error(String.Join(",", relationshipsList.ToList()));
 
-            // foreach (var relationship in relationshipsList)
-            // {
-            //     // p => p.Item1 == item.ThingID
-            //     var target = (Pawn) thingsToLoad.Find(t => {
-            //         if (t is Pawn p)
-            //         {
-            //             return p.Name.ToStringFull == relationship.PawnName;
-            //         }
-            //
-            //         return false;
-            //     });
-            //
-            //     PawnRelationDef pawnRelationDef = DefDatabase<PawnRelationDef>.GetNamedSilentFail(relationship.relationshipDef);
-            //     target.relations.AddDirectRelation();
-            //     
-            // }
-            
             Scribe.mode = LoadSaveMode.Inactive;
 
             //Log.Message("list: " + thingsToLoad.Count.ToString());
@@ -280,7 +256,7 @@ namespace Enhanced_Development.Stargate.Saving
             var p = new PostLoadIniter();
             p.DoAllPostLoadInits();
 
-            return originalTimelineTicks;
+            return new Tuple<int, List<StargateRelation>>(originalTimelineTicks, relationshipsList);
         }
     }
 }

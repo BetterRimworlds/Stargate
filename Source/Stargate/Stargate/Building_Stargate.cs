@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Enhanced_Development.Stargate.Saving;
 using Verse;
 using UnityEngine;
 using RimWorld;
@@ -442,13 +443,54 @@ namespace BetterRimworlds.Stargate
                     return null;
                 }
 
-                originalTimelineTicks = Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary, this);
+                // 
+                var loadResponse = Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary, this);
+                originalTimelineTicks = loadResponse.Item1;
+                List<StargateRelation> relations = loadResponse.Item2;
+                this.rebuildRelationships(inboundBuffer, relations);
+                
                 // Log.Warning("Number of items in the wormhole: " + inboundBuffer.Count);
             }
 
             Messages.Message("Incoming wormhole!", MessageTypeDefOf.PositiveEvent);
+            Messages.Message("You really must save and reload the game to fix Stargate Syndrome.", MessageTypeDefOf.ThreatBig);
 
             return new Tuple<int, List<Thing>>(originalTimelineTicks, inboundBuffer);
+        }
+
+        // @FIXME: Need to refactor this to a StargateBuffer.
+        private void rebuildRelationships(List<Thing> inboundBuffer, List<StargateRelation> relationships)
+        {
+            // Re-add the relationships.
+            foreach (var relationship in relationships)
+            {
+                Log.Error($"Loading the relationship between {relationship.pawn1ID} and {relationship.pawn2ID}: {relationship.relationship}");
+
+                // p => p.Item1 == item.ThingID
+                var target = (Pawn)inboundBuffer.Find(t =>
+                {
+                    if (t is Pawn p)
+                    {
+                        return p.ThingID == relationship.pawn1ID;
+                    }
+
+                    return false;
+                });
+
+                var relatedPawn = (Pawn)inboundBuffer.Find(t =>
+                {
+                    if (t is Pawn p)
+                    {
+                        return p.ThingID == relationship.pawn2ID;
+                    }
+
+                    return false;
+                });
+
+                PawnRelationDef pawnRelationDef = DefDatabase<PawnRelationDef>.GetNamedSilentFail(relationship.relationship);
+                target.relations.AddDirectRelation(pawnRelationDef, relatedPawn);
+                Log.Error($"Loaded the relationship between {relationship.pawn1ID} and {relationship.pawn2ID}: {relationship.relationship}");
+            }
         }
 
         public void recall2()
@@ -521,20 +563,20 @@ namespace BetterRimworlds.Stargate
                     // if any. This is effectively the cure of Stargate Insanity.
                     pawn.needs = new Pawn_NeedsTracker(pawn);
 
-                    if (pawn.IsColonist)
+                    if (pawn.RaceProps.Humanlike)
                     {
                         //pawn.ownership = new Pawn_Ownership(pawn);
                         // pawn.outfits = new Pawn_OutfitTracker(pawn);
                         // pawn.records = new Pawn_RecordsTracker(pawn);
-                        //pawn.relations = new Pawn_RelationsTracker(pawn);
+                        // pawn.relations = new Pawn_RelationsTracker(pawn);
                         pawn.caller = new Pawn_CallTracker(pawn);
                         // pawn.needs = new Pawn_NeedsTracker(pawn);
                         pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
                         pawn.stances = new Pawn_StanceTracker(pawn);
-                        pawn.story = new Pawn_StoryTracker(pawn);
-                        pawn.playerSettings = new Pawn_PlayerSettings(pawn);
+                        // pawn.story = new Pawn_StoryTracker(pawn);
+                        // pawn.playerSettings = new Pawn_PlayerSettings(pawn);
                         pawn.psychicEntropy = new Pawn_PsychicEntropyTracker(pawn);
-                        pawn.workSettings = new Pawn_WorkSettings(pawn);
+                        // pawn.workSettings = new Pawn_WorkSettings(pawn);
 
                         pawn.skills.SkillsTick();
                         // Reset Skills Since Midnight.
@@ -575,7 +617,7 @@ namespace BetterRimworlds.Stargate
                     // Remove memories or they will go insane...
                     if (pawn.RaceProps.Humanlike)
                     {
-                        pawn.guest = new Pawn_GuestTracker(pawn);
+                        // pawn.guest = new Pawn_GuestTracker(pawn);
 #if RIMWORLD12
                         pawn.guilt = new Pawn_GuiltTracker();
 #else
