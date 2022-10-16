@@ -751,9 +751,20 @@ namespace BetterRimworlds.Stargate
 
         private void MoveToBackup()
         {
+            return;
+            String newFile;
             if (System.IO.File.Exists(this.FileLocationSecondary))
             {
-                System.IO.File.Delete(this.FileLocationSecondary);
+                int index = 1;
+                newFile = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate", $"StargateBackup-${index}.xml");
+
+                while (System.IO.File.Exists(newFile))
+                {
+                    ++index;
+                    newFile = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate", $"StargateBackup-${index}.xml");
+                }
+
+                System.IO.File.Move(this.FileLocationSecondary, newFile);
             }
 
             if (System.IO.File.Exists(this.FileLocationPrimary))
