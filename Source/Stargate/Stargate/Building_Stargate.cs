@@ -169,12 +169,19 @@ namespace BetterRimworlds.Stargate
             if (this.power.PowerOn)
             {
                 currentCapacitorCharge += chargeSpeed;
+                if (this.power.PowerNet.CurrentEnergyGainRate() > 1000)
+                {
+                    chargeSpeed += 1;
+                    this.updatePowerDrain();
+                }
             }
 
             // Stop using power if it's full.
             if (currentCapacitorCharge >= requiredCapacitorCharge)
             {
                 currentCapacitorCharge = requiredCapacitorCharge;
+                this.chargeSpeed = 0;
+                this.updatePowerDrain();
             }
 
             if (this.currentCapacitorCharge < 0)
