@@ -496,6 +496,8 @@ namespace BetterRimworlds.Stargate
 
                 PawnRelationDef pawnRelationDef = DefDatabase<PawnRelationDef>.GetNamedSilentFail(relationship.relationship);
                 target.relations.AddDirectRelation(pawnRelationDef, relatedPawn);
+                // Add for the other, too.
+                // relatedPawn.relations.AddDirectRelation(pawnRelationDef, target);
                 Log.Error($"Loaded the relationship between {relationship.pawn1ID} and {relationship.pawn2ID}: {relationship.relationship}");
             }
         }
@@ -568,18 +570,48 @@ namespace BetterRimworlds.Stargate
                     //         Some of them also become Godlings, literally unkillable except via the Dev Mode.
                     // Quickly draft and undraft the Colonist. This will cause them to become aware of the newly-in-phase weapon they are holding,
                     // if any. This is effectively the cure of Stargate Insanity.
-                    pawn.needs = new Pawn_NeedsTracker(pawn);
+                    // pawn.needs = new Pawn_NeedsTracker(pawn);
+                    // pawn.needs.SetInitialLevels();
+                    pawn.verbTracker = new VerbTracker(pawn);
+                    pawn.thinker = new Pawn_Thinker(pawn);
+                    pawn.mindState = new Pawn_MindState(pawn);
+                    pawn.jobs = new Pawn_JobTracker(pawn);
+                    pawn.pather = new Pawn_PathFollower(pawn);
+                    pawn.caller = new Pawn_CallTracker(pawn);
+                    pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
+                    pawn.interactions = new Pawn_InteractionsTracker(pawn);
+                    // pawn.stances = new Pawn_StanceTracker(pawn);
+                    // pawn.relations = new Pawn_RelationsTracker(pawn);
 
                     if (pawn.RaceProps.Humanlike)
                     {
-                        //pawn.ownership = new Pawn_Ownership(pawn);
-                        // pawn.outfits = new Pawn_OutfitTracker(pawn);
-                        // pawn.records = new Pawn_RecordsTracker(pawn);
+                        pawn.thinker = new Pawn_Thinker(pawn);
+                        pawn.mindState = new Pawn_MindState(pawn);
+                        pawn.jobs = new Pawn_JobTracker(pawn);
+                        pawn.pather = new Pawn_PathFollower(pawn);
+                        pawn.caller = new Pawn_CallTracker(pawn);
+                        pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
+                        pawn.interactions = new Pawn_InteractionsTracker(pawn);
+                        pawn.stances = new Pawn_StanceTracker(pawn);
+                        pawn.relations = new Pawn_RelationsTracker(pawn);
+                        pawn.verbTracker = new VerbTracker(pawn);
+                        pawn.carryTracker = new Pawn_CarryTracker(pawn);
+                        pawn.rotationTracker = new Pawn_RotationTracker(pawn);
+                        pawn.thinker = new Pawn_Thinker(pawn);
+                        pawn.mindState = new Pawn_MindState(pawn);
+                        pawn.jobs = new Pawn_JobTracker(pawn);
+                        pawn.ownership = new Pawn_Ownership(pawn);
+                        pawn.drafter = new Pawn_DraftController(pawn);
+                        pawn.natives = null;
+                        pawn.outfits = new Pawn_OutfitTracker(pawn);
+                        pawn.pather = new Pawn_PathFollower(pawn);
+                        pawn.records = new Pawn_RecordsTracker(pawn);
                         // pawn.relations = new Pawn_RelationsTracker(pawn);
                         pawn.caller = new Pawn_CallTracker(pawn);
                         // pawn.needs = new Pawn_NeedsTracker(pawn);
-                        pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
-                        pawn.stances = new Pawn_StanceTracker(pawn);
+                        // pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
+                        // pawn.interactions = new Pawn_InteractionsTracker(pawn);
+                        // pawn.stances = new Pawn_StanceTracker(pawn);
                         // pawn.story = new Pawn_StoryTracker(pawn);
                         // pawn.playerSettings = new Pawn_PlayerSettings(pawn);
                         pawn.psychicEntropy = new Pawn_PsychicEntropyTracker(pawn);
