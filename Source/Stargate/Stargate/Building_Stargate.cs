@@ -97,19 +97,6 @@ namespace BetterRimworlds.Stargate
 
             this.power = base.GetComp<CompPowerTrader>();
 
-            if (def is StargateThingDef)
-            {
-                //Read in variables from the custom MyThingDef
-                FileLocationPrimary = ((StargateThingDef)def).FileLocationPrimary;
-                FileLocationSecondary = ((StargateThingDef)def).FileLocationSecondary;
-
-                //Log.Message("Setting FileLocationPrimary:" + FileLocationPrimary + " and FileLocationSecondary:" + FileLocationSecondary);
-            }
-            else
-            {
-                Log.Error("Stargate definition not of type \"StargateThingDef\"");
-            }
-
             string stargateDirectory = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate");
             Log.Warning("Stargate Directory: " + stargateDirectory);
 
@@ -427,6 +414,13 @@ namespace BetterRimworlds.Stargate
             foreach (var stargate in GateNetwork)
             {
                 Log.Message("Found a Stargate with the ID of " + stargate.ThingID);
+
+                // if (this.ThingID == stargate.ThingID)
+                // {
+                //     Log.Message("BUT.... It is this very Stargate, so we are going to skip it.");
+                //     continue;
+                // }
+
                 if (!stargate.HasThingsInBuffer())
                 {
                     continue;
