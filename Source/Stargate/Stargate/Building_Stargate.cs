@@ -117,6 +117,9 @@ namespace BetterRimworlds.Stargate
                 Log.Warning("Stargate Backup: " + FileLocationSecondary);
             }
 
+            // Link the Stargate to the Stargate Network inside 4D space.
+            this.stargateBuffer.SetStargateFilePath(FileLocationPrimary);
+
             // Register this gate in the Gate Network.
             Log.Warning($"Registering this Gate ({this.ThingID}) in the Gate Network.");
             GateNetwork.Add(this);
@@ -373,8 +376,7 @@ namespace BetterRimworlds.Stargate
                 return;
             }
 
-            Enhanced_Development.Stargate.Saving.SaveThings.save(this.stargateBuffer.ToList(), this.FileLocationPrimary, this);
-            this.stargateBuffer.Clear();
+            this.stargateBuffer.TransmitContents();
 
             // Tell the MapDrawer that here is something thats changed
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
@@ -392,8 +394,12 @@ namespace BetterRimworlds.Stargate
             var itemsToTeleport = new List<Thing>();
             itemsToTeleport.AddRange(this.stargateBuffer);
             this.stargateBuffer.Clear();
+            foreach (var thing in itemsToTeleport)
+            {
+                thing.Destroy();
+            }
 
-            // Tell the MapDrawer that here is something thats changed
+            // Tell the MapDrawer that here is something that's changed.
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
 
             this.currentCapacitorCharge -= this.requiredCapacitorCharge;
@@ -401,7 +407,7 @@ namespace BetterRimworlds.Stargate
             return itemsToTeleport;
         }
 
-        public Tuple<int, List<Thing>> recall1()
+        public Tuple<int, List<Thing>> recall()
         {
             // List<Thing> inboundBuffer = (List<Thing>)null;
             int originalTimelineTicks = Current.Game.tickManager.TicksAbs;
@@ -445,7 +451,7 @@ namespace BetterRimworlds.Stargate
                 }
 
                 // 
-                var loadResponse = Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary, this);
+                var loadResponse = Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary);
                 originalTimelineTicks = loadResponse.Item1;
                 List<StargateRelation> relations = loadResponse.Item2;
                 this.rebuildRelationships(inboundBuffer, relations);
@@ -509,7 +515,7 @@ namespace BetterRimworlds.Stargate
         public virtual bool StargateRecall()
         {
             /* Tuple<int, List<Thing>> **/
-            var recallData = this.recall1();
+            var recallData = this.recall();
             if (recallData == null)
             {
                 return false;

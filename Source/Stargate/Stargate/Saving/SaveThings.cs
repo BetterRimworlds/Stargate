@@ -131,19 +131,13 @@ namespace Enhanced_Development.Stargate.Saving
 
     class SaveThings
     {
-        public static void save(List<Thing> thingsToSave, string fileLocation, Thing source)
+        public static void save(List<Thing> thingsToSave, string fileLocation)
         {
             Log.Message("Saving to: " + fileLocation);
             Scribe.saver.InitSaving(fileLocation, "Stargate");
 
             //Log.Message("Starting Save");
             //Save Pawn
-
-            //Scribe_Collections.LookList<Thing>(ref thingsToSave, "things", LookMode.Deep, (object)null);
-
-            //Scribe.EnterNode("map");
-            //Scribe.EnterNode("things");
-            //source.ExposeData();
 
             var relationships = new StargateRelations();
             var loadedPawns = new List<Pawn>();
@@ -216,7 +210,7 @@ namespace Enhanced_Development.Stargate.Saving
         /**
          * @return int The absolute ticks from when the team was first dematerialized.
          */
-        public static Tuple<int, List<StargateRelation>> load(ref List<Thing> thingsToLoad, string fileLocation, Thing currentSource)
+        public static Tuple<int, List<StargateRelation>> load(ref List<Thing> thingsToLoad, string fileLocation)
         {
             Log.Message("ScribeINIT, loding from:" + fileLocation);
             Scribe.loader.InitLoading(fileLocation);

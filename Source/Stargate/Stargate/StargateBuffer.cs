@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Enhanced_Development.Stargate.Saving;
 using RimWorld;
 using Verse;
 
@@ -8,6 +10,11 @@ namespace BetterRimworlds.Stargate
     public class StargateBuffer : ThingOwner<Thing>, IList<Thing>
     {
         private Dictionary<string, Dictionary<string, PawnRelationDef>> relationships = new Dictionary<string, Dictionary<string, PawnRelationDef>>();
+
+        protected int PawnCount = 0;
+
+        protected String StargateBufferFilePath;
+
         Thing IList<Thing>.this[int index]
         {
             get => this.GetAt(index);
@@ -33,6 +40,11 @@ namespace BetterRimworlds.Stargate
             this.contentsLookMode = LookMode.Deep;
         }
 
+        public void SetStargateFilePath(String stargateBufferFilePath)
+        {
+            this.StargateBufferFilePath = stargateBufferFilePath;
+        }
+
         public override bool TryAdd(Thing item, bool canMergeWithExistingStacks = true)
         {
             // Clear its existing Holder.
@@ -50,11 +62,24 @@ namespace BetterRimworlds.Stargate
             }
             else
             {
-                //item.Discard();
+                // item.Discard();
                 item.DeSpawn();
             }
 
             return true;
+        }
+
+        public void TransmitContents()
+        {
+            Enhanced_Development.Stargate.Saving.SaveThings.save(this.InnerListForReading, this.StargateBufferFilePath);
+            // this.RemoveAll(item => item is Pawn);
+            foreach (Pawn p in this.InnerListForReading.OfType<Pawn>())
+            {
+                p.Destroy();
+            }
+
+            this.Clear();
+
         }
     }
 }
