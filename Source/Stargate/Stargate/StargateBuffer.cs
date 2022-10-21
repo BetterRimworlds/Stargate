@@ -12,8 +12,6 @@ namespace BetterRimworlds.Stargate
         // private Dictionary<string, Dictionary<stri-ng, PawnRelationDef>> relationships = new Dictionary<string, Dictionary<string, PawnRelationDef>>();
         public StargateRelations relationships = new StargateRelations();
 
-        protected int PawnCount = 0;
-
         protected String StargateBufferFilePath;
 
 
@@ -49,6 +47,12 @@ namespace BetterRimworlds.Stargate
 
         public override bool TryAdd(Thing item, bool canMergeWithExistingStacks = true)
         {
+            // Increase the maxStacks size for every Pawn, as they don't affect the dispersion area.
+            if (item is Pawn)
+            {
+                ++this.maxStacks;
+            }
+
             // Clear its existing Holder.
             item.holdingOwner = null;
             if (!base.TryAdd(item, canMergeWithExistingStacks))
@@ -60,7 +64,6 @@ namespace BetterRimworlds.Stargate
             if (item is Pawn pawn)
             {
                 pawn.DeSpawn();
-                ++this.PawnCount;
 
                 foreach (var relationship in pawn.relations.DirectRelations)
                 {
@@ -99,6 +102,11 @@ namespace BetterRimworlds.Stargate
 
             this.Clear();
 
+        }
+
+        public int getMaxStacks()
+        {
+            return this.maxStacks;
         }
     }
 }

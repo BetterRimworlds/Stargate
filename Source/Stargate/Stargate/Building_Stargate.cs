@@ -779,7 +779,7 @@ namespace BetterRimworlds.Stargate
         public override string GetInspectString()
         {
             return base.GetInspectString() + "\n"
-                + "Buffer Items: " + this.stargateBuffer.Count + " / 500\n"
+                + "Buffer Items: " + this.stargateBuffer.Count + " / " + this.stargateBuffer.getMaxStacks() + "\n"
                 + "Capacitor Charge: " + this.currentCapacitorCharge + " / " + this.requiredCapacitorCharge;
         }
 
