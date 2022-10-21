@@ -404,7 +404,7 @@ namespace BetterRimworlds.Stargate
             return itemsToTeleport;
         }
 
-        public Tuple<int, List<Thing>> recall()
+        public Tuple<int, List<Thing>, List<StargateRelation>> recall()
         {
             // List<Thing> inboundBuffer = (List<Thing>)null;
             int originalTimelineTicks = Current.Game.tickManager.TicksAbs;
@@ -490,13 +490,13 @@ namespace BetterRimworlds.Stargate
 
                 if (pawn1 is null)
                 {
-                    Log.Error($"Could not find a pawn with the ID of {relationship.pawn1ID}.");
+                    // Log.Error($"Could not find a pawn with the ID of {relationship.pawn1ID}.");
                     continue;
                 }
 
                 if (pawn2 is null)
                 {
-                    Log.Error($"Could not find a pawn with the ID of {relationship.pawn2ID}.");
+                    // Log.Error($"Could not find a pawn with the ID of {relationship.pawn2ID}.");
                     continue;
                 }
 
@@ -725,7 +725,6 @@ namespace BetterRimworlds.Stargate
 
             if (offworldEvent)
             {
-                Log.Error("8");
                 // Re-add relationships.
                 this.rebuildRelationships(relationships);
 
@@ -788,7 +787,6 @@ namespace BetterRimworlds.Stargate
 
         private void MoveToBackup()
         {
-            return;
             String newFile;
             if (System.IO.File.Exists(this.FileLocationSecondary))
             {
