@@ -23,6 +23,8 @@ namespace BetterRimworlds.Stargate
         private static List<Building_Stargate> GateNetwork = new List<Building_Stargate>();
         protected StargateBuffer stargateBuffer;
 
+        protected bool LocalTeleportEvent = false;
+
         #region Variables
 
         protected static Texture2D UI_ADD_RESOURCES;
@@ -393,11 +395,6 @@ namespace BetterRimworlds.Stargate
         {
             var itemsToTeleport = new List<Thing>();
             itemsToTeleport.AddRange(this.stargateBuffer);
-            this.stargateBuffer.Clear();
-            foreach (var thing in itemsToTeleport)
-            {
-                thing.Destroy();
-            }
 
             // Tell the MapDrawer that here is something that's changed.
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
@@ -437,15 +434,18 @@ namespace BetterRimworlds.Stargate
                 }
 
                 Log.Warning($"Stargate {stargate.ThingID} has something in its buffer.");
+                this.LocalTeleportEvent = true;
                 inboundBuffer.AddRange(stargate.Teleport());
             }
 
             // Load off-world teams only if there isn't a local teleportation taking place.
-            bool offworldEvent = this.stargateBuffer.Count == 0;
-            Log.Warning("Is offworldEvent? " + this.stargateBuffer.Count);
+            // bool offworldEvent = this.stargateBuffer.Count == 0;
+            // bool offworldEvent = inboundBuffer.Any();
+            bool offworldEvent = !this.LocalTeleportEvent;
+            Log.Warning("Is offworldEvent? " + offworldEvent);
             Log.Warning("Inbound Buffer Count? " + inboundBuffer.Count);
 
-            if (offworldEvent && !inboundBuffer.Any())
+            if (offworldEvent && !this.LocalTeleportEvent)
             {
                 // Log.Warning("Found an off-world wormhole.");
                 if (!System.IO.File.Exists(this.FileLocationPrimary))
@@ -466,9 +466,13 @@ namespace BetterRimworlds.Stargate
 
             Messages.Message("Incoming wormhole!", MessageTypeDefOf.PositiveEvent);
             Messages.Message("You really must save and reload the game to fix Stargate Syndrome.", MessageTypeDefOf.ThreatBig);
+            Log.Warning("Is this an offworld event? " + offworldEvent);
 
-            // Rebuild teleported people's logic, now...
-            this.rebuildRelationships(relationships);
+            if (offworldEvent)
+            {
+                // Rebuild teleported people's logic, now...
+                this.rebuildRelationships(relationships);
+            }
 
             return new Tuple<int, List<Thing>, List<StargateRelation>>(originalTimelineTicks, inboundBuffer, relationships);
         }
@@ -521,10 +525,22 @@ namespace BetterRimworlds.Stargate
             int originalTimelineTicks = recallData.Item1;
             List<Thing> inboundBuffer = recallData.Item2;
             List<StargateRelation> relationships = recallData.Item3;
-            bool offworldEvent = this.stargateBuffer.Count == 0;
+            // bool offworldEvent = this.stargateBuffer.Count == 0;
+            bool offworldEvent = !this.LocalTeleportEvent;
 
             foreach (Thing currentThing in inboundBuffer)
             {
+                // If it's just a teleport, destroy the thing first...
+                Log.Warning("a1: is offworld? " + offworldEvent + " | Stargate Buffer count: " + this.stargateBuffer.Count);
+                if (!offworldEvent)
+                {
+                    Log.Warning("a2");
+                    GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near);
+
+                    continue;
+                    // currentThing.Destroy();
+                }
+                
                 // currentThing.thingIDNumber = -1;
                 // Verse.ThingIDMaker.GiveIDTo(currentThing);
 
@@ -579,7 +595,11 @@ namespace BetterRimworlds.Stargate
                     // pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
                     // pawn.interactions = new Pawn_InteractionsTracker(pawn);
                     // pawn.stances = new Pawn_StanceTracker(pawn);
-                    pawn.relations = new Pawn_RelationsTracker(pawn);
+                    if (offworldEvent)
+                    {
+                        pawn.relations = new Pawn_RelationsTracker(pawn);
+                    }
+
                     pawn.jobs = new Pawn_JobTracker(pawn);
 
                     if (pawn.RaceProps.Humanlike)
@@ -698,15 +718,17 @@ namespace BetterRimworlds.Stargate
             }
 
             inboundBuffer.Clear();
+            // this.stargateBuffer.Clear();
 
             // Tell the MapDrawer that here is something that's changed
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
 
-            // Re-add relationships.
-            this.rebuildRelationships(relationships);
-
             if (offworldEvent)
             {
+                Log.Error("8");
+                // Re-add relationships.
+                this.rebuildRelationships(relationships);
+
                 this.MoveToBackup();
             }
 
