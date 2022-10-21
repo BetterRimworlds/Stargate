@@ -85,6 +85,21 @@ The Stargate system allows you to transport materials over the great distances b
 * Fixed: Recalled animals won't "collapse due to extreme exhaustion" anymore.
 * Offset pawns' chronological age in reference to the time differential of when they entered the stargate.
 
+**v6.5.0: 2022-02-10**
+* Migrated the build system to Linux.
+* Refactored the namespaces from Enhanced_Development to BetterRimworlds.
+* Refactored the Stargate.xml file location to be OS independent.
+* Completely reimplemented the StargateBuffer mechanism so that buffer items are saved with the saved games.
+* Reset the Guilty tag of Humans who come through the gate.
+* Fixed viewing of the contents of the Stargate's outgoing buffer.
+* Upgrade to .NET Framework v4.8.
+* Fixed the Transdimensional Stargate.
+* Upgraded to Rimworld v1.3.
+* Refactored "colonists" to "pawns".
+* Persist hediffs through gate rematerialization.
+* An attempt to cure Animal Stargate Psychosis.
+* Adjust the pawn's chronological age by time diffs of the origin + destination stargates.
+* Misc. changes.
 
 ## Contributors
 
