@@ -323,9 +323,6 @@ namespace BetterRimworlds.Stargate
         {
             if (this.fullyCharged)
             {
-                // 60,000 ticks per day.
-                var ticksPassed = GenDate.DaysPassed * 60_000L;
-
                 //Log.Message("CLick AddColonist");
                 IEnumerable<Pawn> closePawns = Enhanced_Development.Utilities.Utilities.findPawnsInColony(this.Position, Building_Stargate.ADDITION_DISTANCE);
 
@@ -525,13 +522,12 @@ namespace BetterRimworlds.Stargate
             int originalTimelineTicks = recallData.Item1;
             List<Thing> inboundBuffer = recallData.Item2;
             List<StargateRelation> relationships = recallData.Item3;
-            // bool offworldEvent = this.stargateBuffer.Count == 0;
             bool offworldEvent = !this.LocalTeleportEvent;
 
             foreach (Thing currentThing in inboundBuffer)
             {
                 // If it's just a teleport, destroy the thing first...
-                Log.Warning("a1: is offworld? " + offworldEvent + " | Stargate Buffer count: " + this.stargateBuffer.Count);
+                // Log.Warning("a1: is offworld? " + offworldEvent + " | Stargate Buffer count: " + this.stargateBuffer.Count);
                 if (!offworldEvent)
                 {
                     Log.Warning("a2");
@@ -561,10 +557,6 @@ namespace BetterRimworlds.Stargate
                 // if they enter a Stargate after they've ever been drafted.
                 if (currentThing is Pawn pawn)
                 {
-                    // Offset their chronological age by the current time in the game and offset by the Year 5500.
-                    // We will reduce their age if they come in after the Year 5500...
-                    pawn.ageTracker.AgeChronologicalTicks += ticksPassed;
-
                     // Carry over injuries, sicknesses, addictions, and artificial body parts.
                     var hediffSet = pawn.health.hediffSet;
 
@@ -691,6 +683,8 @@ namespace BetterRimworlds.Stargate
                     //
                     // This is the only way in which even the pawns themselves and their co-travelers, dopplegangers
                     // in parallel realities, and the Observer can possibly tell how Old they really are...
+                    //
+                    // There are 60,000 ticks per day.
                     long timelineTicksDiff = Current.Game.tickManager.TicksAbs - originalTimelineTicks;
                     long newAbsBirthdate = pawn.ageTracker.BirthAbsTicks + timelineTicksDiff;
                     Log.Message($"Subtracting {timelineTicksDiff} from the pawn's absolute ticks. From {pawn.ageTracker.BirthAbsTicks} to {newAbsBirthdate}");
