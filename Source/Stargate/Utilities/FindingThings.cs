@@ -64,22 +64,22 @@ namespace Enhanced_Development.Utilities
             return (Thing)null;
         }
 
-        static public Thing FindItemThingsNearBuilding(Thing centerBuilding, int radius, Map map)
+        static public List<Thing> FindItemThingsNearBuilding(Thing centerBuilding, int radius, Map map)
         {
             IEnumerable<Thing> closeThings = GenRadial.RadialDistinctThingsAround(centerBuilding.Position, map, radius, true);
+
+            var closeItems = new List<Thing>(closeThings.Count());
 
             foreach (Thing tempThing in closeThings)
             {
                 if (tempThing.def.category == ThingCategory.Item)
                 {
-                    return tempThing;
+                    closeItems.Add(tempThing);
                 }
-
             }
 
-            return (Thing)null;
+            return closeItems;
         }
-
     }
 }
 

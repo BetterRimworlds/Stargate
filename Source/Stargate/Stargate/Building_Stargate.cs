@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using BetterRimworlds.Stargate;
 using Verse;
 using UnityEngine;
 using RimWorld;
 using Verse.AI;
 
-namespace Enhanced_Development.Stargate
+namespace BetterRimworlds.Stargate
 {
     [StaticConstructorOnStartup]
     class Building_Stargate : Building_Storage, IThingHolder
@@ -65,12 +65,17 @@ namespace Enhanced_Development.Stargate
             UI_POWER_UP = ContentFinder<Texture2D>.Get("UI/PowerUp", true);
             UI_POWER_DOWN = ContentFinder<Texture2D>.Get("UI/PowerDown", true);
 
+#if RIMWORLD12
             GraphicRequest requestActive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate-Active",   ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData(), 0, null);
+            GraphicRequest requestInactive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData(), 0, null);
+#endif
+#if RIMWORLD13
+            GraphicRequest requestActive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate-Active",   ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData(), 0, null, null);
+            GraphicRequest requestInactive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData(), 0, null, null);
+#endif
 
             graphicActive = new Graphic_Single();
             graphicActive.Init(requestActive);
-
-            GraphicRequest requestInactive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData(), 0, null);
 
             graphicInactive = new Graphic_Single();
             graphicInactive.Init(requestInactive);
@@ -78,8 +83,9 @@ namespace Enhanced_Development.Stargate
 
         public Building_Stargate()
         {
-            this.stargateBuffer = new StargateBuffer(this);
+            this.stargateBuffer = new StargateBuffer(this, false, LookMode.Deep);
         }
+
 
         #region Override
 
@@ -93,8 +99,8 @@ namespace Enhanced_Development.Stargate
             if (def is StargateThingDef)
             {
                 //Read in variables from the custom MyThingDef
-                FileLocationPrimary = ((Enhanced_Development.Stargate.StargateThingDef)def).FileLocationPrimary;
-                FileLocationSecondary = ((Enhanced_Development.Stargate.StargateThingDef)def).FileLocationSecondary;
+                FileLocationPrimary = ((StargateThingDef)def).FileLocationPrimary;
+                FileLocationSecondary = ((StargateThingDef)def).FileLocationSecondary;
 
                 //Log.Message("Setting FileLocationPrimary:" + FileLocationPrimary + " and FileLocationSecondary:" + FileLocationSecondary);
             }
@@ -103,30 +109,30 @@ namespace Enhanced_Development.Stargate
                 Log.Error("Stargate definition not of type \"StargateThingDef\"");
             }
 
+            string stargateDirectory = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate");
+            Log.Warning("Stargate Directory: " + stargateDirectory);
+
             if (String.IsNullOrEmpty(FileLocationPrimary))
             {
-                FileLocationPrimary = Verse.GenFilePaths.SaveDataFolderPath + @"\Stargate\Stargate.xml";
+                FileLocationPrimary = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate", "Stargate.xml");
+                Log.Warning("Stargate File: " + FileLocationPrimary);
 
-                if (!System.IO.Directory.Exists(Verse.GenFilePaths.SaveDataFolderPath + @"\Stargate\"))
+                if (!System.IO.Directory.Exists(stargateDirectory))
                 {
-                    System.IO.Directory.CreateDirectory(Verse.GenFilePaths.SaveDataFolderPath + @"\Stargate\");
+                    System.IO.Directory.CreateDirectory(stargateDirectory);
                 }
             }
 
             if (String.IsNullOrEmpty(FileLocationSecondary))
             {
-                FileLocationSecondary = Verse.GenFilePaths.SaveDataFolderPath + @"\Stargate\StargateBackup.xml";
-
-                if (!System.IO.Directory.Exists(Verse.GenFilePaths.SaveDataFolderPath + @"\Stargate\"))
-                {
-                    System.IO.Directory.CreateDirectory(Verse.GenFilePaths.SaveDataFolderPath + @"\Stargate\");
-                }
+                FileLocationSecondary = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate", "StargateBackup.xml");
+                Log.Warning("Stargate Backup: " + FileLocationSecondary);
             }
 
             // Register this gate in the Gate Network.
             Log.Warning($"Registering this Gate ({this.ThingID}) in the Gate Network.");
             GateNetwork.Add(this);
-            
+
             Log.Warning("Found some things in the stargate's buffer: " + this.stargateBuffer.Count);
         }
 
@@ -138,7 +144,6 @@ namespace Enhanced_Development.Stargate
         // Saving game
         public override void ExposeData()
         {
-            base.ExposeData();
 
             Scribe_Values.Look<int>(ref currentCapacitorCharge, "currentCapacitorCharge");
             Scribe_Values.Look<int>(ref requiredCapacitorCharge, "requiredCapacitorCharge");
@@ -148,6 +153,8 @@ namespace Enhanced_Development.Stargate
             {
                 this
             });
+
+            base.ExposeData();
         }
 
         protected void BaseTickRare()
@@ -220,7 +227,7 @@ namespace Enhanced_Development.Stargate
             {
                 Command_Action act = new Command_Action();
                 //act.action = () => Designator_Deconstruct.DesignateDeconstruct(this);
-                act.action = () => this.AddColonist();
+                act.action = () => this.AddPawns();
                 act.icon = UI_ADD_COLONIST;
                 act.defaultLabel = "Add Colonist";
                 act.defaultDesc = "Add Colonist";
@@ -292,34 +299,28 @@ namespace Enhanced_Development.Stargate
         {
             if (this.fullyCharged)
             {
-                Thing foundThing = Enhanced_Development.Utilities.Utilities.FindItemThingsNearBuilding(this, Building_Stargate.ADDITION_DISTANCE, this.currentMap);
+                List<Thing> foundThings = Enhanced_Development.Utilities.Utilities.FindItemThingsNearBuilding(this, Building_Stargate.ADDITION_DISTANCE, this.currentMap);
 
-                if (foundThing != null)
+                foreach (Thing foundThing in foundThings)
                 {
                     if (foundThing.Spawned && this.stargateBuffer.Count < 500)
                     {
-                        List<Thing> thingList = new List<Thing>();
-                        //thingList.Add(foundThing);
                         this.stargateBuffer.TryAdd(foundThing);
 
                         //Building_OrbitalRelay.listOfThingLists.Add(thingList);
-
-                        //Recursively Call to get Everything
-                        this.AddResources();
                     }
                 }
 
-                // Tell the MapDrawer that here is something thats changed
+                // Tell the MapDrawer that here is something that's changed.
                 Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
             }
             else
             {
                 Messages.Message("Insufficient Power to add Resources", MessageTypeDefOf.RejectInput);
             }
-
         }
 
-        public void AddColonist()
+        public void AddPawns()
         {
             if (this.fullyCharged)
             {
@@ -331,29 +332,27 @@ namespace Enhanced_Development.Stargate
 
                 if (closePawns != null)
                 {
-                    foreach (Pawn currentPawn in closePawns.ToList())
+                    foreach (Pawn pawn in closePawns.ToList())
                     {
-                        if (currentPawn.Spawned)
+                        if (!pawn.Spawned)
                         {
-                            // Offset their chronological age by the current time in the game and offset by the Year 5500.
-                            // We will reduce their age if they come in after the Year 5500...
-                            currentPawn.ageTracker.AgeChronologicalTicks -= ticksPassed;
-
-                            // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
-                            // if they enter a Stargate after they've ever been drafted.
-                            if (currentPawn.verbTracker != null)
-                            {
-                                currentPawn.verbTracker = new VerbTracker(currentPawn);
-                            }
-
-                            // Remove memories or they will go insane...
-                            if (currentPawn.def.defName == "Human")
-                            {
-                                currentPawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(currentPawn);
-                            }
-
-                            this.stargateBuffer.TryAdd(currentPawn);
+                            continue;
                         }
+
+                        // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
+                        // if they enter a Stargate after they've ever been drafted.
+                        if (pawn.verbTracker != null)
+                        {
+                            pawn.verbTracker = new VerbTracker(pawn);
+                        }
+
+                        // Remove memories or they will go insane...
+                        if (pawn.def.defName == "Human")
+                        {
+                            pawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(pawn);
+                        }
+
+                        this.stargateBuffer.TryAdd(pawn);
                     }
                 }
 
@@ -411,6 +410,8 @@ namespace Enhanced_Development.Stargate
         public virtual bool StargateRecall()
         {
             // List<Thing> inboundBuffer = (List<Thing>)null;
+            int originalTimelineTicks = Current.Game.tickManager.TicksAbs;
+
             var inboundBuffer = new List<Thing>();
             Log.Message("Number of stargates on this planet: " + GateNetwork.Count);
             // See if any of the stargates on this planet (including this gate) have items in their buffer...
@@ -442,7 +443,7 @@ namespace Enhanced_Development.Stargate
                     return false;
                 }
 
-                Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary, this);
+                originalTimelineTicks = Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary, this);
                 // Log.Warning("Number of items in the wormhole: " + inboundBuffer.Count);
             }
 
@@ -481,28 +482,22 @@ namespace Enhanced_Development.Stargate
                     var hediffSet = pawn.health.hediffSet;
 
                     pawn.health = new Pawn_HealthTracker(pawn);
-
                     foreach (var hediff in hediffSet.hediffs.ToList())
                     {
                         if (hediff is Hediff_MissingPart)
                         {
                             continue;
                         }
-                        pawn.health.AddHediff(hediff.def, hediff.Part);
+                        hediff.pawn = pawn;
+                        pawn.health.AddHediff(hediff, hediff.Part);
                     }
 
-                    pawn.verbTracker = new VerbTracker(pawn);
-                    pawn.caller = new Pawn_CallTracker(pawn);
-                    pawn.carryTracker = new Pawn_CarryTracker(pawn);
-                    pawn.rotationTracker = new Pawn_RotationTracker(pawn);
-                    pawn.thinker = new Pawn_Thinker(pawn);
-                    pawn.mindState = new Pawn_MindState(pawn);
-                    pawn.jobs = new Pawn_JobTracker(pawn);
-                    pawn.meleeVerbs = new Pawn_MeleeVerbs(pawn);
-                    pawn.pather = new Pawn_PathFollower(pawn);
-                    pawn.drafter = new Pawn_DraftController(pawn);
-                    pawn.natives = null;
-                    pawn.interactions = new Pawn_InteractionsTracker(pawn);
+                    // @FIXME: Animals still have partial Stargate Insanity and many times will never fall asleep
+                    //         on the new planet. They will drop-down from sheer exhaustion.
+                    //         Some of them also become Godlings, literally unkillable except via the Dev Mode.
+                    // Quickly draft and undraft the Colonist. This will cause them to become aware of the newly-in-phase weapon they are holding,
+                    // if any. This is effectively the cure of Stargate Insanity.
+                    pawn.needs = new Pawn_NeedsTracker(pawn);
 
                     if (pawn.IsColonist)
                     {
@@ -557,11 +552,25 @@ namespace Enhanced_Development.Stargate
                     if (pawn.RaceProps.Humanlike)
                     {
                         pawn.guest = new Pawn_GuestTracker(pawn);
+#if RIMWORLD12
+                        pawn.guilt = new Pawn_GuiltTracker();
+#else
                         pawn.guilt = new Pawn_GuiltTracker(pawn);
+#endif
                         pawn.abilities = new Pawn_AbilityTracker(pawn);
                         pawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(pawn);
                     }
                     
+                    // Alter the pawn's chronological age based upon the temporal drift between their origin universe
+                    // and the destination universe.
+                    //
+                    // This is the only way in which even the pawns themselves and their co-travelers, dopplegangers
+                    // in parallel realities, and the Observer can possibly tell how Old they really are...
+                    long timelineTicksDiff = Current.Game.tickManager.TicksAbs - originalTimelineTicks;
+                    long newAbsBirthdate = pawn.ageTracker.BirthAbsTicks + timelineTicksDiff;
+                    Log.Message($"Subtracting {timelineTicksDiff} from the pawn's absolute ticks. From {pawn.ageTracker.BirthAbsTicks} to {newAbsBirthdate}");
+                    pawn.ageTracker.BirthAbsTicks = newAbsBirthdate;
+
                     // Give them a brief psychic shock so that they will be given proper Melee Verbs and not act like a Visitor.
                     // Hediff shock = HediffMaker.MakeHediff(HediffDefOf.PsychicShock, pawn, null);
                     // pawn.health.AddHediff(shock, null, null);
@@ -578,7 +587,7 @@ namespace Enhanced_Development.Stargate
 
             if (offworldEvent)
             {
-                // this.MoveToBackup();
+                this.MoveToBackup();
             }
 
             return true;
@@ -622,7 +631,6 @@ namespace Enhanced_Development.Stargate
                 else
                 {
                     return Building_Stargate.graphicInactive;
-
                 }
             }
         }

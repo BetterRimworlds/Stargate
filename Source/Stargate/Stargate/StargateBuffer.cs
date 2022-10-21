@@ -1,62 +1,58 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Verse;
 
 namespace BetterRimworlds.Stargate
 {
-    public class StargateBuffer : ThingOwner
+    public class StargateBuffer : ThingOwner<Thing>, IList<Thing>
     {
-        List<Thing> bufferedThingsList = new List<Thing>();
+        Thing IList<Thing>.this[int index]
+        {
+            get => this.GetAt(index);
+            set => throw new InvalidOperationException("ThingOwner doesn't allow setting individual elements.");
+        }
+
+        public StargateBuffer(): base()
+        {
+            this.maxStacks = 500;
+            this.contentsLookMode = LookMode.Deep;
+        }
+
+        public StargateBuffer(IThingHolder owner, bool oneStackOnly, LookMode contentsLookMode = LookMode.Deep) :
+            base(owner, oneStackOnly, contentsLookMode)
+        {
+            this.maxStacks = 500;
+            this.contentsLookMode = LookMode.Deep;
+        }
 
         public StargateBuffer(IThingHolder owner): base(owner)
         {
-            this.maxStacks = 999999;
+            this.maxStacks = 500;
             this.contentsLookMode = LookMode.Deep;
-        }
-        
-        public override int Count
-        {
-            get
-            {
-                return bufferedThingsList.Count;
-            }
-        }
-
-        public override int TryAdd(Thing item, int count, bool canMergeWithExistingStacks = true)
-        {
-            this.bufferedThingsList.Add(item);
-
-            return count;
         }
 
         public override bool TryAdd(Thing item, bool canMergeWithExistingStacks = true)
         {
-            this.bufferedThingsList.Add(item);
+            // Clear its existing Holder.
+            item.holdingOwner = null;
+            if (!base.TryAdd(item, canMergeWithExistingStacks))
+            {
+                Log.Error("Couldn't successfully load the item into the Stargate for unknown reasons.");
+                return false;
+            }
 
             if (item is Pawn pawn)
             {
+                pawn.Discard();
                 pawn.DeSpawn();
             }
             else
             {
+                item.Discard();
                 item.DeSpawn();
             }
 
             return true;
-        }
-
-        public override int IndexOf(Thing item)
-        {
-            return this.bufferedThingsList.IndexOf(item);
-        }
-
-        public override bool Remove(Thing item)
-        {
-            return this.bufferedThingsList.Remove(item);
-        }
-
-        protected override Thing GetAt(int index)
-        {
-            return this.bufferedThingsList[index];
         }
     }
 }
