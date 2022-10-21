@@ -101,6 +101,20 @@ The Stargate system allows you to transport materials over the great distances b
 * Adjust the pawn's chronological age by time diffs of the origin + destination stargates.
 * Misc. changes.
 
+**v6.50: 2022-10-21**
+* Developed THE ACTUAL CURE for Stargate Psychosis!!!
+* Arranged it so that the number of pawns doesn't count towards the total Stargate buffer.
+* Added functionality to rebuild pawn relationships after gating.
+* Reworked the re-adding of relationships across stargate jumps.
+* Majorly refactored how relationships are loaded and rebuilt.
+* Reduce the Stargate's power draw to 0 when fully charged.
+* Move each existing Stargate buffer backup to its own file.
+* Majorly refactored the transmission of Gate contents from the Stargate itself into the Stargate Buffer.
+* Refactored the Stargate Recall() method.
+* Removed the extremely deprecated ability to define the Stargate.xml path from in the ThingDef XML.
+* Removed debug code.
+* YESS!! I got everything working!
+
 ## Contributors
 
 This mod is forked off of the incredible engineering work by Jaxxa in his [**ED-Stargate mod**](https://github.com/jaxxa/ED-Stargate).

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Enhanced_Development.Stargate.Saving;
 using Verse;
 using UnityEngine;
 using RimWorld;
@@ -21,6 +22,8 @@ namespace BetterRimworlds.Stargate
 
         private static List<Building_Stargate> GateNetwork = new List<Building_Stargate>();
         protected StargateBuffer stargateBuffer;
+
+        protected bool LocalTeleportEvent = false;
 
         #region Variables
 
@@ -96,19 +99,6 @@ namespace BetterRimworlds.Stargate
 
             this.power = base.GetComp<CompPowerTrader>();
 
-            if (def is StargateThingDef)
-            {
-                //Read in variables from the custom MyThingDef
-                FileLocationPrimary = ((StargateThingDef)def).FileLocationPrimary;
-                FileLocationSecondary = ((StargateThingDef)def).FileLocationSecondary;
-
-                //Log.Message("Setting FileLocationPrimary:" + FileLocationPrimary + " and FileLocationSecondary:" + FileLocationSecondary);
-            }
-            else
-            {
-                Log.Error("Stargate definition not of type \"StargateThingDef\"");
-            }
-
             string stargateDirectory = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate");
             Log.Warning("Stargate Directory: " + stargateDirectory);
 
@@ -128,6 +118,9 @@ namespace BetterRimworlds.Stargate
                 FileLocationSecondary = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate", "StargateBackup.xml");
                 Log.Warning("Stargate Backup: " + FileLocationSecondary);
             }
+
+            // Link the Stargate to the Stargate Network inside 4D space.
+            this.stargateBuffer.SetStargateFilePath(FileLocationPrimary);
 
             // Register this gate in the Gate Network.
             Log.Warning($"Registering this Gate ({this.ThingID}) in the Gate Network.");
@@ -168,12 +161,19 @@ namespace BetterRimworlds.Stargate
             if (this.power.PowerOn)
             {
                 currentCapacitorCharge += chargeSpeed;
+                if (this.power.PowerNet.CurrentEnergyGainRate() > 1000)
+                {
+                    chargeSpeed += 1;
+                    this.updatePowerDrain();
+                }
             }
 
             // Stop using power if it's full.
             if (currentCapacitorCharge >= requiredCapacitorCharge)
             {
                 currentCapacitorCharge = requiredCapacitorCharge;
+                this.chargeSpeed = 0;
+                this.updatePowerDrain();
             }
 
             if (this.currentCapacitorCharge < 0)
@@ -278,7 +278,7 @@ namespace BetterRimworlds.Stargate
                 //act.groupKey = 689736;
                 yield return act;
             }
-
+            // +57 320-637-6544
             if (true)
             {
                 Command_Action act = new Command_Action();
@@ -292,7 +292,6 @@ namespace BetterRimworlds.Stargate
                 //act.groupKey = 689736;
                 yield return act;
             }
-
         }
 
         public void AddResources()
@@ -324,9 +323,6 @@ namespace BetterRimworlds.Stargate
         {
             if (this.fullyCharged)
             {
-                // 60,000 ticks per day.
-                var ticksPassed = GenDate.DaysPassed * 60_000L;
-
                 //Log.Message("CLick AddColonist");
                 IEnumerable<Pawn> closePawns = Enhanced_Development.Utilities.Utilities.findPawnsInColony(this.Position, Building_Stargate.ADDITION_DISTANCE);
 
@@ -379,8 +375,7 @@ namespace BetterRimworlds.Stargate
                 return;
             }
 
-            Enhanced_Development.Stargate.Saving.SaveThings.save(this.stargateBuffer.ToList(), this.FileLocationPrimary, this);
-            this.stargateBuffer.Clear();
+            this.stargateBuffer.TransmitContents();
 
             // Tell the MapDrawer that here is something thats changed
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
@@ -397,9 +392,8 @@ namespace BetterRimworlds.Stargate
         {
             var itemsToTeleport = new List<Thing>();
             itemsToTeleport.AddRange(this.stargateBuffer);
-            this.stargateBuffer.Clear();
 
-            // Tell the MapDrawer that here is something thats changed
+            // Tell the MapDrawer that here is something that's changed.
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
 
             this.currentCapacitorCharge -= this.requiredCapacitorCharge;
@@ -407,55 +401,144 @@ namespace BetterRimworlds.Stargate
             return itemsToTeleport;
         }
 
-        public virtual bool StargateRecall()
+        public Tuple<int, List<Thing>, List<StargateRelation>> recall()
         {
             // List<Thing> inboundBuffer = (List<Thing>)null;
             int originalTimelineTicks = Current.Game.tickManager.TicksAbs;
 
             var inboundBuffer = new List<Thing>();
+            // var inboundBuffer = this.stargateBuffer.ToList();
+            // this.stargateBuffer.Clear();
             Log.Message("Number of stargates on this planet: " + GateNetwork.Count);
+
+            var relationships = this.stargateBuffer.relationships;
             // See if any of the stargates on this planet (including this gate) have items in their buffer...
             // and if so, recall them here.
             // @FIXME: Use  DefDatabase<ThingDef>.AllDefs.Where((ThingDef def) => typeof(Building_Stargate)
             foreach (var stargate in GateNetwork)
             {
                 Log.Message("Found a Stargate with the ID of " + stargate.ThingID);
+
+                // if (this.ThingID == stargate.ThingID)
+                // {
+                //     Log.Message("BUT.... It is this very Stargate, so we are going to skip it.");
+                //     continue;
+                // }
+
                 if (!stargate.HasThingsInBuffer())
                 {
                     continue;
                 }
 
                 Log.Warning($"Stargate {stargate.ThingID} has something in its buffer.");
+                this.LocalTeleportEvent = true;
                 inboundBuffer.AddRange(stargate.Teleport());
             }
 
             // Load off-world teams only if there isn't a local teleportation taking place.
-            bool offworldEvent = this.stargateBuffer.Count == 0;
-            Log.Warning("Is offworldEvent? " + this.stargateBuffer.Count);
+            // bool offworldEvent = this.stargateBuffer.Count == 0;
+            // bool offworldEvent = inboundBuffer.Any();
+            bool offworldEvent = !this.LocalTeleportEvent;
+            Log.Warning("Is offworldEvent? " + offworldEvent);
             Log.Warning("Inbound Buffer Count? " + inboundBuffer.Count);
-            if (offworldEvent && !inboundBuffer.Any())
+
+            if (offworldEvent && !this.LocalTeleportEvent)
             {
                 // Log.Warning("Found an off-world wormhole.");
                 if (!System.IO.File.Exists(this.FileLocationPrimary))
                 {
                     Messages.Message("No Off-world Teams were found", MessageTypeDefOf.RejectInput);
 
-                    return false;
+                    return null;
                 }
 
-                originalTimelineTicks = Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary, this);
+                // 
+                var loadResponse = Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary);
+                originalTimelineTicks = loadResponse.Item1;
+                relationships.AddRange(loadResponse.Item2);
+                // this.rebuildRelationships(inboundBuffer, relationships);
+                
                 // Log.Warning("Number of items in the wormhole: " + inboundBuffer.Count);
             }
 
             Messages.Message("Incoming wormhole!", MessageTypeDefOf.PositiveEvent);
+            Messages.Message("You really must save and reload the game to fix Stargate Syndrome.", MessageTypeDefOf.ThreatBig);
+            Log.Warning("Is this an offworld event? " + offworldEvent);
 
-            // 60,000 ticks per day.
-            var ticksPassed = GenDate.DaysPassed * 60_000L;
+            if (offworldEvent)
+            {
+                // Rebuild teleported people's logic, now...
+                this.rebuildRelationships(relationships);
+            }
+
+            return new Tuple<int, List<Thing>, List<StargateRelation>>(originalTimelineTicks, inboundBuffer, relationships);
+        }
+
+        // @FIXME: Need to refactor this to a StargateBuffer.
+        private void rebuildRelationships(List<StargateRelation> relationships)
+        {
+            // Re-add the relationships.
+            foreach (var relationship in relationships)
+            {
+                Log.Message($"Loading the relationship between {relationship.pawn1ID} and {relationship.pawn2ID}: {relationship.relationship}");
+
+                var pawn1 = Find.CurrentMap.mapPawns.AllPawnsSpawned.Find(p => p.ThingID == relationship.pawn1ID);
+                var pawn2 = Find.CurrentMap.mapPawns.AllPawnsSpawned.Find(p => p.ThingID == relationship.pawn2ID);
+
+                if (pawn1 is null)
+                {
+                    // Log.Error($"Could not find a pawn with the ID of {relationship.pawn1ID}.");
+                    continue;
+                }
+
+                if (pawn2 is null)
+                {
+                    // Log.Error($"Could not find a pawn with the ID of {relationship.pawn2ID}.");
+                    continue;
+                }
+
+                PawnRelationDef pawnRelationDef = DefDatabase<PawnRelationDef>.GetNamedSilentFail(relationship.relationship);
+                pawn1.relations.AddDirectRelation(pawnRelationDef, pawn2);
+            
+                pawn1.ClearMind();
+                pawn2.ClearMind();
+            
+                pawn1.thinker = new Pawn_Thinker(pawn1);
+                pawn2.thinker = new Pawn_Thinker(pawn2);
+
+                Log.Message($"Loaded the relationship between {relationship.pawn1ID} and {relationship.pawn2ID}: {relationship.relationship}");
+            }
+        }
+
+        public virtual bool StargateRecall()
+        {
+            /* Tuple<int, List<Thing>> **/
+            var recallData = this.recall();
+            if (recallData == null)
+            {
+                return false;
+            }
+            
+            int originalTimelineTicks = recallData.Item1;
+            List<Thing> inboundBuffer = recallData.Item2;
+            List<StargateRelation> relationships = recallData.Item3;
+            bool offworldEvent = !this.LocalTeleportEvent;
 
             foreach (Thing currentThing in inboundBuffer)
             {
-                currentThing.thingIDNumber = -1;
-                Verse.ThingIDMaker.GiveIDTo(currentThing);
+                // If it's just a teleport, destroy the thing first...
+                // Log.Warning("a1: is offworld? " + offworldEvent + " | Stargate Buffer count: " + this.stargateBuffer.Count);
+                if (!offworldEvent)
+                {
+                    Log.Warning("a2");
+                    GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near);
+
+                    continue;
+                    // currentThing.Destroy();
+                }
+                
+                // currentThing.thingIDNumber = -1;
+                // Verse.ThingIDMaker.GiveIDTo(currentThing);
 
                 // If it's an equippable object, like a gun, reset its verbs or ANY colonist that equips it *will* go insane...
                 // This is actually probably the root cause of Colonist Insanity (holding an out-of-phase item with IDs belonging
@@ -474,10 +557,6 @@ namespace BetterRimworlds.Stargate
                 // if they enter a Stargate after they've ever been drafted.
                 if (currentThing is Pawn pawn)
                 {
-                    // Offset their chronological age by the current time in the game and offset by the Year 5500.
-                    // We will reduce their age if they come in after the Year 5500...
-                    pawn.ageTracker.AgeChronologicalTicks += ticksPassed;
-
                     // Carry over injuries, sicknesses, addictions, and artificial body parts.
                     var hediffSet = pawn.health.hediffSet;
 
@@ -497,19 +576,55 @@ namespace BetterRimworlds.Stargate
                     //         Some of them also become Godlings, literally unkillable except via the Dev Mode.
                     // Quickly draft and undraft the Colonist. This will cause them to become aware of the newly-in-phase weapon they are holding,
                     // if any. This is effectively the cure of Stargate Insanity.
-                    pawn.needs = new Pawn_NeedsTracker(pawn);
-
-                    if (pawn.IsColonist)
+                    pawn.needs.SetInitialLevels();
+                 
+                    // pawn.verbTracker = new VerbTracker(pawn);
+                    // pawn.thinker = new Pawn_Thinker(pawn);
+                    // pawn.mindState = new Pawn_MindState(pawn);
+                    // pawn.jobs = new Pawn_JobTracker(pawn);
+                    // pawn.pather = new Pawn_PathFollower(pawn);
+                    // pawn.caller = new Pawn_CallTracker(pawn);
+                    // pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
+                    // pawn.interactions = new Pawn_InteractionsTracker(pawn);
+                    // pawn.stances = new Pawn_StanceTracker(pawn);
+                    if (offworldEvent)
                     {
-                        //pawn.ownership = new Pawn_Ownership(pawn);
-                        // pawn.outfits = new Pawn_OutfitTracker(pawn);
+                        pawn.relations = new Pawn_RelationsTracker(pawn);
+                    }
+
+                    pawn.jobs = new Pawn_JobTracker(pawn);
+
+                    if (pawn.RaceProps.Humanlike)
+                    {
+                        // pawn.thinker = new Pawn_Thinker(pawn);
+                        // pawn.mindState = new Pawn_MindState(pawn);
+                        // pawn.jobs = new Pawn_JobTracker(pawn);
+                        // pawn.pather = new Pawn_PathFollower(pawn);
+                        // pawn.caller = new Pawn_CallTracker(pawn);
+                        // pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
+                        // pawn.interactions = new Pawn_InteractionsTracker(pawn);
+                        // pawn.stances = new Pawn_StanceTracker(pawn);
+                        // pawn.relations = new Pawn_RelationsTracker(pawn);
+                        pawn.verbTracker = new VerbTracker(pawn);
+                        pawn.carryTracker = new Pawn_CarryTracker(pawn);
+                        pawn.rotationTracker = new Pawn_RotationTracker(pawn);
+                        pawn.thinker = new Pawn_Thinker(pawn);
+                        pawn.mindState = new Pawn_MindState(pawn);
+                        pawn.ownership = new Pawn_Ownership(pawn);
+                        pawn.drafter = new Pawn_DraftController(pawn);
+                        pawn.natives = null;
+                        pawn.outfits = new Pawn_OutfitTracker(pawn);
+                        pawn.pather = new Pawn_PathFollower(pawn);
                         // pawn.records = new Pawn_RecordsTracker(pawn);
-                        //pawn.relations = new Pawn_RelationsTracker(pawn);
-                        pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
-                        pawn.stances = new Pawn_StanceTracker(pawn);
+                        // pawn.relations = new Pawn_RelationsTracker(pawn);
+                        pawn.caller = new Pawn_CallTracker(pawn);
+                        // pawn.needs = new Pawn_NeedsTracker(pawn);
+                        // pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
+                        // pawn.interactions = new Pawn_InteractionsTracker(pawn);
+                        // pawn.stances = new Pawn_StanceTracker(pawn);
                         // pawn.story = new Pawn_StoryTracker(pawn);
                         // pawn.playerSettings = new Pawn_PlayerSettings(pawn);
-                        // pawn.psychicEntropy = new Pawn_PsychicEntropyTracker(pawn);
+                        pawn.psychicEntropy = new Pawn_PsychicEntropyTracker(pawn);
                         // pawn.workSettings = new Pawn_WorkSettings(pawn);
 
                         pawn.skills.SkillsTick();
@@ -538,20 +653,22 @@ namespace BetterRimworlds.Stargate
                         {
                             pawn.equipment.Primary.InitializeComps();
                             pawn.equipment.PrimaryEq.verbTracker = new VerbTracker(pawn);
-                            // pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
+                            pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
                         }
 
                         // Quickly draft and undraft the Colonist. This will cause them to become aware of the newly-in-phase weapon they are holding,
                         // if any. This is effectively the cure of Stargate Insanity.
-                        pawn.drafter.Drafted = true;
-                        pawn.drafter.Drafted = false;
-
+                        if (pawn.RaceProps.Humanlike)
+                        {
+                            pawn.drafter.Drafted = true;
+                            pawn.drafter.Drafted = false;
+                        }
                     }               
 
                     // Remove memories or they will go insane...
                     if (pawn.RaceProps.Humanlike)
                     {
-                        pawn.guest = new Pawn_GuestTracker(pawn);
+                        // pawn.guest = new Pawn_GuestTracker(pawn);
 #if RIMWORLD12
                         pawn.guilt = new Pawn_GuiltTracker();
 #else
@@ -566,6 +683,8 @@ namespace BetterRimworlds.Stargate
                     //
                     // This is the only way in which even the pawns themselves and their co-travelers, dopplegangers
                     // in parallel realities, and the Observer can possibly tell how Old they really are...
+                    //
+                    // There are 60,000 ticks per day.
                     long timelineTicksDiff = Current.Game.tickManager.TicksAbs - originalTimelineTicks;
                     long newAbsBirthdate = pawn.ageTracker.BirthAbsTicks + timelineTicksDiff;
                     Log.Message($"Subtracting {timelineTicksDiff} from the pawn's absolute ticks. From {pawn.ageTracker.BirthAbsTicks} to {newAbsBirthdate}");
@@ -578,15 +697,31 @@ namespace BetterRimworlds.Stargate
                 }
 
                 GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near);
+
+                if (currentThing is Pawn thisPawn)
+                {
+
+                    this.currentMap.mapPawns.RegisterPawn(thisPawn);
+                    // Clear their mind (prevents Stargate Psychosis?).
+                    thisPawn.ClearMind();
+
+                    thisPawn.jobs.ClearQueuedJobs();
+
+                    thisPawn.thinker = new Pawn_Thinker(thisPawn);
+                }
             }
 
             inboundBuffer.Clear();
+            // this.stargateBuffer.Clear();
 
             // Tell the MapDrawer that here is something that's changed
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
 
             if (offworldEvent)
             {
+                // Re-add relationships.
+                this.rebuildRelationships(relationships);
+
                 this.MoveToBackup();
             }
 
@@ -638,7 +773,7 @@ namespace BetterRimworlds.Stargate
         public override string GetInspectString()
         {
             return base.GetInspectString() + "\n"
-                + "Buffer Items: " + this.stargateBuffer.Count + " / 500\n"
+                + "Buffer Items: " + this.stargateBuffer.Count + " / " + this.stargateBuffer.getMaxStacks() + "\n"
                 + "Capacitor Charge: " + this.currentCapacitorCharge + " / " + this.requiredCapacitorCharge;
         }
 
@@ -646,10 +781,19 @@ namespace BetterRimworlds.Stargate
 
         private void MoveToBackup()
         {
-
+            String newFile;
             if (System.IO.File.Exists(this.FileLocationSecondary))
             {
-                System.IO.File.Delete(this.FileLocationSecondary);
+                int index = 1;
+                newFile = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate", $"StargateBackup-${index}.xml");
+
+                while (System.IO.File.Exists(newFile))
+                {
+                    ++index;
+                    newFile = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate", $"StargateBackup-${index}.xml");
+                }
+
+                System.IO.File.Move(this.FileLocationSecondary, newFile);
             }
 
             if (System.IO.File.Exists(this.FileLocationPrimary))
