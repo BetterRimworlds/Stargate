@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30309.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stargate", "Stargate.csproj", "{675CE9D5-460C-496A-A6A9-8D3873EDCC87}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Release v1.2|Any CPU = Release v1.2|Any CPU
+		Debug v1.2|Any CPU = Debug v1.2|Any CPU
+		Release v1.3|Any CPU = Release v1.3|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{675CE9D5-460C-496A-A6A9-8D3873EDCC87}.Release v1.2|Any CPU.ActiveCfg = Release v1.2|Any CPU
+		{675CE9D5-460C-496A-A6A9-8D3873EDCC87}.Release v1.2|Any CPU.Build.0 = Release v1.2|Any CPU
+		{675CE9D5-460C-496A-A6A9-8D3873EDCC87}.Debug v1.2|Any CPU.ActiveCfg = Debug v1.2|Any CPU
+		{675CE9D5-460C-496A-A6A9-8D3873EDCC87}.Debug v1.2|Any CPU.Build.0 = Debug v1.2|Any CPU
+		{675CE9D5-460C-496A-A6A9-8D3873EDCC87}.Release v1.3|Any CPU.ActiveCfg = Release v1.3|Any CPU
+		{675CE9D5-460C-496A-A6A9-8D3873EDCC87}.Release v1.3|Any CPU.Build.0 = Release v1.3|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FDBBF6BA-4E0E-4D27-81CA-55526FD8EA78}
+	EndGlobalSection
+EndGlobal
