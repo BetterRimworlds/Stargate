@@ -533,7 +533,7 @@ namespace BetterRimworlds.Stargate
                 // to an alternate dimension). This is the equivalent of how Olivia goes insane in the TV series Fringe.
                 if (currentThing is ThingWithComps item)
                 {
-                    // item.InitializeComps();
+                    item.InitializeComps();
                 }
 
                 if (currentThing.def.CanHaveFaction)
@@ -646,9 +646,11 @@ namespace BetterRimworlds.Stargate
 
                         // Quickly draft and undraft the Colonist. This will cause them to become aware of the newly-in-phase weapon they are holding,
                         // if any. This is effectively the cure of Stargate Insanity.
-                        pawn.drafter.Drafted = true;
-                        pawn.drafter.Drafted = false;
-
+                        if (pawn.RaceProps.Humanlike)
+                        {
+                            pawn.drafter.Drafted = true;
+                            pawn.drafter.Drafted = false;
+                        }
                     }               
 
                     // Remove memories or they will go insane...
@@ -681,6 +683,18 @@ namespace BetterRimworlds.Stargate
                 }
 
                 GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near);
+
+                if (currentThing is Pawn thisPawn)
+                {
+
+                    this.currentMap.mapPawns.RegisterPawn(thisPawn);
+                    // Clear their mind (prevents Stargate Psychosis?).
+                    thisPawn.ClearMind();
+
+                    thisPawn.jobs.ClearQueuedJobs();
+
+                    thisPawn.thinker = new Pawn_Thinker(thisPawn);
+                }
             }
 
             inboundBuffer.Clear();
