@@ -413,7 +413,11 @@ namespace BetterRimworlds.Stargate
             int originalTimelineTicks = Current.Game.tickManager.TicksAbs;
 
             var inboundBuffer = new List<Thing>();
+            // var inboundBuffer = this.stargateBuffer.ToList();
+            // this.stargateBuffer.Clear();
             Log.Message("Number of stargates on this planet: " + GateNetwork.Count);
+
+            var relationships = this.stargateBuffer.relationships;
             // See if any of the stargates on this planet (including this gate) have items in their buffer...
             // and if so, recall them here.
             // @FIXME: Use  DefDatabase<ThingDef>.AllDefs.Where((ThingDef def) => typeof(Building_Stargate)
@@ -440,6 +444,7 @@ namespace BetterRimworlds.Stargate
             bool offworldEvent = this.stargateBuffer.Count == 0;
             Log.Warning("Is offworldEvent? " + this.stargateBuffer.Count);
             Log.Warning("Inbound Buffer Count? " + inboundBuffer.Count);
+
             if (offworldEvent && !inboundBuffer.Any())
             {
                 // Log.Warning("Found an off-world wormhole.");
@@ -453,8 +458,8 @@ namespace BetterRimworlds.Stargate
                 // 
                 var loadResponse = Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary);
                 originalTimelineTicks = loadResponse.Item1;
-                List<StargateRelation> relations = loadResponse.Item2;
-                this.rebuildRelationships(inboundBuffer, relations);
+                relationships.AddRange(loadResponse.Item2);
+                // this.rebuildRelationships(inboundBuffer, relationships);
                 
                 // Log.Warning("Number of items in the wormhole: " + inboundBuffer.Count);
             }
@@ -462,54 +467,46 @@ namespace BetterRimworlds.Stargate
             Messages.Message("Incoming wormhole!", MessageTypeDefOf.PositiveEvent);
             Messages.Message("You really must save and reload the game to fix Stargate Syndrome.", MessageTypeDefOf.ThreatBig);
 
-            return new Tuple<int, List<Thing>>(originalTimelineTicks, inboundBuffer);
+            // Rebuild teleported people's logic, now...
+            this.rebuildRelationships(relationships);
+
+            return new Tuple<int, List<Thing>, List<StargateRelation>>(originalTimelineTicks, inboundBuffer, relationships);
         }
 
         // @FIXME: Need to refactor this to a StargateBuffer.
-        private void rebuildRelationships(List<Thing> inboundBuffer, List<StargateRelation> relationships)
+        private void rebuildRelationships(List<StargateRelation> relationships)
         {
             // Re-add the relationships.
             foreach (var relationship in relationships)
             {
-                Log.Error($"Loading the relationship between {relationship.pawn1ID} and {relationship.pawn2ID}: {relationship.relationship}");
+                Log.Message($"Loading the relationship between {relationship.pawn1ID} and {relationship.pawn2ID}: {relationship.relationship}");
 
-                // p => p.Item1 == item.ThingID
-                var target = (Pawn)inboundBuffer.Find(t =>
+                var pawn1 = Find.CurrentMap.mapPawns.AllPawnsSpawned.Find(p => p.ThingID == relationship.pawn1ID);
+                var pawn2 = Find.CurrentMap.mapPawns.AllPawnsSpawned.Find(p => p.ThingID == relationship.pawn2ID);
+
+                if (pawn1 is null)
                 {
-                    if (t is Pawn p)
-                    {
-                        return p.ThingID == relationship.pawn1ID;
-                    }
+                    Log.Error($"Could not find a pawn with the ID of {relationship.pawn1ID}.");
+                    continue;
+                }
 
-                    return false;
-                });
-
-                var relatedPawn = (Pawn)inboundBuffer.Find(t =>
+                if (pawn2 is null)
                 {
-                    if (t is Pawn p)
-                    {
-                        return p.ThingID == relationship.pawn2ID;
-                    }
-
-                    return false;
-                });
+                    Log.Error($"Could not find a pawn with the ID of {relationship.pawn2ID}.");
+                    continue;
+                }
 
                 PawnRelationDef pawnRelationDef = DefDatabase<PawnRelationDef>.GetNamedSilentFail(relationship.relationship);
-                target.relations.AddDirectRelation(pawnRelationDef, relatedPawn);
-                // Add for the other, too.
-                // relatedPawn.relations.AddDirectRelation(pawnRelationDef, target);
-                Log.Error($"Loaded the relationship between {relationship.pawn1ID} and {relationship.pawn2ID}: {relationship.relationship}");
+                pawn1.relations.AddDirectRelation(pawnRelationDef, pawn2);
+            
+                pawn1.ClearMind();
+                pawn2.ClearMind();
+            
+                pawn1.thinker = new Pawn_Thinker(pawn1);
+                pawn2.thinker = new Pawn_Thinker(pawn2);
+
+                Log.Message($"Loaded the relationship between {relationship.pawn1ID} and {relationship.pawn2ID}: {relationship.relationship}");
             }
-        }
-
-        public void recall2()
-        {
-            
-        }
-
-        public void recall3()
-        {
-            
         }
 
         public virtual bool StargateRecall()
@@ -523,6 +520,7 @@ namespace BetterRimworlds.Stargate
             
             int originalTimelineTicks = recallData.Item1;
             List<Thing> inboundBuffer = recallData.Item2;
+            List<StargateRelation> relationships = recallData.Item3;
             bool offworldEvent = this.stargateBuffer.Count == 0;
 
             foreach (Thing currentThing in inboundBuffer)
@@ -689,6 +687,9 @@ namespace BetterRimworlds.Stargate
 
             // Tell the MapDrawer that here is something that's changed
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
+
+            // Re-add relationships.
+            this.rebuildRelationships(relationships);
 
             if (offworldEvent)
             {

@@ -9,7 +9,7 @@ using RimWorld;
 
 namespace Enhanced_Development.Stargate.Saving
 {
-    class StargateRelation: IExposable
+    public class StargateRelation: IExposable
     {
         public string pawn1ID;
         public string pawn2ID;
@@ -40,7 +40,7 @@ namespace Enhanced_Development.Stargate.Saving
         }
     }
 
-    class StargateRelations: List<StargateRelation>
+    public class StargateRelations: List<StargateRelation>
     {
         private List<StargateRelation> relationships = new List<StargateRelation>();
 
@@ -149,26 +149,27 @@ namespace Enhanced_Development.Stargate.Saving
                 {
                     loadedPawns.Add(pawn);
                     loadedPawnIds.Add(pawn.ThingID);
+                    // pawn.Discard();
                 }
             }
             
             foreach (var pawn in loadedPawns)
             {
-                foreach (var relation in pawn.relations.DirectRelations)
+                foreach (var relationship in pawn.relations.DirectRelations)
                 {
                     // See if this relation is already recorded using the other pawn as the primary.
-                    if (relationships.ContainsRelationship(relation.otherPawn.ThingID, pawn.ThingID))
+                    if (relationships.ContainsRelationship(relationship.otherPawn.ThingID, pawn.ThingID))
                     {
                         continue;
                     }
             
-                    // Only record if the other pawn is in the same outgoing buffer.
-                    if (loadedPawnIds.Contains(relation.otherPawn.ThingID) == false)
-                    {
-                        continue;
-                    }
+                    // // Only record if the other pawn is in the same outgoing buffer.
+                    // if (loadedPawnIds.Contains(relation.otherPawn.ThingID) == false)
+                    // {
+                    //     continue;
+                    // }
 
-                    relationships.Add(new StargateRelation(pawn.ThingID, relation.otherPawn.ThingID, relation.def.defName));
+                    relationships.Add(new StargateRelation(pawn.ThingID, relationship.otherPawn.ThingID, relationship.def.defName));
                 }
             }
             
@@ -230,7 +231,7 @@ namespace Enhanced_Development.Stargate.Saving
 
             var relationshipsList = new List<StargateRelation>();
             Scribe_Collections.Look<StargateRelation>(ref relationshipsList, "relationships", LookMode.Deep);
-            Log.Error(String.Join(",", relationshipsList.ToList()));
+            // Log.Error(String.Join(",", relationshipsList.ToList()));
 
             Scribe.mode = LoadSaveMode.Inactive;
 

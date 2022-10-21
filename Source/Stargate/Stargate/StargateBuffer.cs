@@ -9,11 +9,13 @@ namespace BetterRimworlds.Stargate
 {
     public class StargateBuffer : ThingOwner<Thing>, IList<Thing>
     {
-        private Dictionary<string, Dictionary<string, PawnRelationDef>> relationships = new Dictionary<string, Dictionary<string, PawnRelationDef>>();
+        // private Dictionary<string, Dictionary<stri-ng, PawnRelationDef>> relationships = new Dictionary<string, Dictionary<string, PawnRelationDef>>();
+        public StargateRelations relationships = new StargateRelations();
 
         protected int PawnCount = 0;
 
         protected String StargateBufferFilePath;
+
 
         Thing IList<Thing>.this[int index]
         {
@@ -57,8 +59,25 @@ namespace BetterRimworlds.Stargate
 
             if (item is Pawn pawn)
             {
-                //pawn.Discard();
                 pawn.DeSpawn();
+                ++this.PawnCount;
+
+                foreach (var relationship in pawn.relations.DirectRelations)
+                {
+                    // See if this relation is already recorded using the other pawn as the primary.
+                    if (relationships.ContainsRelationship(relationship.otherPawn.ThingID, pawn.ThingID))
+                    {
+                        continue;
+                    }
+
+                    // // Only record if the other pawn is in the same outgoing buffer.
+                    // if (loadedPawnIds.Contains(relation.otherPawn.ThingID) == false)
+                    // {
+                    //     continue;
+                    // }
+
+                    relationships.Add(new StargateRelation(pawn.ThingID, relationship.otherPawn.ThingID, relationship.def.defName));
+                }
             }
             else
             {
