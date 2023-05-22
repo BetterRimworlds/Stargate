@@ -24,6 +24,7 @@ namespace BetterRimworlds.Stargate
         protected StargateBuffer stargateBuffer;
 
         protected bool LocalTeleportEvent = false;
+        protected bool PoweringUp = false;
 
         #region Variables
 
@@ -136,10 +137,10 @@ namespace BetterRimworlds.Stargate
         // Saving game
         public override void ExposeData()
         {
-
             Scribe_Values.Look<int>(ref currentCapacitorCharge, "currentCapacitorCharge");
             Scribe_Values.Look<int>(ref requiredCapacitorCharge, "requiredCapacitorCharge");
             Scribe_Values.Look<int>(ref chargeSpeed, "chargeSpeed");
+            Scribe_Values.Look<bool>(ref PoweringUp, "poweringUp");
 
             Scribe_Deep.Look<StargateBuffer>(ref this.stargateBuffer, "stargateBuffer", new object[]
             {
@@ -154,13 +155,35 @@ namespace BetterRimworlds.Stargate
             base.TickRare();
         }
 
+
         public override void TickRare()
         {
             base.TickRare();
-            if (this.power.PowerOn)
+
+            if (!this.PoweringUp)
+            {
+                this.power.powerOutputInt = 0;
+                chargeSpeed = 0;
+            }
+
+            if (this.PoweringUp && !this.power.PowerOn)
+            {
+                chargeSpeed = 0;
+                this.updatePowerDrain();
+            }
+
+            if (this.PoweringUp && this.power.PowerOn)
             {
                 currentCapacitorCharge += chargeSpeed;
-                if (this.power.PowerNet.CurrentEnergyGainRate() > 1000)
+
+                float excessPower = this.power.PowerNet.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick;
+                if (excessPower + (this.power.PowerNet.CurrentStoredEnergy() * 1000) > 5000)
+                {
+                    // chargeSpeed += 5 - (this.chargeSpeed % 5);
+                    chargeSpeed = (int)Math.Round(this.power.PowerNet.CurrentStoredEnergy() * 0.25 / 10); 
+                    this.updatePowerDrain();
+                }
+                else if (excessPower + (this.power.PowerNet.CurrentStoredEnergy() * 1000) > 1000)
                 {
                     chargeSpeed += 1;
                     this.updatePowerDrain();
@@ -168,8 +191,9 @@ namespace BetterRimworlds.Stargate
             }
 
             // Stop using power if it's full.
-            if (currentCapacitorCharge >= requiredCapacitorCharge)
+            if (this.fullyCharged)
             {
+                this.PoweringUp = false;
                 currentCapacitorCharge = requiredCapacitorCharge;
                 this.chargeSpeed = 0;
                 this.updatePowerDrain();
@@ -206,21 +230,6 @@ namespace BetterRimworlds.Stargate
             foreach (var g in base.GetGizmos())
             {
                 yield return g;
-            }
-
-            if (true)
-            {
-                Command_Action act = new Command_Action();
-                //act.action = () => Designator_Deconstruct.DesignateDeconstruct(this);
-                act.action = () => this.AddResources();
-                act.icon = UI_ADD_RESOURCES;
-                act.defaultLabel = "Add Resources";
-                act.defaultDesc = "Add Resources";
-                act.activateSound = SoundDef.Named("Click");
-                act.hotKey = KeyBindingDefOf.Misc1;
-
-                //act.groupKey = 689736;
-                yield return act;
             }
 
             if (true)
@@ -269,29 +278,16 @@ namespace BetterRimworlds.Stargate
             {
                 Command_Action act = new Command_Action();
                 //act.action = () => Designator_Deconstruct.DesignateDeconstruct(this);
-                act.action = () => this.PowerRateIncrease();
+                act.action = () => this.PoweringUp = true;
                 act.icon = UI_POWER_UP;
-                act.defaultLabel = "Increase Power";
-                act.defaultDesc = "Increase Power";
+                act.defaultLabel = "Dial the Stargate";
+                act.defaultDesc = "Dial the Stargate";
                 act.activateSound = SoundDef.Named("Click");
                 //act.hotKey = KeyBindingDefOf.DesignatorDeconstruct;
                 //act.groupKey = 689736;
                 yield return act;
             }
             // +57 320-637-6544
-            if (true)
-            {
-                Command_Action act = new Command_Action();
-                //act.action = () => Designator_Deconstruct.DesignateDeconstruct(this);
-                act.action = () => this.PowerRateDecrease();
-                act.icon = UI_POWER_DOWN;
-                act.defaultLabel = "Decrease Power";
-                act.defaultDesc = "Decrease Power";
-                act.activateSound = SoundDef.Named("Click");
-                //act.hotKey = KeyBindingDefOf.DesignatorDeconstruct;
-                //act.groupKey = 689736;
-                yield return act;
-            }
         }
 
         public void AddResources()
@@ -355,10 +351,6 @@ namespace BetterRimworlds.Stargate
                 // Tell the MapDrawer that here is something thats changed
                 Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
             }
-            else
-            {
-                Messages.Message("Insufficient Power to add Colonist", MessageTypeDefOf.RejectInput);
-            }
         }
 
         public void StargateDialOut()
@@ -380,7 +372,7 @@ namespace BetterRimworlds.Stargate
             // Tell the MapDrawer that here is something thats changed
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
 
-            this.currentCapacitorCharge -= this.requiredCapacitorCharge;
+            this.currentCapacitorCharge = 0;
         }
 
         public bool HasThingsInBuffer()
@@ -392,11 +384,12 @@ namespace BetterRimworlds.Stargate
         {
             var itemsToTeleport = new List<Thing>();
             itemsToTeleport.AddRange(this.stargateBuffer);
+            this.stargateBuffer.Clear();
 
             // Tell the MapDrawer that here is something that's changed.
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
 
-            this.currentCapacitorCharge -= this.requiredCapacitorCharge;
+            this.currentCapacitorCharge = 0;
 
             return itemsToTeleport;
         }
@@ -728,23 +721,6 @@ namespace BetterRimworlds.Stargate
             return true;
         }
 
-        private void PowerStopUsing()
-        {
-            this.chargeSpeed = 0;
-            this.updatePowerDrain();
-        }
-
-        private void PowerRateIncrease()
-        {
-            this.chargeSpeed += 1;
-            this.updatePowerDrain();
-        }
-
-        private void PowerRateDecrease()
-        {
-            this.chargeSpeed -= 1;
-            this.updatePowerDrain();
-        }
 
         private void updatePowerDrain()
         {
@@ -772,9 +748,14 @@ namespace BetterRimworlds.Stargate
 
         public override string GetInspectString()
         {
+            // float excessPower = this.power.PowerNet.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick;
             return base.GetInspectString() + "\n"
-                + "Buffer Items: " + this.stargateBuffer.Count + " / " + this.stargateBuffer.getMaxStacks() + "\n"
-                + "Capacitor Charge: " + this.currentCapacitorCharge + " / " + this.requiredCapacitorCharge;
+                                           + "Buffer Items: " + this.stargateBuffer.Count + " / " +
+                                           this.stargateBuffer.getMaxStacks() + "\n"
+                                           + "Capacitor Charge: " + this.currentCapacitorCharge + " / " + this.requiredCapacitorCharge
+                                           // + "Gain Rate: " + excessPower + "\n"
+                                           // + "Stored Energy: " + this.power.PowerNet.CurrentStoredEnergy()
+                                           ;
         }
 
         #endregion
