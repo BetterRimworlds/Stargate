@@ -20,7 +20,7 @@ namespace BetterRimworlds.Stargate
 
         #endregion
 
-        private static List<Building_Stargate> GateNetwork = new List<Building_Stargate>();
+        private List<Building_Stargate> GateNetwork = new List<Building_Stargate>();
         protected StargateBuffer stargateBuffer;
 
         protected bool LocalTeleportEvent = false;
@@ -302,7 +302,7 @@ namespace BetterRimworlds.Stargate
 
                 foreach (Thing foundThing in foundThings)
                 {
-                    if (foundThing.Spawned && this.stargateBuffer.Count < 500)
+                    if (foundThing.Spawned && this.stargateBuffer.Count < 1000)
                     {
                         this.stargateBuffer.TryAdd(foundThing);
 
