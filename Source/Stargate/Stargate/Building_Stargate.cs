@@ -197,6 +197,9 @@ namespace BetterRimworlds.Stargate
                 currentCapacitorCharge = requiredCapacitorCharge;
                 this.chargeSpeed = 0;
                 this.updatePowerDrain();
+
+                // Auto-add stuff if it's inside the Stargate area.
+                this.AddResources();
             }
 
             if (this.currentCapacitorCharge < 0)
