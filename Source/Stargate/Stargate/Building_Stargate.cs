@@ -318,37 +318,39 @@ namespace BetterRimworlds.Stargate
             }
         }
 
-        public void AddPawns()
-        {
-            if (this.fullyCharged)
+        public void AddPawns() 
+        { 
+            if (!this.fullyCharged)
+            { 
+                Messages.Message("Insufficient Power to add Colonist", MessageTypeDefOf.RejectInput);
+                return;
+            }
+
+            IEnumerable<Pawn> closePawns = Enhanced_Development.Utilities.Utilities.findPawnsInColony(this.Position, Building_Stargate.ADDITION_DISTANCE);
+
+            if (closePawns != null)
             {
-                //Log.Message("CLick AddColonist");
-                IEnumerable<Pawn> closePawns = Enhanced_Development.Utilities.Utilities.findPawnsInColony(this.Position, Building_Stargate.ADDITION_DISTANCE);
-
-                if (closePawns != null)
+                foreach (Pawn pawn in closePawns.ToList())
                 {
-                    foreach (Pawn pawn in closePawns.ToList())
+                    if (!pawn.Spawned)
                     {
-                        if (!pawn.Spawned)
-                        {
-                            continue;
-                        }
-
-                        // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
-                        // if they enter a Stargate after they've ever been drafted.
-                        if (pawn.verbTracker != null)
-                        {
-                            pawn.verbTracker = new VerbTracker(pawn);
-                        }
-
-                        // Remove memories or they will go insane...
-                        if (pawn.def.defName == "Human")
-                        {
-                            pawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(pawn);
-                        }
-
-                        this.stargateBuffer.TryAdd(pawn);
+                        continue;
                     }
+
+                    // // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
+                    // // if they enter a Stargate after they've ever been drafted.
+                    // if (pawn.verbTracker != null)
+                    // {
+                    //     pawn.verbTracker = new VerbTracker(pawn);
+                    // }
+
+                    // Remove memories or they will go insane...
+                    // if (pawn.def.defName == "Human")
+                    // {
+                    //     pawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(pawn);
+                    // }
+
+                    this.stargateBuffer.TryAdd(pawn);
                 }
 
                 // Tell the MapDrawer that here is something thats changed
