@@ -81,11 +81,24 @@ namespace BetterRimworlds.Stargate
 
                     relationships.Add(new StargateRelation(pawn.ThingID, relationship.otherPawn.ThingID, relationship.def.defName));
                 }
+
+                pawn.DeSpawn();
             }
             else
             {
-                // item.Discard();
-                item.DeSpawn();
+                if (this.InnerListForReading.Count >= this.maxStacks)
+                {
+                    return false;
+                }
+                // Clear its existing Holder.
+                item.holdingOwner = null;
+                if (!base.TryAdd(item, canMergeWithExistingStacks))
+                {
+                    return false;
+                }
+                // item.Destroy();
+                item.Discard();
+                // item.DeSpawn();
             }
 
             return true;
@@ -97,11 +110,11 @@ namespace BetterRimworlds.Stargate
             // this.RemoveAll(item => item is Pawn);
             foreach (Pawn p in this.InnerListForReading.OfType<Pawn>())
             {
+                // p.Discard();
                 p.Destroy();
             }
 
             this.Clear();
-
         }
 
         public int getMaxStacks()

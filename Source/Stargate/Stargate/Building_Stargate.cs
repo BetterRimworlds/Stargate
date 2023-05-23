@@ -525,14 +525,21 @@ namespace BetterRimworlds.Stargate
             List<StargateRelation> relationships = recallData.Item3;
             bool offworldEvent = !this.LocalTeleportEvent;
 
-            foreach (Thing currentThing in inboundBuffer)
+            bool wasPlaced;
+            // this.stargateBuffer.Clear();
+            foreach (Thing currentThing in inboundBuffer.ToList())
             {
                 // If it's just a teleport, destroy the thing first...
                 // Log.Warning("a1: is offworld? " + offworldEvent + " | Stargate Buffer count: " + this.stargateBuffer.Count);
                 if (!offworldEvent)
                 {
-                    Log.Warning("a2");
-                    GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near);
+                    wasPlaced = GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near);
+                    // Readd the unplaced Thing into the stargateBuffer.
+                    if (!wasPlaced)
+                    {
+                        Log.Warning("Could not place " + currentThing.Label);
+                        this.stargateBuffer.TryAdd(currentThing);
+                    }
 
                     continue;
                     // currentThing.Destroy();
@@ -697,18 +704,26 @@ namespace BetterRimworlds.Stargate
                     PawnComponentsUtility.AddAndRemoveDynamicComponents(pawn, true);
                 }
 
-                GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near);
-
-                if (currentThing is Pawn thisPawn)
+                wasPlaced = GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near);
+                // Readd the unplaced Thing into the stargateBuffer.
+                if (!wasPlaced)
                 {
+                    Log.Warning("Could not place " + currentThing.Label);
+                    this.stargateBuffer.TryAdd(currentThing);
+                }
+                else
+                {
+                    if (currentThing is Pawn thisPawn)
+                    {
 
-                    this.currentMap.mapPawns.RegisterPawn(thisPawn);
-                    // Clear their mind (prevents Stargate Psychosis?).
-                    thisPawn.ClearMind();
+                        this.currentMap.mapPawns.RegisterPawn(thisPawn);
+                        // Clear their mind (prevents Stargate Psychosis?).
+                        thisPawn.ClearMind();
 
-                    thisPawn.jobs.ClearQueuedJobs();
+                        thisPawn.jobs.ClearQueuedJobs();
 
-                    thisPawn.thinker = new Pawn_Thinker(thisPawn);
+                        thisPawn.thinker = new Pawn_Thinker(thisPawn);
+                    }
                 }
 
                 // inboundBuffer.Remove(currentThing);
