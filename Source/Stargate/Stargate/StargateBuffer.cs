@@ -13,6 +13,7 @@ namespace BetterRimworlds.Stargate
         public StargateRelations relationships = new StargateRelations();
 
         protected String StargateBufferFilePath;
+        protected int numberOfPawns = 0;
 
 
         Thing IList<Thing>.this[int index]
@@ -48,23 +49,14 @@ namespace BetterRimworlds.Stargate
         public override bool TryAdd(Thing item, bool canMergeWithExistingStacks = true)
         {
             // Increase the maxStacks size for every Pawn, as they don't affect the dispersion area.
-            if (item is Pawn)
-            {
-                ++this.maxStacks;
-            }
-
-            // Clear its existing Holder.
-            item.holdingOwner = null;
-            if (!base.TryAdd(item, canMergeWithExistingStacks))
-            {
-                Log.Error("Couldn't successfully load the item into the Stargate for unknown reasons.");
-                return false;
-            }
+            // if (item is Pawn)
+            // {
+            //     ++this.maxStacks;
+            // }
 
             if (item is Pawn pawn)
             {
-                pawn.DeSpawn();
-
+                ++this.numberOfPawns;
                 foreach (var relationship in pawn.relations.DirectRelations)
                 {
                     // See if this relation is already recorded using the other pawn as the primary.
@@ -119,7 +111,7 @@ namespace BetterRimworlds.Stargate
 
         public int getMaxStacks()
         {
-            return this.maxStacks;
+            return this.maxStacks + this.numberOfPawns;
         }
     }
 }
