@@ -101,7 +101,7 @@ The Stargate system allows you to transport materials over the great distances b
 * Adjust the pawn's chronological age by time diffs of the origin + destination stargates.
 * Misc. changes.
 
-**v6.50: 2022-10-21**
+**v7.0.0: 2022-10-21**
 * Developed THE ACTUAL CURE for Stargate Psychosis!!!
 * Arranged it so that the number of pawns doesn't count towards the total Stargate buffer.
 * Added functionality to rebuild pawn relationships after gating.
@@ -114,6 +114,19 @@ The Stargate system allows you to transport materials over the great distances b
 * Removed the extremely deprecated ability to define the Stargate.xml path from in the ThingDef XML.
 * Removed debug code.
 * YESS!! I got everything working!
+
+**v8.0.0: 2023-05-22**
+* **[2023-05-22 18:50:19 CDT]** [Major] Added compilation support for Rimworld v1.4.
+* **[2023-05-22 18:54:13 CDT]** Fixed a bug where Stargates from other instances of RimWorld interfered with one another.
+* **[2023-05-22 18:57:44 CDT]** [Major] Completely reworked Power: Now increases based on Power Availability.
+* **[2023-05-22 19:04:32 CDT]** [Major] Automatically add resources to the Stargate that surround it.
+* **[2023-05-22 19:05:30 CDT]** [m] Removed some Stargate Psychosis fixes that are fixed elsewhere now.
+* **[2023-05-22 19:06:55 CDT]** Fixed bugs with the local teleportation mechanism.
+* **[2023-05-22 19:11:08 CDT]** [Major] Properly fixed Stargate Psychosis and fully remove Pawns after going through the stargate.
+* **[2023-05-22 19:11:45 CDT]** Add Pawns to the top of the Stargate Buffer to ensure they're always exited first.
+* **[2023-05-22 19:12:20 CDT]** Allow an unlimited number of Pawns through the stargate, because there are no stack issues.
+* **[2023-05-22 20:54:13 CDT]** [m] Updated the deploy script.
+* **[2023-05-22 20:55:35 CDT]** Added more prereq tech: Quantum Teleportation and Quantum Storage.
 
 ## Contributors
 
