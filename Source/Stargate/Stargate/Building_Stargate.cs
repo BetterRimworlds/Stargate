@@ -413,6 +413,7 @@ namespace BetterRimworlds.Stargate
             // See if any of the stargates on this planet (including this gate) have items in their buffer...
             // and if so, recall them here.
             // @FIXME: Use  DefDatabase<ThingDef>.AllDefs.Where((ThingDef def) => typeof(Building_Stargate)
+            this.LocalTeleportEvent = false;
             foreach (var stargate in GateNetwork)
             {
                 Log.Message("Found a Stargate with the ID of " + stargate.ThingID);
@@ -425,6 +426,7 @@ namespace BetterRimworlds.Stargate
 
                 if (!stargate.HasThingsInBuffer())
                 {
+                    Log.Warning("Nothing in this Stargate's buffer....");
                     continue;
                 }
 
@@ -514,6 +516,7 @@ namespace BetterRimworlds.Stargate
             var recallData = this.recall();
             if (recallData == null)
             {
+                Messages.Message("WARNING: The Stargate buffer was empty!!", MessageTypeDefOf.ThreatBig);
                 return false;
             }
             
@@ -707,10 +710,11 @@ namespace BetterRimworlds.Stargate
 
                     thisPawn.thinker = new Pawn_Thinker(thisPawn);
                 }
+
+                // inboundBuffer.Remove(currentThing);
             }
 
             inboundBuffer.Clear();
-            // this.stargateBuffer.Clear();
 
             // Tell the MapDrawer that here is something that's changed
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
