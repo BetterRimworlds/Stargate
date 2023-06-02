@@ -295,27 +295,22 @@ namespace BetterRimworlds.Stargate
 
         public void AddResources()
         {
-            if (this.fullyCharged)
-            {
-                List<Thing> foundThings = Enhanced_Development.Utilities.Utilities.FindItemThingsNearBuilding(this, Building_Stargate.ADDITION_DISTANCE, this.currentMap);
+            if (this.fullyCharged == false) {
+                return;
+            }
 
-                foreach (Thing foundThing in foundThings)
+            List<Thing> foundThings = Enhanced_Development.Utilities.Utilities.FindItemThingsNearBuilding(this, Building_Stargate.ADDITION_DISTANCE, this.currentMap);
+ 
+            foreach (Thing foundThing in foundThings)
+            {
+                if (foundThing.Spawned && this.stargateBuffer.Count < 1000)
                 {
-                    if (foundThing.Spawned && this.stargateBuffer.Count < 1000)
-                    {
-                        this.stargateBuffer.TryAdd(foundThing);
-
-                        //Building_OrbitalRelay.listOfThingLists.Add(thingList);
-                    }
+                    this.stargateBuffer.TryAdd(foundThing);
                 }
-
-                // Tell the MapDrawer that here is something that's changed.
-                Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
             }
-            else
-            {
-                Messages.Message("Insufficient Power to add Resources", MessageTypeDefOf.RejectInput);
-            }
+ 
+            // Tell the MapDrawer that here is something that's changed.
+            Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
         }
 
         public void AddPawns() 
@@ -565,6 +560,7 @@ namespace BetterRimworlds.Stargate
                 // if they enter a Stargate after they've ever been drafted.
                 if (currentThing is Pawn pawn)
                 {
+                    pawn.relations = new Pawn_RelationsTracker(pawn);
                     // Carry over injuries, sicknesses, addictions, and artificial body parts.
                     var hediffSet = pawn.health.hediffSet;
 
@@ -598,9 +594,12 @@ namespace BetterRimworlds.Stargate
                     if (offworldEvent)
                     {
                         pawn.relations = new Pawn_RelationsTracker(pawn);
+                        pawn.needs = new Pawn_NeedsTracker(pawn);
                     }
 
                     pawn.jobs = new Pawn_JobTracker(pawn);
+                    pawn.verbTracker = new VerbTracker(pawn);
+                    pawn.carryTracker = new Pawn_CarryTracker(pawn);
 
                     if (pawn.RaceProps.Humanlike)
                     {
@@ -613,12 +612,9 @@ namespace BetterRimworlds.Stargate
                         // pawn.interactions = new Pawn_InteractionsTracker(pawn);
                         // pawn.stances = new Pawn_StanceTracker(pawn);
                         // pawn.relations = new Pawn_RelationsTracker(pawn);
-                        pawn.verbTracker = new VerbTracker(pawn);
-                        pawn.carryTracker = new Pawn_CarryTracker(pawn);
                         pawn.rotationTracker = new Pawn_RotationTracker(pawn);
                         pawn.thinker = new Pawn_Thinker(pawn);
                         pawn.mindState = new Pawn_MindState(pawn);
-                        pawn.ownership = new Pawn_Ownership(pawn);
                         pawn.drafter = new Pawn_DraftController(pawn);
                         pawn.natives = null;
                         pawn.outfits = new Pawn_OutfitTracker(pawn);
@@ -646,7 +642,7 @@ namespace BetterRimworlds.Stargate
                     }
                     else
                     {
-                        pawn.needs = new Pawn_NeedsTracker(pawn);
+                        pawn.ownership = new Pawn_Ownership(pawn);
                     }
  
                     if (pawn.RaceProps.ToolUser)
@@ -659,6 +655,8 @@ namespace BetterRimworlds.Stargate
                         // Reset their equipped weapon's verbTrackers as well, or they'll go insane if they're carrying an out-of-phase weapon...
                         if (pawn.equipment.Primary != null)
                         {
+                            pawn.equipment.DropAllEquipment(pawn.Position);
+
                             pawn.equipment.Primary.InitializeComps();
                             pawn.equipment.PrimaryEq.verbTracker = new VerbTracker(pawn);
                             pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());

@@ -73,8 +73,6 @@ namespace BetterRimworlds.Stargate
 
                     relationships.Add(new StargateRelation(pawn.ThingID, relationship.otherPawn.ThingID, relationship.def.defName));
                 }
-
-                pawn.DeSpawn();
             }
             else
             {
@@ -82,21 +80,21 @@ namespace BetterRimworlds.Stargate
                 {
                     return false;
                 }
-                // Clear its existing Holder.
-                item.holdingOwner = null;
-                if (!base.TryAdd(item, canMergeWithExistingStacks))
-                {
-                    return false;
-                }
-                // item.Destroy();
-                item.Discard();
-                // item.DeSpawn();
             }
+
+            // Clear its existing Holder (the actual Stargate).
+            item.holdingOwner = null;
+            if (!base.TryAdd(item, canMergeWithExistingStacks))
+            {
+                return false;
+            }
+
+            item.DeSpawn();
 
             return true;
         }
 
-        public void TransmitContents()
+        public void TransmitContentsV1()
         {
             Enhanced_Development.Stargate.Saving.SaveThings.save(this.InnerListForReading, this.StargateBufferFilePath);
             // this.RemoveAll(item => item is Pawn);
@@ -107,6 +105,17 @@ namespace BetterRimworlds.Stargate
             }
 
             this.Clear();
+        }
+
+        public void TransmitContents()
+        {
+            Enhanced_Development.Stargate.Saving.SaveThings.save(this.InnerListForReading, this.StargateBufferFilePath);
+
+            for (int a = this.InnerListForReading.Count - 1; a >= 0; --a)
+            {
+                var thing = this.InnerListForReading[a];
+                thing.Destroy();
+            }
         }
 
         public int getMaxStacks()
