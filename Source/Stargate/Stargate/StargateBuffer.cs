@@ -22,17 +22,14 @@ namespace BetterRimworlds.Stargate
             set => throw new InvalidOperationException("ThingOwner doesn't allow setting individual elements.");
         }
 
-        public StargateBuffer(): base()
-        {
-            this.maxStacks = 500;
-            this.contentsLookMode = LookMode.Deep;
-        }
+        private IntVec3 Position;
 
-        public StargateBuffer(IThingHolder owner, bool oneStackOnly, LookMode contentsLookMode = LookMode.Deep) :
+        public StargateBuffer(IThingHolder owner, IntVec3 position, bool oneStackOnly, LookMode contentsLookMode = LookMode.Deep) :
             base(owner, oneStackOnly, contentsLookMode)
         {
             this.maxStacks = 500;
             this.contentsLookMode = LookMode.Deep;
+            this.Position = position;
         }
 
         public StargateBuffer(IThingHolder owner): base(owner)
@@ -116,6 +113,12 @@ namespace BetterRimworlds.Stargate
                 var thing = this.InnerListForReading[a];
                 thing.Destroy();
             }
+
+            // Inform the Colonist Bar that 1 or more Colonists may be missing.
+            Find.ColonistBar.MarkColonistsDirty();
+
+            // Tell the MapDrawer that here is something that's changed.
+            Find.CurrentMap.mapDrawer.MapMeshDirty(this.Position, MapMeshFlag.Things, true, false);
         }
 
         public int getMaxStacks()

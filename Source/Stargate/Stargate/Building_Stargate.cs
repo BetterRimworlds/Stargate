@@ -86,7 +86,7 @@ namespace BetterRimworlds.Stargate
 
         public Building_Stargate()
         {
-            this.stargateBuffer = new StargateBuffer(this, false, LookMode.Deep);
+            this.stargateBuffer = new StargateBuffer(this, this.Position, false, LookMode.Deep);
         }
 
 
@@ -308,9 +308,6 @@ namespace BetterRimworlds.Stargate
                     this.stargateBuffer.TryAdd(foundThing);
                 }
             }
- 
-            // Tell the MapDrawer that here is something that's changed.
-            Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
         }
 
         public void AddPawns() 
@@ -524,85 +521,69 @@ namespace BetterRimworlds.Stargate
             // this.stargateBuffer.Clear();
             foreach (Thing currentThing in inboundBuffer.ToList())
             {
-                // If it's just a teleport, destroy the thing first...
-                // Log.Warning("a1: is offworld? " + offworldEvent + " | Stargate Buffer count: " + this.stargateBuffer.Count);
-                if (!offworldEvent)
+                try
                 {
-                    wasPlaced = GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near);
-                    // Readd the unplaced Thing into the stargateBuffer.
-                    if (!wasPlaced)
+                    // If it's just a teleport, destroy the thing first...
+                    // Log.Warning("a1: is offworld? " + offworldEvent + " | Stargate Buffer count: " + this.stargateBuffer.Count);
+                    if (!offworldEvent)
                     {
-                        Log.Warning("Could not place " + currentThing.Label);
-                        this.stargateBuffer.TryAdd(currentThing);
-                    }
-
-                    continue;
-                    // currentThing.Destroy();
-                }
-                
-                // currentThing.thingIDNumber = -1;
-                // Verse.ThingIDMaker.GiveIDTo(currentThing);
-
-                // If it's an equippable object, like a gun, reset its verbs or ANY colonist that equips it *will* go insane...
-                // This is actually probably the root cause of Colonist Insanity (holding an out-of-phase item with IDs belonging
-                // to an alternate dimension). This is the equivalent of how Olivia goes insane in the TV series Fringe.
-                if (currentThing is ThingWithComps item)
-                {
-                    item.InitializeComps();
-                }
-
-                if (currentThing.def.CanHaveFaction)
-                {
-                    currentThing.SetFactionDirect(Faction.OfPlayer);
-                }
-                
-                // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
-                // if they enter a Stargate after they've ever been drafted.
-                if (currentThing is Pawn pawn)
-                {
-                    pawn.relations = new Pawn_RelationsTracker(pawn);
-                    // Carry over injuries, sicknesses, addictions, and artificial body parts.
-                    var hediffSet = pawn.health.hediffSet;
-
-                    pawn.health = new Pawn_HealthTracker(pawn);
-                    foreach (var hediff in hediffSet.hediffs.ToList())
-                    {
-                        if (hediff is Hediff_MissingPart)
+                        wasPlaced = GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2),
+                            this.currentMap, ThingPlaceMode.Near);
+                        // Readd the unplaced Thing into the stargateBuffer.
+                        if (!wasPlaced)
                         {
-                            continue;
+                            Log.Warning("Could not place " + currentThing.Label);
+                            this.stargateBuffer.TryAdd(currentThing);
                         }
-                        hediff.pawn = pawn;
-                        pawn.health.AddHediff(hediff, hediff.Part);
+
+                        continue;
+                        // currentThing.Destroy();
                     }
 
-                    // @FIXME: Animals still have partial Stargate Insanity and many times will never fall asleep
-                    //         on the new planet. They will drop-down from sheer exhaustion.
-                    //         Some of them also become Godlings, literally unkillable except via the Dev Mode.
-                    // Quickly draft and undraft the Colonist. This will cause them to become aware of the newly-in-phase weapon they are holding,
-                    // if any. This is effectively the cure of Stargate Insanity.
-                    pawn.needs.SetInitialLevels();
-                 
-                    // pawn.verbTracker = new VerbTracker(pawn);
-                    // pawn.thinker = new Pawn_Thinker(pawn);
-                    // pawn.mindState = new Pawn_MindState(pawn);
-                    // pawn.jobs = new Pawn_JobTracker(pawn);
-                    // pawn.pather = new Pawn_PathFollower(pawn);
-                    // pawn.caller = new Pawn_CallTracker(pawn);
-                    // pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
-                    // pawn.interactions = new Pawn_InteractionsTracker(pawn);
-                    // pawn.stances = new Pawn_StanceTracker(pawn);
-                    if (offworldEvent)
+                    // currentThing.thingIDNumber = -1;
+                    // Verse.ThingIDMaker.GiveIDTo(currentThing);
+
+                    // If it's an equippable object, like a gun, reset its verbs or ANY colonist that equips it *will* go insane...
+                    // This is actually probably the root cause of Colonist Insanity (holding an out-of-phase item with IDs belonging
+                    // to an alternate dimension). This is the equivalent of how Olivia goes insane in the TV series Fringe.
+                    if (currentThing is ThingWithComps item)
+                    {
+                        item.InitializeComps();
+                    }
+
+                    if (currentThing.def.CanHaveFaction)
+                    {
+                        currentThing.SetFactionDirect(Faction.OfPlayer);
+                    }
+
+                    // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
+                    // if they enter a Stargate after they've ever been drafted.
+                    if (currentThing is Pawn pawn)
                     {
                         pawn.relations = new Pawn_RelationsTracker(pawn);
-                        pawn.needs = new Pawn_NeedsTracker(pawn);
-                    }
+                        // Carry over injuries, sicknesses, addictions, and artificial body parts.
+                        var hediffSet = pawn.health.hediffSet;
 
-                    pawn.jobs = new Pawn_JobTracker(pawn);
-                    pawn.verbTracker = new VerbTracker(pawn);
-                    pawn.carryTracker = new Pawn_CarryTracker(pawn);
+                        pawn.health = new Pawn_HealthTracker(pawn);
+                        foreach (var hediff in hediffSet.hediffs.ToList())
+                        {
+                            if (hediff is Hediff_MissingPart)
+                            {
+                                continue;
+                            }
 
-                    if (pawn.RaceProps.Humanlike)
-                    {
+                            hediff.pawn = pawn;
+                            pawn.health.AddHediff(hediff, hediff.Part);
+                        }
+
+                        // @FIXME: Animals still have partial Stargate Insanity and many times will never fall asleep
+                        //         on the new planet. They will drop-down from sheer exhaustion.
+                        //         Some of them also become Godlings, literally unkillable except via the Dev Mode.
+                        // Quickly draft and undraft the Colonist. This will cause them to become aware of the newly-in-phase weapon they are holding,
+                        // if any. This is effectively the cure of Stargate Insanity.
+                        pawn.needs.SetInitialLevels();
+
+                        // pawn.verbTracker = new VerbTracker(pawn);
                         // pawn.thinker = new Pawn_Thinker(pawn);
                         // pawn.mindState = new Pawn_MindState(pawn);
                         // pawn.jobs = new Pawn_JobTracker(pawn);
@@ -611,117 +592,163 @@ namespace BetterRimworlds.Stargate
                         // pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
                         // pawn.interactions = new Pawn_InteractionsTracker(pawn);
                         // pawn.stances = new Pawn_StanceTracker(pawn);
-                        // pawn.relations = new Pawn_RelationsTracker(pawn);
-                        pawn.rotationTracker = new Pawn_RotationTracker(pawn);
-                        pawn.thinker = new Pawn_Thinker(pawn);
-                        pawn.mindState = new Pawn_MindState(pawn);
-                        pawn.drafter = new Pawn_DraftController(pawn);
-                        pawn.natives = null;
-                        pawn.outfits = new Pawn_OutfitTracker(pawn);
-                        pawn.pather = new Pawn_PathFollower(pawn);
-                        // pawn.records = new Pawn_RecordsTracker(pawn);
-                        // pawn.relations = new Pawn_RelationsTracker(pawn);
-                        pawn.caller = new Pawn_CallTracker(pawn);
-                        // pawn.needs = new Pawn_NeedsTracker(pawn);
-                        // pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
-                        // pawn.interactions = new Pawn_InteractionsTracker(pawn);
-                        // pawn.stances = new Pawn_StanceTracker(pawn);
-                        // pawn.story = new Pawn_StoryTracker(pawn);
-                        // pawn.playerSettings = new Pawn_PlayerSettings(pawn);
-                        pawn.psychicEntropy = new Pawn_PsychicEntropyTracker(pawn);
-                        // pawn.workSettings = new Pawn_WorkSettings(pawn);
-
-                        pawn.skills.SkillsTick();
-                        // Reset Skills Since Midnight.
-                        foreach (SkillRecord skill in pawn.skills.skills)
+                        if (offworldEvent)
                         {
-                            skill.xpSinceMidnight = 0;
-                            //lastXpSinceMidnightResetTimestamp
-                            
-                        }
-                    }
-                    else
-                    {
-                        pawn.ownership = new Pawn_Ownership(pawn);
-                    }
- 
-                    if (pawn.RaceProps.ToolUser)
-                    {
-                        if (pawn.equipment == null)
-                            pawn.equipment = new Pawn_EquipmentTracker(pawn);
-                        if (pawn.apparel == null)
-                            pawn.apparel = new Pawn_ApparelTracker(pawn);
-
-                        // Reset their equipped weapon's verbTrackers as well, or they'll go insane if they're carrying an out-of-phase weapon...
-                        if (pawn.equipment.Primary != null)
-                        {
-                            pawn.equipment.DropAllEquipment(pawn.Position);
-
-                            pawn.equipment.Primary.InitializeComps();
-                            pawn.equipment.PrimaryEq.verbTracker = new VerbTracker(pawn);
-                            pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
+                            pawn.relations = new Pawn_RelationsTracker(pawn);
+                            pawn.needs = new Pawn_NeedsTracker(pawn);
                         }
 
-                        // Quickly draft and undraft the Colonist. This will cause them to become aware of the newly-in-phase weapon they are holding,
-                        // if any. This is effectively the cure of Stargate Insanity.
+                        pawn.jobs = new Pawn_JobTracker(pawn);
+                        pawn.verbTracker = new VerbTracker(pawn);
+                        pawn.carryTracker = new Pawn_CarryTracker(pawn);
+
                         if (pawn.RaceProps.Humanlike)
                         {
-                            pawn.drafter.Drafted = true;
-                            pawn.drafter.Drafted = false;
-                        }
-                    }               
+                            // pawn.thinker = new Pawn_Thinker(pawn);
+                            // pawn.mindState = new Pawn_MindState(pawn);
+                            // pawn.jobs = new Pawn_JobTracker(pawn);
+                            // pawn.pather = new Pawn_PathFollower(pawn);
+                            // pawn.caller = new Pawn_CallTracker(pawn);
+                            // pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
+                            // pawn.interactions = new Pawn_InteractionsTracker(pawn);
+                            // pawn.stances = new Pawn_StanceTracker(pawn);
+                            // pawn.relations = new Pawn_RelationsTracker(pawn);
+                            pawn.rotationTracker = new Pawn_RotationTracker(pawn);
+                            pawn.thinker = new Pawn_Thinker(pawn);
+                            pawn.mindState = new Pawn_MindState(pawn);
+                            pawn.drafter = new Pawn_DraftController(pawn);
+                            pawn.natives = null;
+                            pawn.outfits = new Pawn_OutfitTracker(pawn);
+                            pawn.pather = new Pawn_PathFollower(pawn);
+                            // pawn.records = new Pawn_RecordsTracker(pawn);
+                            // pawn.relations = new Pawn_RelationsTracker(pawn);
+                            pawn.caller = new Pawn_CallTracker(pawn);
+                            // pawn.needs = new Pawn_NeedsTracker(pawn);
+                            // pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
+                            // pawn.interactions = new Pawn_InteractionsTracker(pawn);
+                            // pawn.stances = new Pawn_StanceTracker(pawn);
+                            // pawn.story = new Pawn_StoryTracker(pawn);
+                            // pawn.playerSettings = new Pawn_PlayerSettings(pawn);
+                            pawn.psychicEntropy = new Pawn_PsychicEntropyTracker(pawn);
+                            // pawn.workSettings = new Pawn_WorkSettings(pawn);
 
-                    // Remove memories or they will go insane...
-                    if (pawn.RaceProps.Humanlike)
-                    {
-                        // pawn.guest = new Pawn_GuestTracker(pawn);
+                            pawn.skills.SkillsTick();
+                            // Reset Skills Since Midnight.
+                            foreach (SkillRecord skill in pawn.skills.skills)
+                            {
+                                skill.xpSinceMidnight = 0;
+                                //lastXpSinceMidnightResetTimestamp
+
+                            }
+                        }
+                        else
+                        {
+                            pawn.ownership = new Pawn_Ownership(pawn);
+                        }
+
+                        // if (pawn.RaceProps.ToolUser)
+                        // {
+                        //     if (pawn.equipment == null)
+                        //         pawn.equipment = new Pawn_EquipmentTracker(pawn);
+                        //     if (pawn.apparel == null)
+                        //         pawn.apparel = new Pawn_ApparelTracker(pawn);
+                        //
+                        //     // Reset their equipped weapon's verbTrackers as well, or they'll go insane if they're carrying an out-of-phase weapon...
+                        //     if (pawn.equipment.Primary != null)
+                        //     {
+                        //         pawn.equipment.Primary.InitializeComps();
+                        //         pawn.equipment.PrimaryEq.verbTracker = new VerbTracker(pawn);
+                        //         pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
+                        //     }
+                        // }
+
+                        // Remove memories or they will go insane...
+                        if (pawn.RaceProps.Humanlike)
+                        {
+                            // pawn.guest = new Pawn_GuestTracker(pawn);
 #if RIMWORLD12
-                        pawn.guilt = new Pawn_GuiltTracker();
+                            pawn.guilt = new Pawn_GuiltTracker();
 #else
                         pawn.guilt = new Pawn_GuiltTracker(pawn);
 #endif
-                        pawn.abilities = new Pawn_AbilityTracker(pawn);
-                        pawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(pawn);
+                            pawn.abilities = new Pawn_AbilityTracker(pawn);
+                            pawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(pawn);
+                        }
+
+                        // Alter the pawn's chronological age based upon the temporal drift between their origin universe
+                        // and the destination universe.
+                        //
+                        // This is the only way in which even the pawns themselves and their co-travelers, dopplegangers
+                        // in parallel realities, and the Observer can possibly tell how Old they really are...
+                        //
+                        // There are 60,000 ticks per day.
+                        long timelineTicksDiff = Current.Game.tickManager.TicksAbs - originalTimelineTicks;
+                        long newAbsBirthdate = pawn.ageTracker.BirthAbsTicks + timelineTicksDiff;
+                        Log.Message(
+                            $"Subtracting {timelineTicksDiff} from the pawn's absolute ticks. From {pawn.ageTracker.BirthAbsTicks} to {newAbsBirthdate}");
+                        pawn.ageTracker.BirthAbsTicks = newAbsBirthdate;
+
+                        // Give them a brief psychic shock so that they will be given proper Melee Verbs and not act like a Visitor.
+                        // Hediff shock = HediffMaker.MakeHediff(HediffDefOf.PsychicShock, pawn, null);
+                        // pawn.health.AddHediff(shock, null, null);
+                        PawnComponentsUtility.AddAndRemoveDynamicComponents(pawn, true);
                     }
-                    
-                    // Alter the pawn's chronological age based upon the temporal drift between their origin universe
-                    // and the destination universe.
-                    //
-                    // This is the only way in which even the pawns themselves and their co-travelers, dopplegangers
-                    // in parallel realities, and the Observer can possibly tell how Old they really are...
-                    //
-                    // There are 60,000 ticks per day.
-                    long timelineTicksDiff = Current.Game.tickManager.TicksAbs - originalTimelineTicks;
-                    long newAbsBirthdate = pawn.ageTracker.BirthAbsTicks + timelineTicksDiff;
-                    Log.Message($"Subtracting {timelineTicksDiff} from the pawn's absolute ticks. From {pawn.ageTracker.BirthAbsTicks} to {newAbsBirthdate}");
-                    pawn.ageTracker.BirthAbsTicks = newAbsBirthdate;
 
-                    // Give them a brief psychic shock so that they will be given proper Melee Verbs and not act like a Visitor.
-                    // Hediff shock = HediffMaker.MakeHediff(HediffDefOf.PsychicShock, pawn, null);
-                    // pawn.health.AddHediff(shock, null, null);
-                    PawnComponentsUtility.AddAndRemoveDynamicComponents(pawn, true);
-                }
-
-                wasPlaced = GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near);
-                // Readd the unplaced Thing into the stargateBuffer.
-                if (!wasPlaced)
-                {
-                    Log.Warning("Could not place " + currentThing.Label);
-                    this.stargateBuffer.TryAdd(currentThing);
-                }
-                else
-                {
-                    if (currentThing is Pawn thisPawn)
+                    wasPlaced = GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2),
+                        this.currentMap, ThingPlaceMode.Near);
+                    // Readd the unplaced Thing into the stargateBuffer.
+                    if (!wasPlaced)
                     {
-
-                        this.currentMap.mapPawns.RegisterPawn(thisPawn);
-                        // Clear their mind (prevents Stargate Psychosis?).
-                        thisPawn.ClearMind();
-
-                        thisPawn.jobs.ClearQueuedJobs();
-
-                        thisPawn.thinker = new Pawn_Thinker(thisPawn);
+                        Log.Warning("Could not place " + currentThing.Label);
+                        this.stargateBuffer.TryAdd(currentThing);
                     }
+                    else
+                    {
+                        if (currentThing is Pawn thisPawn)
+                        {
+
+                            this.currentMap.mapPawns.RegisterPawn(thisPawn);
+                            // Clear their mind (prevents Stargate Psychosis?).
+                            thisPawn.ClearMind();
+
+                            thisPawn.jobs.ClearQueuedJobs();
+
+                            thisPawn.thinker = new Pawn_Thinker(thisPawn);
+
+                            // Quickly draft and undraft the Colonist. This will cause them to become aware of the newly-in-phase weapon they are holding,
+                            // if any. This is effectively the cure of Stargate Insanity.
+                            if (thisPawn.RaceProps.Humanlike)
+                            {
+                                thisPawn.equipment.DropAllEquipment(thisPawn.Position);
+                                thisPawn.drafter.Drafted = true;
+                                thisPawn.drafter.Drafted = false;
+                            }
+
+                            if (thisPawn.RaceProps.ToolUser)
+                            {
+                                if (thisPawn.equipment == null)
+                                    thisPawn.equipment = new Pawn_EquipmentTracker(thisPawn);
+                                if (thisPawn.apparel == null)
+                                    thisPawn.apparel = new Pawn_ApparelTracker(thisPawn);
+
+                                thisPawn.equipment.Notify_PawnSpawned(); 
+                                thisPawn.verbTracker = new VerbTracker(thisPawn);
+                                thisPawn.meleeVerbs = new Pawn_MeleeVerbs(thisPawn);
+
+                                // // Reset their equipped weapon's verbTrackers as well, or they'll go insane if they're carrying an out-of-phase weapon...
+                                // if (thisPawn.equipment.Primary != null)
+                                // {
+                                // thisPawn.equipment.Primary.InitializeComps();
+                                // thisPawn.equipment.PrimaryEq.verbTracker = new VerbTracker(thisPawn);
+                                // thisPawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
+                                // }
+                            }
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    continue;
                 }
 
                 // inboundBuffer.Remove(currentThing);
