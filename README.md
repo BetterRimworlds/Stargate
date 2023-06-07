@@ -6,6 +6,7 @@ through the Stargate Social opinions relating to that colonist will be lost, the
 meeting everyone for the first time again. At this time I do not know of a practical way to resolve this issue.
 
 The Stargate system allows you to transport materials over the great distances between colonies.
+![Stargate](https://github.com/BetterRimworlds/Rimworld-Stargate/assets/1125541/375be511-ea8c-4964-bb56-93689ceb6535)
 
 ## Change Log
 
