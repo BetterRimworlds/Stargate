@@ -18,18 +18,24 @@
             <graphicClass>Graphic_Single</graphicClass>
             <drawSize>(3,3)</drawSize>
         </graphicData>
+        <techLevel>Archotech</techLevel>
+        <stackLimit>1</stackLimit>
+        <minifiedDef>MinifiedThing</minifiedDef>
+        <thingCategories>
+            <li>BuildingsMisc</li>
+        </thingCategories>  
         <altitudeLayer>Building</altitudeLayer>
         <passability>Impassable</passability>
         <castEdgeShadows>true</castEdgeShadows>
         <fillPercent>1</fillPercent>
         <specialDisplayRadius>3</specialDisplayRadius>
         <tickerType>Rare</tickerType>
-        <FileLocationPrimary></FileLocationPrimary>
-        <FileLocationSecondary></FileLocationSecondary>
         <statBases>
-            <WorkToBuild>30000</WorkToBuild>
-            <MaxHitPoints>1000000</MaxHitPoints>
+            <WorkToBuild>150000</WorkToBuild>
+            <MaxHitPoints>100000</MaxHitPoints>
             <Flammability>0.0</Flammability>
+            <Beauty>2</Beauty>
+            <Mass>250</Mass>
         </statBases>
         <description>Stargate</description>
         <researchPrerequisites>
@@ -42,7 +48,7 @@
             <li Class="CompProperties_Power">
                 <compClass>CompPowerTrader</compClass>
                 <shortCircuitInRain>false</shortCircuitInRain>
-                <basePowerConsumption>1600</basePowerConsumption>
+                <basePowerConsumption>1000</basePowerConsumption>
             </li>
             <li Class="CompProperties_Flickable"/>
         </comps>

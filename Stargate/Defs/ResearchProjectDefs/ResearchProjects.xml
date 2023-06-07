@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+    <ResearchProjectDef>
+        <defName>BRW_QuantumStorage</defName>
+        <label>Quantum Storage</label>
+        <description>Deep field quantum tech that will allow the storage of, well, anything, indefinitely, in a quantum pocket dimension, provided you have enough power.
+
+Also, gives you the power to dematerialize Pawns and Items from across the map.
+
+This tech enables the Dematerializer tech, if you have that mod.</description>
+        <baseCost>7000</baseCost>
+        <techLevel>Spacer</techLevel>
+        <researchViewX>0</researchViewX>
+        <researchViewY>1</researchViewY>
+        <requiredResearchFacilities>
+            <li>MultiAnalyzer</li>
+        </requiredResearchFacilities>
+        <prerequisites>
+            <li>LongRangeMineralScanner</li>
+            <li>ShipBasics</li>
+        </prerequisites>
+        <tab>Stargate</tab>
+    </ResearchProjectDef>
+    <ResearchProjectDef>
+        <defName>BRW_QuantumTeleportation</defName>
+        <label>Quantum Teleportation</label>
+        <description>"Beam me up, Scotty!"
+
+This tech enables the Archotech Teleporter tech, if you have that mod.</description>
+        <baseCost>6000</baseCost>
+        <techLevel>Spacer</techLevel>
+        <researchViewX>0</researchViewX>
+        <researchViewY>3</researchViewY>
+        <requiredResearchFacilities>
+            <li>MultiAnalyzer</li>
+        </requiredResearchFacilities>
+        <prerequisites>
+            <li>AdvancedFabrication</li>
+            <li>ShipBasics</li>
+        </prerequisites>
+        <tab>Stargate</tab>
+    </ResearchProjectDef>
+    <ResearchProjectDef>
+        <defName>Building_Stargate_research</defName>
+        <label>Stargate Astro Navigation</label>
+        <description>By studying the symbols on the device you have discovered and cross-referencing with stellar constellations you have found out how to activate it and travel to other locations.</description>
+        <baseCost>10000</baseCost>
+        <techLevel>Spacer</techLevel>
+        <researchViewX>1</researchViewX>
+        <researchViewY>2</researchViewY>
+        <requiredResearchFacilities>
+            <li>MultiAnalyzer</li>
+        </requiredResearchFacilities>
+        <prerequisites>
+            <li>AdvancedFabrication</li>
+            <li>LongRangeMineralScanner</li>
+            <li>ShipBasics</li>
+            <li>BRW_QuantumTeleportation</li>
+            <li>BRW_QuantumStorage</li>
+        </prerequisites>
+        <tab>Stargate</tab>
+    </ResearchProjectDef>
+</Defs>

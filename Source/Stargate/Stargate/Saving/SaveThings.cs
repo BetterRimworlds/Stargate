@@ -142,6 +142,8 @@ namespace Enhanced_Development.Stargate.Saving
             var relationships = new StargateRelations();
             var loadedPawns = new List<Pawn>();
             var loadedPawnIds = new List<string>();
+
+            var sortedThingsToSave = new List<Thing>();
             
             foreach (var item in thingsToSave)
             {
@@ -150,6 +152,11 @@ namespace Enhanced_Development.Stargate.Saving
                     loadedPawns.Add(pawn);
                     loadedPawnIds.Add(pawn.ThingID);
                     // pawn.Discard();
+                    sortedThingsToSave.Insert(0, pawn);
+                }
+                else
+                {
+                    sortedThingsToSave.Add(item);
                 }
             }
             
@@ -179,7 +186,7 @@ namespace Enhanced_Development.Stargate.Saving
             Scribe_Values.Look<int>(ref currentTimelineTicks, "originalTimelineTicks");
             // Log.Error(relationshipsList.ToString());
             Scribe_Collections.Look<StargateRelation>(ref relationshipsList, "relationships");
-            Scribe_Collections.Look<Thing>(ref thingsToSave, "things", LookMode.Deep, (object)null);
+            Scribe_Collections.Look<Thing>(ref sortedThingsToSave, "things", LookMode.Deep, (object)null);
 
             //Scribe.ExitNode();
 

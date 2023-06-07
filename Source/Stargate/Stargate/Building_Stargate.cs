@@ -20,10 +20,11 @@ namespace BetterRimworlds.Stargate
 
         #endregion
 
-        private static List<Building_Stargate> GateNetwork = new List<Building_Stargate>();
+        private List<Building_Stargate> GateNetwork = new List<Building_Stargate>();
         protected StargateBuffer stargateBuffer;
 
         protected bool LocalTeleportEvent = false;
+        protected bool PoweringUp = false;
 
         #region Variables
 
@@ -52,6 +53,8 @@ namespace BetterRimworlds.Stargate
         int requiredCapacitorCharge = 1000;
         int chargeSpeed = 1;
 
+        private bool TransmittedHumans = false;
+
         protected Map currentMap;
 
         #endregion
@@ -67,12 +70,11 @@ namespace BetterRimworlds.Stargate
 
             UI_POWER_UP = ContentFinder<Texture2D>.Get("UI/PowerUp", true);
             UI_POWER_DOWN = ContentFinder<Texture2D>.Get("UI/PowerDown", true);
-
 #if RIMWORLD12
             GraphicRequest requestActive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate-Active",   ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData(), 0, null);
             GraphicRequest requestInactive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData(), 0, null);
 #endif
-#if RIMWORLD13
+#if RIMWORLD13 || RIMWORLD14
             GraphicRequest requestActive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate-Active",   ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData(), 0, null, null);
             GraphicRequest requestInactive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData(), 0, null, null);
 #endif
@@ -86,7 +88,7 @@ namespace BetterRimworlds.Stargate
 
         public Building_Stargate()
         {
-            this.stargateBuffer = new StargateBuffer(this, false, LookMode.Deep);
+            this.stargateBuffer = new StargateBuffer(this, this.Position, false, LookMode.Deep);
         }
 
 
@@ -137,10 +139,10 @@ namespace BetterRimworlds.Stargate
         // Saving game
         public override void ExposeData()
         {
-
             Scribe_Values.Look<int>(ref currentCapacitorCharge, "currentCapacitorCharge");
             Scribe_Values.Look<int>(ref requiredCapacitorCharge, "requiredCapacitorCharge");
             Scribe_Values.Look<int>(ref chargeSpeed, "chargeSpeed");
+            Scribe_Values.Look<bool>(ref PoweringUp, "poweringUp");
 
             Scribe_Deep.Look<StargateBuffer>(ref this.stargateBuffer, "stargateBuffer", new object[]
             {
@@ -155,13 +157,40 @@ namespace BetterRimworlds.Stargate
             base.TickRare();
         }
 
+
         public override void TickRare()
         {
             base.TickRare();
-            if (this.power.PowerOn)
+
+            if (TransmittedHumans == true)
+            {
+                Messages.Message("Humans are suffering from Stargate Psychosis. Save and Reload immediately!", MessageTypeDefOf.ThreatBig);
+            }
+
+            if (!this.PoweringUp)
+            {
+                this.power.powerOutputInt = 0;
+                chargeSpeed = 0;
+            }
+
+            if (this.PoweringUp && !this.power.PowerOn)
+            {
+                chargeSpeed = 0;
+                this.updatePowerDrain();
+            }
+
+            if (this.PoweringUp && this.power.PowerOn)
             {
                 currentCapacitorCharge += chargeSpeed;
-                if (this.power.PowerNet.CurrentEnergyGainRate() > 1000)
+
+                float excessPower = this.power.PowerNet.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick;
+                if (excessPower + (this.power.PowerNet.CurrentStoredEnergy() * 1000) > 5000)
+                {
+                    // chargeSpeed += 5 - (this.chargeSpeed % 5);
+                    chargeSpeed = (int)Math.Round(this.power.PowerNet.CurrentStoredEnergy() * 0.25 / 10); 
+                    this.updatePowerDrain();
+                }
+                else if (excessPower + (this.power.PowerNet.CurrentStoredEnergy() * 1000) > 1000)
                 {
                     chargeSpeed += 1;
                     this.updatePowerDrain();
@@ -169,11 +198,15 @@ namespace BetterRimworlds.Stargate
             }
 
             // Stop using power if it's full.
-            if (currentCapacitorCharge >= requiredCapacitorCharge)
+            if (this.fullyCharged)
             {
+                this.PoweringUp = false;
                 currentCapacitorCharge = requiredCapacitorCharge;
                 this.chargeSpeed = 0;
                 this.updatePowerDrain();
+
+                // Auto-add stuff if it's inside the Stargate area.
+                this.AddResources();
             }
 
             if (this.currentCapacitorCharge < 0)
@@ -207,20 +240,6 @@ namespace BetterRimworlds.Stargate
             foreach (var g in base.GetGizmos())
             {
                 yield return g;
-            }
-
-            if (true)
-            {
-                Command_Action act = new Command_Action();
-                //act.action = () => Designator_Deconstruct.DesignateDeconstruct(this);
-                act.action = () => this.AddResources();
-                act.icon = UI_ADD_RESOURCES;
-                act.defaultLabel = "Add Resources";
-                act.defaultDesc = "Add Resources";
-                act.activateSound = SoundDef.Named("Click");
-                //act.hotKey = KeyBindingDefOf.DesignatorDeconstruct;
-                //act.groupKey = 689736;
-                yield return act;
             }
 
             if (true)
@@ -269,95 +288,72 @@ namespace BetterRimworlds.Stargate
             {
                 Command_Action act = new Command_Action();
                 //act.action = () => Designator_Deconstruct.DesignateDeconstruct(this);
-                act.action = () => this.PowerRateIncrease();
+                act.action = () => this.PoweringUp = true;
                 act.icon = UI_POWER_UP;
-                act.defaultLabel = "Increase Power";
-                act.defaultDesc = "Increase Power";
+                act.defaultLabel = "Dial the Stargate";
+                act.defaultDesc = "Dial the Stargate";
                 act.activateSound = SoundDef.Named("Click");
                 //act.hotKey = KeyBindingDefOf.DesignatorDeconstruct;
                 //act.groupKey = 689736;
                 yield return act;
             }
             // +57 320-637-6544
-            if (true)
-            {
-                Command_Action act = new Command_Action();
-                //act.action = () => Designator_Deconstruct.DesignateDeconstruct(this);
-                act.action = () => this.PowerRateDecrease();
-                act.icon = UI_POWER_DOWN;
-                act.defaultLabel = "Decrease Power";
-                act.defaultDesc = "Decrease Power";
-                act.activateSound = SoundDef.Named("Click");
-                //act.hotKey = KeyBindingDefOf.DesignatorDeconstruct;
-                //act.groupKey = 689736;
-                yield return act;
-            }
         }
 
         public void AddResources()
         {
-            if (this.fullyCharged)
-            {
-                List<Thing> foundThings = Enhanced_Development.Utilities.Utilities.FindItemThingsNearBuilding(this, Building_Stargate.ADDITION_DISTANCE, this.currentMap);
-
-                foreach (Thing foundThing in foundThings)
-                {
-                    if (foundThing.Spawned && this.stargateBuffer.Count < 500)
-                    {
-                        this.stargateBuffer.TryAdd(foundThing);
-
-                        //Building_OrbitalRelay.listOfThingLists.Add(thingList);
-                    }
-                }
-
-                // Tell the MapDrawer that here is something that's changed.
-                Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
+            if (this.fullyCharged == false) {
+                return;
             }
-            else
+
+            List<Thing> foundThings = Enhanced_Development.Utilities.Utilities.FindItemThingsNearBuilding(this, Building_Stargate.ADDITION_DISTANCE, this.currentMap);
+ 
+            foreach (Thing foundThing in foundThings)
             {
-                Messages.Message("Insufficient Power to add Resources", MessageTypeDefOf.RejectInput);
+                if (foundThing.Spawned && this.stargateBuffer.Count < 1000)
+                {
+                    this.stargateBuffer.TryAdd(foundThing);
+                }
             }
         }
 
-        public void AddPawns()
-        {
-            if (this.fullyCharged)
+        public void AddPawns() 
+        { 
+            if (!this.fullyCharged)
+            { 
+                Messages.Message("Insufficient Power to add Colonist", MessageTypeDefOf.RejectInput);
+                return;
+            }
+
+            IEnumerable<Pawn> closePawns = Enhanced_Development.Utilities.Utilities.findPawnsInColony(this.Position, Building_Stargate.ADDITION_DISTANCE);
+
+            if (closePawns != null)
             {
-                //Log.Message("CLick AddColonist");
-                IEnumerable<Pawn> closePawns = Enhanced_Development.Utilities.Utilities.findPawnsInColony(this.Position, Building_Stargate.ADDITION_DISTANCE);
-
-                if (closePawns != null)
+                foreach (Pawn pawn in closePawns.ToList())
                 {
-                    foreach (Pawn pawn in closePawns.ToList())
+                    if (!pawn.Spawned)
                     {
-                        if (!pawn.Spawned)
-                        {
-                            continue;
-                        }
-
-                        // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
-                        // if they enter a Stargate after they've ever been drafted.
-                        if (pawn.verbTracker != null)
-                        {
-                            pawn.verbTracker = new VerbTracker(pawn);
-                        }
-
-                        // Remove memories or they will go insane...
-                        if (pawn.def.defName == "Human")
-                        {
-                            pawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(pawn);
-                        }
-
-                        this.stargateBuffer.TryAdd(pawn);
+                        continue;
                     }
+
+                    // // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
+                    // // if they enter a Stargate after they've ever been drafted.
+                    // if (pawn.verbTracker != null)
+                    // {
+                    //     pawn.verbTracker = new VerbTracker(pawn);
+                    // }
+
+                    // Remove memories or they will go insane...
+                    // if (pawn.def.defName == "Human")
+                    // {
+                    //     pawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(pawn);
+                    // }
+
+                    this.stargateBuffer.TryAdd(pawn);
                 }
 
                 // Tell the MapDrawer that here is something thats changed
                 Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
-            }
-            else
-            {
-                Messages.Message("Insufficient Power to add Colonist", MessageTypeDefOf.RejectInput);
             }
         }
 
@@ -380,7 +376,7 @@ namespace BetterRimworlds.Stargate
             // Tell the MapDrawer that here is something thats changed
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
 
-            this.currentCapacitorCharge -= this.requiredCapacitorCharge;
+            this.currentCapacitorCharge = 0;
         }
 
         public bool HasThingsInBuffer()
@@ -392,11 +388,12 @@ namespace BetterRimworlds.Stargate
         {
             var itemsToTeleport = new List<Thing>();
             itemsToTeleport.AddRange(this.stargateBuffer);
+            this.stargateBuffer.Clear();
 
             // Tell the MapDrawer that here is something that's changed.
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
 
-            this.currentCapacitorCharge -= this.requiredCapacitorCharge;
+            this.currentCapacitorCharge = 0;
 
             return itemsToTeleport;
         }
@@ -415,6 +412,7 @@ namespace BetterRimworlds.Stargate
             // See if any of the stargates on this planet (including this gate) have items in their buffer...
             // and if so, recall them here.
             // @FIXME: Use  DefDatabase<ThingDef>.AllDefs.Where((ThingDef def) => typeof(Building_Stargate)
+            this.LocalTeleportEvent = false;
             foreach (var stargate in GateNetwork)
             {
                 Log.Message("Found a Stargate with the ID of " + stargate.ThingID);
@@ -427,6 +425,7 @@ namespace BetterRimworlds.Stargate
 
                 if (!stargate.HasThingsInBuffer())
                 {
+                    Log.Warning("Nothing in this Stargate's buffer....");
                     continue;
                 }
 
@@ -516,6 +515,7 @@ namespace BetterRimworlds.Stargate
             var recallData = this.recall();
             if (recallData == null)
             {
+                Messages.Message("WARNING: The Stargate buffer was empty!!", MessageTypeDefOf.ThreatBig);
                 return false;
             }
             
@@ -524,78 +524,73 @@ namespace BetterRimworlds.Stargate
             List<StargateRelation> relationships = recallData.Item3;
             bool offworldEvent = !this.LocalTeleportEvent;
 
-            foreach (Thing currentThing in inboundBuffer)
+            bool wasPlaced;
+            // this.stargateBuffer.Clear();
+            foreach (Thing currentThing in inboundBuffer.ToList())
             {
-                // If it's just a teleport, destroy the thing first...
-                // Log.Warning("a1: is offworld? " + offworldEvent + " | Stargate Buffer count: " + this.stargateBuffer.Count);
-                if (!offworldEvent)
+                try
                 {
-                    Log.Warning("a2");
-                    GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near);
-
-                    continue;
-                    // currentThing.Destroy();
-                }
-                
-                // currentThing.thingIDNumber = -1;
-                // Verse.ThingIDMaker.GiveIDTo(currentThing);
-
-                // If it's an equippable object, like a gun, reset its verbs or ANY colonist that equips it *will* go insane...
-                // This is actually probably the root cause of Colonist Insanity (holding an out-of-phase item with IDs belonging
-                // to an alternate dimension). This is the equivalent of how Olivia goes insane in the TV series Fringe.
-                if (currentThing is ThingWithComps item)
-                {
-                    item.InitializeComps();
-                }
-
-                if (currentThing.def.CanHaveFaction)
-                {
-                    currentThing.SetFactionDirect(Faction.OfPlayer);
-                }
-                
-                // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
-                // if they enter a Stargate after they've ever been drafted.
-                if (currentThing is Pawn pawn)
-                {
-                    // Carry over injuries, sicknesses, addictions, and artificial body parts.
-                    var hediffSet = pawn.health.hediffSet;
-
-                    pawn.health = new Pawn_HealthTracker(pawn);
-                    foreach (var hediff in hediffSet.hediffs.ToList())
+                    // If it's just a teleport, destroy the thing first...
+                    // Log.Warning("a1: is offworld? " + offworldEvent + " | Stargate Buffer count: " + this.stargateBuffer.Count);
+                    if (!offworldEvent)
                     {
-                        if (hediff is Hediff_MissingPart)
+                        wasPlaced = GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2),
+                            this.currentMap, ThingPlaceMode.Near);
+                        // Readd the unplaced Thing into the stargateBuffer.
+                        if (!wasPlaced)
                         {
-                            continue;
+                            Log.Warning("Could not place " + currentThing.Label);
+                            this.stargateBuffer.TryAdd(currentThing);
                         }
-                        hediff.pawn = pawn;
-                        pawn.health.AddHediff(hediff, hediff.Part);
+
+                        continue;
+                        // currentThing.Destroy();
                     }
 
-                    // @FIXME: Animals still have partial Stargate Insanity and many times will never fall asleep
-                    //         on the new planet. They will drop-down from sheer exhaustion.
-                    //         Some of them also become Godlings, literally unkillable except via the Dev Mode.
-                    // Quickly draft and undraft the Colonist. This will cause them to become aware of the newly-in-phase weapon they are holding,
-                    // if any. This is effectively the cure of Stargate Insanity.
-                    pawn.needs.SetInitialLevels();
-                 
-                    // pawn.verbTracker = new VerbTracker(pawn);
-                    // pawn.thinker = new Pawn_Thinker(pawn);
-                    // pawn.mindState = new Pawn_MindState(pawn);
-                    // pawn.jobs = new Pawn_JobTracker(pawn);
-                    // pawn.pather = new Pawn_PathFollower(pawn);
-                    // pawn.caller = new Pawn_CallTracker(pawn);
-                    // pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
-                    // pawn.interactions = new Pawn_InteractionsTracker(pawn);
-                    // pawn.stances = new Pawn_StanceTracker(pawn);
-                    if (offworldEvent)
+                    // currentThing.thingIDNumber = -1;
+                    // Verse.ThingIDMaker.GiveIDTo(currentThing);
+
+                    // If it's an equippable object, like a gun, reset its verbs or ANY colonist that equips it *will* go insane...
+                    // This is actually probably the root cause of Colonist Insanity (holding an out-of-phase item with IDs belonging
+                    // to an alternate dimension). This is the equivalent of how Olivia goes insane in the TV series Fringe.
+                    if (currentThing is ThingWithComps item)
+                    {
+                        item.InitializeComps();
+                    }
+
+                    if (currentThing.def.CanHaveFaction)
+                    {
+                        currentThing.SetFactionDirect(Faction.OfPlayer);
+                    }
+
+                    // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
+                    // if they enter a Stargate after they've ever been drafted.
+                    if (currentThing is Pawn pawn)
                     {
                         pawn.relations = new Pawn_RelationsTracker(pawn);
-                    }
+                        // Carry over injuries, sicknesses, addictions, and artificial body parts.
+                        var hediffSet = pawn.health.hediffSet;
 
-                    pawn.jobs = new Pawn_JobTracker(pawn);
+                        pawn.health = new Pawn_HealthTracker(pawn);
+                        foreach (var hediff in hediffSet.hediffs.ToList())
+                        {
+                            if (hediff is Hediff_MissingPart)
+                            {
+                                continue;
+                            }
 
-                    if (pawn.RaceProps.Humanlike)
-                    {
+                            hediff.pawn = pawn;
+                            pawn.health.AddHediff(hediff, hediff.Part);
+                        }
+
+                        // @FIXME: Animals still have partial Stargate Insanity and many times will never fall asleep
+                        //         on the new planet. They will drop-down from sheer exhaustion.
+                        //         Some of them also become Godlings, literally unkillable except via the Dev Mode.
+                        // Quickly draft and undraft the Colonist. This will cause them to become aware of the newly-in-phase weapon they are holding,
+                        // if any. This is effectively the cure of Stargate Insanity.
+                        pawn.needs.SetInitialLevels();
+
+                        // pawn.verbTracker = new VerbTracker(pawn);
                         // pawn.thinker = new Pawn_Thinker(pawn);
                         // pawn.mindState = new Pawn_MindState(pawn);
                         // pawn.jobs = new Pawn_JobTracker(pawn);
@@ -604,115 +599,181 @@ namespace BetterRimworlds.Stargate
                         // pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
                         // pawn.interactions = new Pawn_InteractionsTracker(pawn);
                         // pawn.stances = new Pawn_StanceTracker(pawn);
-                        // pawn.relations = new Pawn_RelationsTracker(pawn);
+                        if (offworldEvent)
+                        {
+                            pawn.relations = new Pawn_RelationsTracker(pawn);
+                            pawn.needs = new Pawn_NeedsTracker(pawn);
+                        }
+
+                        pawn.jobs = new Pawn_JobTracker(pawn);
                         pawn.verbTracker = new VerbTracker(pawn);
                         pawn.carryTracker = new Pawn_CarryTracker(pawn);
-                        pawn.rotationTracker = new Pawn_RotationTracker(pawn);
-                        pawn.thinker = new Pawn_Thinker(pawn);
-                        pawn.mindState = new Pawn_MindState(pawn);
-                        pawn.ownership = new Pawn_Ownership(pawn);
-                        pawn.drafter = new Pawn_DraftController(pawn);
-                        pawn.natives = null;
-                        pawn.outfits = new Pawn_OutfitTracker(pawn);
-                        pawn.pather = new Pawn_PathFollower(pawn);
-                        // pawn.records = new Pawn_RecordsTracker(pawn);
-                        // pawn.relations = new Pawn_RelationsTracker(pawn);
-                        pawn.caller = new Pawn_CallTracker(pawn);
-                        // pawn.needs = new Pawn_NeedsTracker(pawn);
-                        // pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
-                        // pawn.interactions = new Pawn_InteractionsTracker(pawn);
-                        // pawn.stances = new Pawn_StanceTracker(pawn);
-                        // pawn.story = new Pawn_StoryTracker(pawn);
-                        // pawn.playerSettings = new Pawn_PlayerSettings(pawn);
-                        pawn.psychicEntropy = new Pawn_PsychicEntropyTracker(pawn);
-                        // pawn.workSettings = new Pawn_WorkSettings(pawn);
 
-                        pawn.skills.SkillsTick();
-                        // Reset Skills Since Midnight.
-                        foreach (SkillRecord skill in pawn.skills.skills)
-                        {
-                            skill.xpSinceMidnight = 0;
-                            //lastXpSinceMidnightResetTimestamp
-                            
-                        }
-                    }
-                    else
-                    {
-                        pawn.needs = new Pawn_NeedsTracker(pawn);
-                    }
- 
-                    if (pawn.RaceProps.ToolUser)
-                    {
-                        if (pawn.equipment == null)
-                            pawn.equipment = new Pawn_EquipmentTracker(pawn);
-                        if (pawn.apparel == null)
-                            pawn.apparel = new Pawn_ApparelTracker(pawn);
-
-                        // Reset their equipped weapon's verbTrackers as well, or they'll go insane if they're carrying an out-of-phase weapon...
-                        if (pawn.equipment.Primary != null)
-                        {
-                            pawn.equipment.Primary.InitializeComps();
-                            pawn.equipment.PrimaryEq.verbTracker = new VerbTracker(pawn);
-                            pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
-                        }
-
-                        // Quickly draft and undraft the Colonist. This will cause them to become aware of the newly-in-phase weapon they are holding,
-                        // if any. This is effectively the cure of Stargate Insanity.
                         if (pawn.RaceProps.Humanlike)
                         {
-                            pawn.drafter.Drafted = true;
-                            pawn.drafter.Drafted = false;
-                        }
-                    }               
+                            // pawn.thinker = new Pawn_Thinker(pawn);
+                            // pawn.mindState = new Pawn_MindState(pawn);
+                            // pawn.jobs = new Pawn_JobTracker(pawn);
+                            // pawn.pather = new Pawn_PathFollower(pawn);
+                            // pawn.caller = new Pawn_CallTracker(pawn);
+                            // pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
+                            // pawn.interactions = new Pawn_InteractionsTracker(pawn);
+                            // pawn.stances = new Pawn_StanceTracker(pawn);
+                            // pawn.relations = new Pawn_RelationsTracker(pawn);
+                            pawn.rotationTracker = new Pawn_RotationTracker(pawn);
+                            pawn.thinker = new Pawn_Thinker(pawn);
+                            pawn.mindState = new Pawn_MindState(pawn);
+                            pawn.drafter = new Pawn_DraftController(pawn);
+                            pawn.natives = null;
+                            pawn.outfits = new Pawn_OutfitTracker(pawn);
+                            pawn.pather = new Pawn_PathFollower(pawn);
+                            // pawn.records = new Pawn_RecordsTracker(pawn);
+                            // pawn.relations = new Pawn_RelationsTracker(pawn);
+                            pawn.caller = new Pawn_CallTracker(pawn);
+                            // pawn.needs = new Pawn_NeedsTracker(pawn);
+                            // pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
+                            pawn.interactions = new Pawn_InteractionsTracker(pawn);
+                            // pawn.stances = new Pawn_StanceTracker(pawn);
+                            // pawn.story = new Pawn_StoryTracker(pawn);
+                            // pawn.playerSettings = new Pawn_PlayerSettings(pawn);
+                            pawn.psychicEntropy = new Pawn_PsychicEntropyTracker(pawn);
+                            // pawn.workSettings = new Pawn_WorkSettings(pawn);
 
-                    // Remove memories or they will go insane...
-                    if (pawn.RaceProps.Humanlike)
-                    {
-                        // pawn.guest = new Pawn_GuestTracker(pawn);
+                            pawn.skills.SkillsTick();
+                            // Reset Skills Since Midnight.
+                            foreach (SkillRecord skill in pawn.skills.skills)
+                            {
+                                skill.xpSinceMidnight = 0;
+                                //lastXpSinceMidnightResetTimestamp
+
+                            }
+                            if (pawn.equipment.Primary != null)
+                            {
+                                // pawn.equipment.Primary.InitializeComps();
+                                pawn.equipment.PrimaryEq.verbTracker = new VerbTracker(pawn);
+                                pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
+                            }
+
+                            TransmittedHumans = true;
+                        }
+                        else
+                        {
+                            pawn.ownership = new Pawn_Ownership(pawn);
+                        }
+
+                        // if (pawn.RaceProps.ToolUser)
+                        // {
+                        //     if (pawn.equipment == null)
+                        //         pawn.equipment = new Pawn_EquipmentTracker(pawn);
+                        //     if (pawn.apparel == null)
+                        //         pawn.apparel = new Pawn_ApparelTracker(pawn);
+                        //
+                        //     // Reset their equipped weapon's verbTrackers as well, or they'll go insane if they're carrying an out-of-phase weapon...
+                        // }
+                        if (pawn.equipment != null)
+                        {
+                            pawn.equipment.PrimaryEq.verbTracker = new VerbTracker(pawn);
+                            pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
+
+                        }
+
+                        // Remove memories or they will go insane...
+                        if (pawn.RaceProps.Humanlike)
+                        {
+                            // pawn.guest = new Pawn_GuestTracker(pawn);
 #if RIMWORLD12
-                        pawn.guilt = new Pawn_GuiltTracker();
+                            pawn.guilt = new Pawn_GuiltTracker();
 #else
                         pawn.guilt = new Pawn_GuiltTracker(pawn);
 #endif
-                        pawn.abilities = new Pawn_AbilityTracker(pawn);
-                        pawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(pawn);
+                            pawn.abilities = new Pawn_AbilityTracker(pawn);
+                            pawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(pawn);
+                        }
+
+                        // Alter the pawn's chronological age based upon the temporal drift between their origin universe
+                        // and the destination universe.
+                        //
+                        // This is the only way in which even the pawns themselves and their co-travelers, dopplegangers
+                        // in parallel realities, and the Observer can possibly tell how Old they really are...
+                        //
+                        // There are 60,000 ticks per day.
+                        long timelineTicksDiff = Current.Game.tickManager.TicksAbs - originalTimelineTicks;
+                        long newAbsBirthdate = pawn.ageTracker.BirthAbsTicks + timelineTicksDiff;
+                        Log.Message(
+                            $"Subtracting {timelineTicksDiff} from the pawn's absolute ticks. From {pawn.ageTracker.BirthAbsTicks} to {newAbsBirthdate}");
+                        pawn.ageTracker.BirthAbsTicks = newAbsBirthdate;
+
+                        // Give them a brief psychic shock so that they will be given proper Melee Verbs and not act like a Visitor.
+                        // Hediff shock = HediffMaker.MakeHediff(HediffDefOf.PsychicShock, pawn, null);
+                        // pawn.health.AddHediff(shock, null, null);
+                        PawnComponentsUtility.AddAndRemoveDynamicComponents(pawn, true);
                     }
-                    
-                    // Alter the pawn's chronological age based upon the temporal drift between their origin universe
-                    // and the destination universe.
-                    //
-                    // This is the only way in which even the pawns themselves and their co-travelers, dopplegangers
-                    // in parallel realities, and the Observer can possibly tell how Old they really are...
-                    //
-                    // There are 60,000 ticks per day.
-                    long timelineTicksDiff = Current.Game.tickManager.TicksAbs - originalTimelineTicks;
-                    long newAbsBirthdate = pawn.ageTracker.BirthAbsTicks + timelineTicksDiff;
-                    Log.Message($"Subtracting {timelineTicksDiff} from the pawn's absolute ticks. From {pawn.ageTracker.BirthAbsTicks} to {newAbsBirthdate}");
-                    pawn.ageTracker.BirthAbsTicks = newAbsBirthdate;
 
-                    // Give them a brief psychic shock so that they will be given proper Melee Verbs and not act like a Visitor.
-                    // Hediff shock = HediffMaker.MakeHediff(HediffDefOf.PsychicShock, pawn, null);
-                    // pawn.health.AddHediff(shock, null, null);
-                    PawnComponentsUtility.AddAndRemoveDynamicComponents(pawn, true);
+                    wasPlaced = GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2),
+                        this.currentMap, ThingPlaceMode.Near);
+                    // Readd the unplaced Thing into the stargateBuffer.
+                    if (!wasPlaced)
+                    {
+                        Log.Warning("Could not place " + currentThing.Label);
+                        this.stargateBuffer.TryAdd(currentThing);
+                    }
+                    else
+                    {
+                        if (currentThing is Pawn thisPawn)
+                        {
+
+                            this.currentMap.mapPawns.RegisterPawn(thisPawn);
+                            // Clear their mind (prevents Stargate Psychosis?).
+                            thisPawn.ClearMind();
+
+                            thisPawn.jobs.ClearQueuedJobs();
+
+                            thisPawn.thinker = new Pawn_Thinker(thisPawn);
+
+                            // Quickly draft and undraft the Colonist. This will cause them to become aware of the newly-in-phase weapon they are holding,
+                            // if any. This is effectively the cure of Stargate Insanity.
+                            if (thisPawn.RaceProps.Humanlike)
+                            {
+                                // thisPawn.equipment.DropAllEquipment(thisPawn.Position);
+                                thisPawn.drafter.Drafted = true;
+                                thisPawn.drafter.Drafted = false;
+                            }
+
+                            if (thisPawn.RaceProps.ToolUser)
+                            {
+                                if (thisPawn.equipment == null)
+                                    thisPawn.equipment = new Pawn_EquipmentTracker(thisPawn);
+                                if (thisPawn.apparel == null)
+                                    thisPawn.apparel = new Pawn_ApparelTracker(thisPawn);
+
+                                thisPawn.equipment.Notify_PawnSpawned(); 
+                                thisPawn.verbTracker = new VerbTracker(thisPawn);
+                                thisPawn.meleeVerbs = new Pawn_MeleeVerbs(thisPawn);
+
+                                // // Reset their equipped weapon's verbTrackers as well, or they'll go insane if they're carrying an out-of-phase weapon...
+                                if (thisPawn.equipment.Primary != null)
+                                {
+                                    // thisPawn.equipment.Primary.InitializeComps();
+                                    thisPawn.equipment.PrimaryEq.verbTracker = new VerbTracker(thisPawn);
+                                    thisPawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
+                                }
+                                
+                                thisPawn.verbTracker.AllVerbs.Clear();
+                                thisPawn.verbTracker.AllVerbs.Add(new Verb_MeleeAttackDamage());
+
+                            }
+                        }
+                    }
                 }
-
-                GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near);
-
-                if (currentThing is Pawn thisPawn)
+                catch (Exception)
                 {
-
-                    this.currentMap.mapPawns.RegisterPawn(thisPawn);
-                    // Clear their mind (prevents Stargate Psychosis?).
-                    thisPawn.ClearMind();
-
-                    thisPawn.jobs.ClearQueuedJobs();
-
-                    thisPawn.thinker = new Pawn_Thinker(thisPawn);
+                    continue;
                 }
+
+                // inboundBuffer.Remove(currentThing);
             }
 
             inboundBuffer.Clear();
-            // this.stargateBuffer.Clear();
 
             // Tell the MapDrawer that here is something that's changed
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
@@ -728,23 +789,6 @@ namespace BetterRimworlds.Stargate
             return true;
         }
 
-        private void PowerStopUsing()
-        {
-            this.chargeSpeed = 0;
-            this.updatePowerDrain();
-        }
-
-        private void PowerRateIncrease()
-        {
-            this.chargeSpeed += 1;
-            this.updatePowerDrain();
-        }
-
-        private void PowerRateDecrease()
-        {
-            this.chargeSpeed -= 1;
-            this.updatePowerDrain();
-        }
 
         private void updatePowerDrain()
         {
@@ -772,9 +816,14 @@ namespace BetterRimworlds.Stargate
 
         public override string GetInspectString()
         {
+            // float excessPower = this.power.PowerNet.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick;
             return base.GetInspectString() + "\n"
-                + "Buffer Items: " + this.stargateBuffer.Count + " / " + this.stargateBuffer.getMaxStacks() + "\n"
-                + "Capacitor Charge: " + this.currentCapacitorCharge + " / " + this.requiredCapacitorCharge;
+                                           + "Buffer Items: " + this.stargateBuffer.Count + " / " +
+                                           this.stargateBuffer.getMaxStacks() + "\n"
+                                           + "Capacitor Charge: " + this.currentCapacitorCharge + " / " + this.requiredCapacitorCharge
+                                           // + "Gain Rate: " + excessPower + "\n"
+                                           // + "Stored Energy: " + this.power.PowerNet.CurrentStoredEnergy()
+                                           ;
         }
 
         #endregion
