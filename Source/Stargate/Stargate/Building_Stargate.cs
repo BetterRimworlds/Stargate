@@ -53,6 +53,8 @@ namespace BetterRimworlds.Stargate
         int requiredCapacitorCharge = 1000;
         int chargeSpeed = 1;
 
+        private bool TransmittedHumans = false;
+
         protected Map currentMap;
 
         #endregion
@@ -159,6 +161,11 @@ namespace BetterRimworlds.Stargate
         public override void TickRare()
         {
             base.TickRare();
+
+            if (TransmittedHumans == true)
+            {
+                Messages.Message("Humans are suffering from Stargate Psychosis. Save and Reload immediately!", MessageTypeDefOf.ThreatBig);
+            }
 
             if (!this.PoweringUp)
             {
@@ -625,7 +632,7 @@ namespace BetterRimworlds.Stargate
                             pawn.caller = new Pawn_CallTracker(pawn);
                             // pawn.needs = new Pawn_NeedsTracker(pawn);
                             // pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
-                            // pawn.interactions = new Pawn_InteractionsTracker(pawn);
+                            pawn.interactions = new Pawn_InteractionsTracker(pawn);
                             // pawn.stances = new Pawn_StanceTracker(pawn);
                             // pawn.story = new Pawn_StoryTracker(pawn);
                             // pawn.playerSettings = new Pawn_PlayerSettings(pawn);
@@ -640,6 +647,14 @@ namespace BetterRimworlds.Stargate
                                 //lastXpSinceMidnightResetTimestamp
 
                             }
+                            if (pawn.equipment.Primary != null)
+                            {
+                                // pawn.equipment.Primary.InitializeComps();
+                                pawn.equipment.PrimaryEq.verbTracker = new VerbTracker(pawn);
+                                pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
+                            }
+
+                            TransmittedHumans = true;
                         }
                         else
                         {
@@ -654,13 +669,13 @@ namespace BetterRimworlds.Stargate
                         //         pawn.apparel = new Pawn_ApparelTracker(pawn);
                         //
                         //     // Reset their equipped weapon's verbTrackers as well, or they'll go insane if they're carrying an out-of-phase weapon...
-                        //     if (pawn.equipment.Primary != null)
-                        //     {
-                        //         pawn.equipment.Primary.InitializeComps();
-                        //         pawn.equipment.PrimaryEq.verbTracker = new VerbTracker(pawn);
-                        //         pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
-                        //     }
                         // }
+                        if (pawn.equipment != null)
+                        {
+                            pawn.equipment.PrimaryEq.verbTracker = new VerbTracker(pawn);
+                            pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
+
+                        }
 
                         // Remove memories or they will go insane...
                         if (pawn.RaceProps.Humanlike)
@@ -719,7 +734,7 @@ namespace BetterRimworlds.Stargate
                             // if any. This is effectively the cure of Stargate Insanity.
                             if (thisPawn.RaceProps.Humanlike)
                             {
-                                thisPawn.equipment.DropAllEquipment(thisPawn.Position);
+                                // thisPawn.equipment.DropAllEquipment(thisPawn.Position);
                                 thisPawn.drafter.Drafted = true;
                                 thisPawn.drafter.Drafted = false;
                             }
@@ -736,12 +751,16 @@ namespace BetterRimworlds.Stargate
                                 thisPawn.meleeVerbs = new Pawn_MeleeVerbs(thisPawn);
 
                                 // // Reset their equipped weapon's verbTrackers as well, or they'll go insane if they're carrying an out-of-phase weapon...
-                                // if (thisPawn.equipment.Primary != null)
-                                // {
-                                // thisPawn.equipment.Primary.InitializeComps();
-                                // thisPawn.equipment.PrimaryEq.verbTracker = new VerbTracker(thisPawn);
-                                // thisPawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
-                                // }
+                                if (thisPawn.equipment.Primary != null)
+                                {
+                                    // thisPawn.equipment.Primary.InitializeComps();
+                                    thisPawn.equipment.PrimaryEq.verbTracker = new VerbTracker(thisPawn);
+                                    thisPawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
+                                }
+                                
+                                thisPawn.verbTracker.AllVerbs.Clear();
+                                thisPawn.verbTracker.AllVerbs.Add(new Verb_MeleeAttackDamage());
+
                             }
                         }
                     }
