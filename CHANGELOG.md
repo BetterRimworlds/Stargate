@@ -1,3 +1,7 @@
+**v8.0.1: 2023-06.16**
+
+* **[2023-06-16 14:48:57 CDT]** Fixed a bug where the Stargate would not power up without a battery on the grid.
+
 **v8.0.0: 2023-06-07**
 * **[2023-05-22 18:50:19 CDT]** [Major] Added compilation support for Rimworld v1.4.
 * **[2023-05-22 18:54:13 CDT]** Fixed a bug where Stargates from other instances of RimWorld interfered with one another.

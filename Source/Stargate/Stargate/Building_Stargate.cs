@@ -182,12 +182,15 @@ namespace BetterRimworlds.Stargate
             if (this.PoweringUp && this.power.PowerOn)
             {
                 currentCapacitorCharge += chargeSpeed;
-
                 float excessPower = this.power.PowerNet.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick;
+                // Log.Message("Excess Power: " + excessPower + " | Current Stored: " + (this.power.PowerNet.CurrentStoredEnergy() * 1000));
                 if (excessPower + (this.power.PowerNet.CurrentStoredEnergy() * 1000) > 5000)
                 {
                     // chargeSpeed += 5 - (this.chargeSpeed % 5);
-                    chargeSpeed = (int)Math.Round(this.power.PowerNet.CurrentStoredEnergy() * 0.25 / 10); 
+                    chargeSpeed = (int)Math.Round(
+                        (this.power.PowerNet.CurrentStoredEnergy() * 0.25 / 10)
+                        + ((excessPower - (excessPower % 1000)) / 1000)
+                    ); 
                     this.updatePowerDrain();
                 }
                 else if (excessPower + (this.power.PowerNet.CurrentStoredEnergy() * 1000) > 1000)
@@ -650,8 +653,16 @@ namespace BetterRimworlds.Stargate
                             if (pawn.equipment.Primary != null)
                             {
                                 // pawn.equipment.Primary.InitializeComps();
-                                pawn.equipment.PrimaryEq.verbTracker = new VerbTracker(pawn);
-                                pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
+                                if (pawn.equipment.PrimaryEq != null && pawn.equipment.PrimaryEq.verbTracker != null)
+                                {
+                                    pawn.equipment.PrimaryEq.verbTracker = new VerbTracker(pawn);
+                                    pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
+                                }
+                            }
+                            else
+                            {
+                                pawn.meleeVerbs = new Pawn_MeleeVerbs(pawn);
+                                pawn.verbTracker.AllVerbs.Add(new Verb_MeleeAttackDamage());
                             }
 
                             TransmittedHumans = true;
@@ -659,22 +670,6 @@ namespace BetterRimworlds.Stargate
                         else
                         {
                             pawn.ownership = new Pawn_Ownership(pawn);
-                        }
-
-                        // if (pawn.RaceProps.ToolUser)
-                        // {
-                        //     if (pawn.equipment == null)
-                        //         pawn.equipment = new Pawn_EquipmentTracker(pawn);
-                        //     if (pawn.apparel == null)
-                        //         pawn.apparel = new Pawn_ApparelTracker(pawn);
-                        //
-                        //     // Reset their equipped weapon's verbTrackers as well, or they'll go insane if they're carrying an out-of-phase weapon...
-                        // }
-                        if (pawn.equipment != null)
-                        {
-                            pawn.equipment.PrimaryEq.verbTracker = new VerbTracker(pawn);
-                            pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
-
                         }
 
                         // Remove memories or they will go insane...
@@ -765,8 +760,9 @@ namespace BetterRimworlds.Stargate
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Log.Error("Could not spawn " + currentThing + " because: " + e.Message);
                     continue;
                 }
 
