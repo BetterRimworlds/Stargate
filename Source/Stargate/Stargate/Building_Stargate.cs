@@ -458,7 +458,6 @@ namespace BetterRimworlds.Stargate
                 var loadResponse = Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary);
                 originalTimelineTicks = loadResponse.Item1;
                 relationships.AddRange(loadResponse.Item2);
-                // this.rebuildRelationships(inboundBuffer, relationships);
                 
                 // Log.Warning("Number of items in the wormhole: " + inboundBuffer.Count);
             }
@@ -466,12 +465,6 @@ namespace BetterRimworlds.Stargate
             Messages.Message("Incoming wormhole!", MessageTypeDefOf.PositiveEvent);
             Messages.Message("You really must save and reload the game to fix Stargate Syndrome.", MessageTypeDefOf.ThreatBig);
             Log.Warning("Is this an offworld event? " + offworldEvent);
-
-            if (offworldEvent)
-            {
-                // Rebuild teleported people's logic, now...
-                this.rebuildRelationships(relationships);
-            }
 
             return new Tuple<int, List<Thing>, List<StargateRelation>>(originalTimelineTicks, inboundBuffer, relationships);
         }
@@ -486,7 +479,7 @@ namespace BetterRimworlds.Stargate
 
                 var pawn1 = Find.CurrentMap.mapPawns.AllPawnsSpawned.Find(p => p.ThingID == relationship.pawn1ID);
                 var pawn2 = Find.CurrentMap.mapPawns.AllPawnsSpawned.Find(p => p.ThingID == relationship.pawn2ID);
-
+                Log.Warning("Pawn 1 (" + relationship.pawn1ID + ") with Pawn 2 (" + relationship.pawn2ID + ") related: " + relationship.relationship);
                 if (pawn1 is null)
                 {
                     // Log.Error($"Could not find a pawn with the ID of {relationship.pawn1ID}.");
