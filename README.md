@@ -134,6 +134,10 @@ The Stargate system allows you to transport materials over the great distances b
 
 * **[2023-06-16 14:48:57 CDT]** Fixed a bug where the Stargate would not power up without a battery on the grid.
 
+**v8.0.2: 2023-07-28**
+* **[2023-07-28 17:30:28 CDT]** Increased the stargate buffer to 5000 items.
+* **[2023-07-28 17:30:51 CDT]** Fixed relationships reassignment on gate travel.
+
 ## Contributors
 
 This mod is forked off of the incredible engineering work by Jaxxa in his [**ED-Stargate mod**](https://github.com/jaxxa/ED-Stargate).
