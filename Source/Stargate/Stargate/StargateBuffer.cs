@@ -27,14 +27,14 @@ namespace BetterRimworlds.Stargate
         public StargateBuffer(IThingHolder owner, IntVec3 position, bool oneStackOnly, LookMode contentsLookMode = LookMode.Deep) :
             base(owner, oneStackOnly, contentsLookMode)
         {
-            this.maxStacks = 500;
+            this.maxStacks = 5000;
             this.contentsLookMode = LookMode.Deep;
             this.Position = position;
         }
 
         public StargateBuffer(IThingHolder owner): base(owner)
         {
-            this.maxStacks = 500;
+            this.maxStacks = 5000;
             this.contentsLookMode = LookMode.Deep;
         }
 
@@ -53,7 +53,7 @@ namespace BetterRimworlds.Stargate
 
             if (item is Pawn pawn)
             {
-                ++this.numberOfPawns;
+                ++this.maxStacks;
                 foreach (var relationship in pawn.relations.DirectRelations)
                 {
                     // See if this relation is already recorded using the other pawn as the primary.
@@ -119,11 +119,13 @@ namespace BetterRimworlds.Stargate
 
             // Tell the MapDrawer that here is something that's changed.
             Find.CurrentMap.mapDrawer.MapMeshDirty(this.Position, MapMeshFlag.Things, true, false);
+
+            this.maxStacks = 5000;
         }
 
         public int getMaxStacks()
         {
-            return this.maxStacks + this.numberOfPawns;
+            return this.maxStacks;
         }
     }
 }

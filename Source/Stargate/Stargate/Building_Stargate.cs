@@ -313,10 +313,10 @@ namespace BetterRimworlds.Stargate
  
             foreach (Thing foundThing in foundThings)
             {
-                if (foundThing.Spawned && this.stargateBuffer.Count < 1000)
-                {
+                // if (foundThing.Spawned && this.stargateBuffer.Count < 1000)
+                // {
                     this.stargateBuffer.TryAdd(foundThing);
-                }
+                // }
             }
         }
 
