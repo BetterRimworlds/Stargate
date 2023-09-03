@@ -775,7 +775,7 @@ namespace BetterRimworlds.Stargate
                 this.MoveToBackup();
             }
 
-            return true;
+            return !this.stargateBuffer.Any();
         }
 
 
