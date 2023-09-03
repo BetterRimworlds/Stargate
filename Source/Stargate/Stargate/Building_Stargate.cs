@@ -643,7 +643,7 @@ namespace BetterRimworlds.Stargate
                                 //lastXpSinceMidnightResetTimestamp
 
                             }
-                            if (pawn.equipment.Primary != null)
+                            if (pawn.equipment != null && pawn.equipment.HasAnything() && pawn.equipment.Primary != null)
                             {
                                 // pawn.equipment.Primary.InitializeComps();
                                 if (pawn.equipment.PrimaryEq != null && pawn.equipment.PrimaryEq.verbTracker != null)
@@ -663,6 +663,22 @@ namespace BetterRimworlds.Stargate
                         else
                         {
                             pawn.ownership = new Pawn_Ownership(pawn);
+                        }
+
+                        // if (pawn.RaceProps.ToolUser)
+                        // {
+                        //     if (pawn.equipment == null)
+                        //         pawn.equipment = new Pawn_EquipmentTracker(pawn);
+                        //     if (pawn.apparel == null)
+                        //         pawn.apparel = new Pawn_ApparelTracker(pawn);
+                        //
+                        //     // Reset their equipped weapon's verbTrackers as well, or they'll go insane if they're carrying an out-of-phase weapon...
+                        // }
+                        if (pawn.equipment != null && pawn.equipment.PrimaryEq != null)
+                        {
+                            pawn.equipment.PrimaryEq.verbTracker = new VerbTracker(pawn);
+                            pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
+
                         }
 
                         // Remove memories or they will go insane...
@@ -739,11 +755,11 @@ namespace BetterRimworlds.Stargate
                                 thisPawn.meleeVerbs = new Pawn_MeleeVerbs(thisPawn);
 
                                 // // Reset their equipped weapon's verbTrackers as well, or they'll go insane if they're carrying an out-of-phase weapon...
-                                if (thisPawn.equipment.Primary != null)
+                                if (thisPawn.equipment.HasAnything() && thisPawn.equipment.Primary != null)
                                 {
                                     // thisPawn.equipment.Primary.InitializeComps();
-                                    thisPawn.equipment.PrimaryEq.verbTracker = new VerbTracker(thisPawn);
-                                    thisPawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
+                                    // thisPawn.equipment.PrimaryEq.verbTracker = new VerbTracker(thisPawn);
+                                    // thisPawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
                                 }
                                 
                                 thisPawn.verbTracker.AllVerbs.Clear();
