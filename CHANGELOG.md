@@ -1,4 +1,8 @@
-**v8.0.2: 2023-07-28**
+* **v8.1.0: 2023-09-02**
+* **[2023-09-02 23:00:35 CDT]** Fixed a terrible bug where Colonists without weapons get stuck in the Stargate Buffer.
+* **[2023-09-02 22:57:36 CDT]** Do not destroy the Transdimensional Stargate until the entire buffer is emptied.
+  
+* **v8.0.2: 2023-07-28**
 * **[2023-07-28 17:30:51 CDT]** Fixed relationships reassignment on gate travel. 
 * **[2023-07-28 17:30:28 CDT]** Increased the stargate buffer to 5000 items.
 
