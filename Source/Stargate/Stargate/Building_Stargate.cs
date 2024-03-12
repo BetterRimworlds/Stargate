@@ -49,9 +49,9 @@ namespace BetterRimworlds.Stargate
 
         CompPowerTrader power;
 
-        int currentCapacitorCharge = 1000;
-        int requiredCapacitorCharge = 1000;
-        int chargeSpeed = 1;
+        private int currentCapacitorCharge = 1000;
+        private int requiredCapacitorCharge = 1000;
+        private int chargeSpeed = 1;
 
         private bool TransmittedHumans = false;
 
@@ -88,7 +88,7 @@ namespace BetterRimworlds.Stargate
 
         public Building_Stargate()
         {
-            this.stargateBuffer = new StargateBuffer(this, this.Position, false, LookMode.Deep);
+            this.stargateBuffer = new StargateBuffer(this, false, LookMode.Deep);
         }
 
 
@@ -129,6 +129,8 @@ namespace BetterRimworlds.Stargate
             GateNetwork.Add(this);
 
             Log.Warning("Found some things in the stargate's buffer: " + this.stargateBuffer.Count);
+
+            this.stargateBuffer.Init();
         }
 
         // For displaying contents to the user.
@@ -167,36 +169,31 @@ namespace BetterRimworlds.Stargate
                 Messages.Message("Humans are suffering from Stargate Psychosis. Save and Reload immediately!", MessageTypeDefOf.ThreatBig);
             }
 
-            if (!this.PoweringUp)
+            if (!this.stargateBuffer.Any())
             {
-                this.power.powerOutputInt = 0;
-                chargeSpeed = 0;
-            }
-
-            if (this.PoweringUp && !this.power.PowerOn)
-            {
-                chargeSpeed = 0;
-                this.updatePowerDrain();
-            }
-
-            if (this.PoweringUp && this.power.PowerOn)
-            {
-                currentCapacitorCharge += chargeSpeed;
-                float excessPower = this.power.PowerNet.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick;
-                // Log.Message("Excess Power: " + excessPower + " | Current Stored: " + (this.power.PowerNet.CurrentStoredEnergy() * 1000));
-                if (excessPower + (this.power.PowerNet.CurrentStoredEnergy() * 1000) > 5000)
+                if (this.fullyCharged == true)
                 {
-                    // chargeSpeed += 5 - (this.chargeSpeed % 5);
-                    chargeSpeed = (int)Math.Round(
-                        (this.power.PowerNet.CurrentStoredEnergy() * 0.25 / 10)
-                        + ((excessPower - (excessPower % 1000)) / 1000)
-                    ); 
+                    this.power.powerOutputInt = 0;
+                    chargeSpeed = 0;
                     this.updatePowerDrain();
                 }
-                else if (excessPower + (this.power.PowerNet.CurrentStoredEnergy() * 1000) > 1000)
+
+                if (this.fullyCharged == false && this.power.PowerOn)
                 {
-                    chargeSpeed += 1;
-                    this.updatePowerDrain();
+                    currentCapacitorCharge += chargeSpeed;
+
+                    float excessPower = this.power.PowerNet.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick;
+                    if (excessPower + (this.power.PowerNet.CurrentStoredEnergy() * 1000) > 5000)
+                    {
+                        // chargeSpeed += 5 - (this.chargeSpeed % 5);
+                        chargeSpeed = (int)Math.Round(this.power.PowerNet.CurrentStoredEnergy() * 0.25 / 10);
+                        this.updatePowerDrain();
+                    }
+                    else if (excessPower + (this.power.PowerNet.CurrentStoredEnergy() * 1000) > 1000)
+                    {
+                        chargeSpeed += 1;
+                        this.updatePowerDrain();
+                    }
                 }
             }
 
@@ -208,16 +205,21 @@ namespace BetterRimworlds.Stargate
                 this.chargeSpeed = 0;
                 this.updatePowerDrain();
 
+                if (this.power.PowerNet == null || !this.power.PowerNet.HasActivePowerSource)
+                {
+                    this.EjectLeastMassive();
+                }
+
                 // Auto-add stuff if it's inside the Stargate area.
                 this.AddResources();
             }
 
-            if (this.currentCapacitorCharge < 0)
-            {
-                this.currentCapacitorCharge = 0;
-                this.chargeSpeed = 0;
-                this.updatePowerDrain();
-            }
+            // if (this.currentCapacitorCharge < 0)
+            // {
+            //     this.currentCapacitorCharge = 0;
+            //     this.chargeSpeed = 0;
+            //     this.updatePowerDrain();
+            // }
         }
 
         #endregion
@@ -725,7 +727,6 @@ namespace BetterRimworlds.Stargate
                     {
                         if (currentThing is Pawn thisPawn)
                         {
-
                             this.currentMap.mapPawns.RegisterPawn(thisPawn);
                             // Clear their mind (prevents Stargate Psychosis?).
                             thisPawn.ClearMind();
@@ -826,7 +827,9 @@ namespace BetterRimworlds.Stargate
                                            + "Buffer Items: " + this.stargateBuffer.Count + " / " +
                                            this.stargateBuffer.getMaxStacks() + "\n"
                                            + "Capacitor Charge: " + this.currentCapacitorCharge + " / " + this.requiredCapacitorCharge
-                                           // + "Gain Rate: " + excessPower + "\n"
+                                           + "New Power Req: " + this.power.powerOutputInt + "\n"
+                                           + "Stored Mass: " + this.stargateBuffer.GetStoredMass() + " kg"
+                // + "Gain Rate: " + excessPower + "\n"
                                            // + "Stored Energy: " + this.power.PowerNet.CurrentStoredEnergy()
                                            ;
         }
@@ -854,6 +857,22 @@ namespace BetterRimworlds.Stargate
             {
                 System.IO.File.Move(this.FileLocationPrimary, this.FileLocationSecondary);
             }
+        }
+
+        public bool UpdateRequiredPower(float extraPower)
+        {
+            //this.requiredCapacitorCharge += extraPower;
+            Log.Warning("===== New Power Req: " + this.power.powerOutputInt + "=====");
+            this.power.powerOutputInt = -1 * extraPower;
+            
+
+            return true;
+        }
+
+        public void EjectLeastMassive()
+        {
+            // Drop the lightest items first.
+            this.stargateBuffer.EjectLeastMassive();
         }
     }
 }
