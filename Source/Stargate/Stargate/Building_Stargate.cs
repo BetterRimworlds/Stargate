@@ -422,11 +422,11 @@ namespace BetterRimworlds.Stargate
             {
                 Log.Message("Found a Stargate with the ID of " + stargate.ThingID);
 
-                // if (this.ThingID == stargate.ThingID)
-                // {
-                //     Log.Message("BUT.... It is this very Stargate, so we are going to skip it.");
-                //     continue;
-                // }
+                if (this.ThingID == stargate.ThingID)
+                {
+                    Log.Message("BUT.... It is this very Stargate, so we are going to skip it.");
+                    continue;
+                }
 
                 if (!stargate.HasThingsInBuffer())
                 {
