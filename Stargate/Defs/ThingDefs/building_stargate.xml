@@ -50,7 +50,6 @@
                 <shortCircuitInRain>false</shortCircuitInRain>
                 <basePowerConsumption>1000</basePowerConsumption>
             </li>
-            <li Class="CompProperties_Flickable"/>
         </comps>
         <size>(3,3)</size>
         <costList>
