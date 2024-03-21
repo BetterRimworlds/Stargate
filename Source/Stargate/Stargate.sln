@@ -10,14 +10,17 @@ Global
 		Release v1.2|Any CPU = Release v1.2|Any CPU
 		Release v1.3|Any CPU = Release v1.3|Any CPU
 		Release v1.4|Any CPU = Release v1.4|Any CPU
+		Release v1.5|Any CPU = Release v1.5|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{675CE9D5-460C-496A-A6A9-8D3873EDCC87}.Release v1.2|Any CPU.ActiveCfg = Release v1.2|Any CPU
-		{675CE9D5-460C-496A-A6A9-8D3873EDCC87}.Release v1.2|Any CPU.Build.0 = Release v1.2|Any CPU
+		{675CE9D5-460C-496A-A6A9-8D3873EDCC87}.Release v1.2|Any CPU.Build.0   = Release v1.2|Any CPU
 		{675CE9D5-460C-496A-A6A9-8D3873EDCC87}.Release v1.3|Any CPU.ActiveCfg = Release v1.3|Any CPU
-		{675CE9D5-460C-496A-A6A9-8D3873EDCC87}.Release v1.3|Any CPU.Build.0 = Release v1.3|Any CPU
+		{675CE9D5-460C-496A-A6A9-8D3873EDCC87}.Release v1.3|Any CPU.Build.0   = Release v1.3|Any CPU
 		{675CE9D5-460C-496A-A6A9-8D3873EDCC87}.Release v1.4|Any CPU.ActiveCfg = Release v1.4|Any CPU
-		{675CE9D5-460C-496A-A6A9-8D3873EDCC87}.Release v1.4|Any CPU.Build.0 = Release v1.4|Any CPU
+		{675CE9D5-460C-496A-A6A9-8D3873EDCC87}.Release v1.4|Any CPU.Build.0   = Release v1.4|Any CPU
+		{675CE9D5-460C-496A-A6A9-8D3873EDCC87}.Release v1.5|Any CPU.ActiveCfg = Release v1.5|Any CPU
+		{675CE9D5-460C-496A-A6A9-8D3873EDCC87}.Release v1.5|Any CPU.Build.0   = Release v1.5|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

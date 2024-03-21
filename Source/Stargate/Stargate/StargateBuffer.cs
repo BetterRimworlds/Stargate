@@ -23,7 +23,6 @@ namespace BetterRimworlds.Stargate
         }
 
         private IntVec3 Position;
-        private Map currentMap;
 
         public StargateBuffer(IThingHolder owner, bool oneStackOnly, LookMode contentsLookMode = LookMode.Deep) :
             base(owner, oneStackOnly, contentsLookMode)
@@ -42,6 +41,7 @@ namespace BetterRimworlds.Stargate
         {
             this.calculateStoredMass();
             Log.Warning("Total stored mass: " + this.storedMass + " kg");
+            this.Position = ((Building_Stargate)this.owner).Position;
         }
 
         public float findThingMass(Thing thing)
@@ -97,8 +97,7 @@ namespace BetterRimworlds.Stargate
             var mostMassive = this.InnerListForReading.Pop();
             var stargate = (Building_Stargate)this.owner;
 
-            GenPlace.TryPlaceThing(mostMassive, this.Position + new IntVec3(0, 0, -2),
-            Find.CurrentMap, ThingPlaceMode.Near);
+            GenPlace.TryPlaceThing(mostMassive, this.Position + new IntVec3(0, 0, -2), Find.CurrentMap, ThingPlaceMode.Near);
             //stargate.StargateRecall()
             // this.TryDrop(mostMassive, this.Position + new IntVec3(0, 0, -2), Find.CurrentMap, ThingPlaceMode.Near);
             // this.TryDrop(mostMassive, this.Position + new IntVec3(0, 0, -2), this.currentMap, ThingPlaceMode.Near, out Thing unused);
@@ -173,7 +172,11 @@ namespace BetterRimworlds.Stargate
             Find.ColonistBar.MarkColonistsDirty();
 
             // Tell the MapDrawer that here is something that's changed.
-            Find.CurrentMap.mapDrawer.MapMeshDirty(this.Position, MapMeshFlag.Things, true, false);
+            #if RIMWORLD15
+            Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlagDefOf.Things, true, false);
+            #else
+            Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
+            #endif
 
             this.maxStacks = 5000;
         }

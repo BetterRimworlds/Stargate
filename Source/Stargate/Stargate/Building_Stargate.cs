@@ -80,8 +80,7 @@ namespace BetterRimworlds.Stargate
 #if RIMWORLD12
             GraphicRequest requestActive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate-Active",   ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData(), 0, null);
             GraphicRequest requestInactive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData(), 0, null);
-#endif
-#if RIMWORLD13 || RIMWORLD14
+#else
             GraphicRequest requestActive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate-Active",   ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData(), 0, null, null);
             GraphicRequest requestInactive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate", ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData(), 0, null, null);
 #endif
@@ -227,7 +226,13 @@ namespace BetterRimworlds.Stargate
                     // }
 
                     // Ignore power requirements during a solar flare.
+                    #if RIMWORLD15
+                    // Solar flares do not exist in Rimworld v1.5.
+                    var solarFlareDef = DefDatabase<GameConditionDef>.GetNamed("SolarFlare");
+                    bool isSolarFlare = this.currentMap.gameConditionManager.ConditionIsActive(solarFlareDef);
+                    #else
                     bool isSolarFlare = this.currentMap.gameConditionManager.ConditionIsActive(GameConditionDefOf.SolarFlare);
+                    #endif
                     if (isSolarFlare)
                     {
                         return;
@@ -400,7 +405,11 @@ namespace BetterRimworlds.Stargate
                 }
 
                 // Tell the MapDrawer that here is something thats changed
+                #if RIMWORLD15
+                Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlagDefOf.Things, true, false);
+                #else
                 Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
+                #endif
             }
         }
 
@@ -421,7 +430,11 @@ namespace BetterRimworlds.Stargate
             this.stargateBuffer.TransmitContents();
 
             // Tell the MapDrawer that here is something thats changed
+            #if RIMWORLD15
+            Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlagDefOf.Things, true, false);
+            #else
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
+            #endif
 
             this.stargateSounds["Stargate Close"].PlayOneShotOnCamera();
 
@@ -440,7 +453,11 @@ namespace BetterRimworlds.Stargate
             this.stargateBuffer.Clear();
 
             // Tell the MapDrawer that here is something that's changed.
+            #if RIMWORLD15
+            Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlagDefOf.Things, true, false);
+            #else
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
+            #endif
 
             this.currentCapacitorCharge = 0;
 
@@ -505,7 +522,6 @@ namespace BetterRimworlds.Stargate
                     return null;
                 }
 
-                // 
                 var loadResponse = Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary);
                 originalTimelineTicks = loadResponse.Item1;
                 relationships.AddRange(loadResponse.Item2);
@@ -527,8 +543,8 @@ namespace BetterRimworlds.Stargate
             {
                 Log.Message($"Loading the relationship between {relationship.pawn1ID} and {relationship.pawn2ID}: {relationship.relationship}");
 
-                var pawn1 = Find.CurrentMap.mapPawns.AllPawnsSpawned.Find(p => p.ThingID == relationship.pawn1ID);
-                var pawn2 = Find.CurrentMap.mapPawns.AllPawnsSpawned.Find(p => p.ThingID == relationship.pawn2ID);
+                var pawn1 = Find.CurrentMap.mapPawns.AllPawnsSpawned.FirstOrDefault(p => p.ThingID == relationship.pawn1ID);
+                var pawn2 = Find.CurrentMap.mapPawns.AllPawnsSpawned.FirstOrDefault(p => p.ThingID == relationship.pawn2ID);
                 Log.Warning("Pawn 1 (" + relationship.pawn1ID + ") with Pawn 2 (" + relationship.pawn2ID + ") related: " + relationship.relationship);
                 if (pawn1 is null)
                 {
@@ -830,7 +846,11 @@ namespace BetterRimworlds.Stargate
             inboundBuffer.Clear();
 
             // Tell the MapDrawer that here is something that's changed
+            #if RIMWORLD15
+            Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlagDefOf.Things, true, false);
+            #else
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
+            #endif
 
             if (offworldEvent)
             {
