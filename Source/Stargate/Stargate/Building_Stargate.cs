@@ -466,11 +466,11 @@ namespace BetterRimworlds.Stargate
             {
                 Log.Message("Found a Stargate with the ID of " + stargate.ThingID);
 
-                if (this.ThingID == stargate.ThingID)
-                {
-                    Log.Message("BUT.... It is this very Stargate, so we are going to skip it.");
-                    continue;
-                }
+                // if (this.ThingID == stargate.ThingID)
+                // {
+                //     Log.Message("BUT.... It is this very Stargate, so we are going to skip it.");
+                //     continue;
+                // }
 
                 if (!stargate.HasThingsInBuffer())
                 {
@@ -490,7 +490,12 @@ namespace BetterRimworlds.Stargate
             Log.Warning("Is offworldEvent? " + offworldEvent);
             Log.Warning("Inbound Buffer Count? " + inboundBuffer.Count);
 
-            if (offworldEvent && !this.LocalTeleportEvent)
+            if (!offworldEvent && !inboundBuffer.Any())
+            {
+                return null;
+            }
+
+            if (offworldEvent)
             {
                 // Log.Warning("Found an off-world wormhole.");
                 if (!System.IO.File.Exists(this.FileLocationPrimary))
@@ -510,7 +515,6 @@ namespace BetterRimworlds.Stargate
 
             Messages.Message("Incoming wormhole!", MessageTypeDefOf.PositiveEvent);
             Messages.Message("You really must save and reload the game to fix Stargate Syndrome.", MessageTypeDefOf.ThreatBig);
-            Log.Warning("Is this an offworld event? " + offworldEvent);
 
             return new Tuple<int, List<Thing>, List<StargateRelation>>(originalTimelineTicks, inboundBuffer, relationships);
         }
