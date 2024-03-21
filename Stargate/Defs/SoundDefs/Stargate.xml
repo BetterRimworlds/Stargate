@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    <SoundDef>
+        <defName>StargateOpen</defName>
+        <maxSimultaneous>1</maxSimultaneous>
+        <eventNames />
+        <subSounds>
+            <li>
+                <onCamera>True</onCamera>
+                <grains>
+                    <li Class="AudioGrain_Clip">
+                        <clipPath>Things/Stargate/stargate-open</clipPath>
+                    </li>
+                </grains>
+                <volumeRange>
+                    <min>10</min>
+                    <max>10</max>
+                </volumeRange>
+                <pitchRange>
+                    <min>1.0</min>
+                    <max>1.0</max>
+                </pitchRange>
+                <sustainLoop>False</sustainLoop>
+            </li>
+        </subSounds>
+    </SoundDef>
+    <SoundDef>
+        <defName>StargateClose</defName>
+        <maxSimultaneous>1</maxSimultaneous>
+        <eventNames />
+        <subSounds>
+            <li>
+                <onCamera>True</onCamera>
+                <grains>
+                    <li Class="AudioGrain_Clip">
+                        <clipPath>Things/Stargate/stargate-close</clipPath>
+                    </li>
+                </grains>
+                <volumeRange>
+                    <min>10</min>
+                    <max>10</max>
+                </volumeRange>
+                <pitchRange>
+                    <min>1.0</min>
+                    <max>1.0</max>
+                </pitchRange>
+                <sustainLoop>False</sustainLoop>
+            </li>
+        </subSounds>
+    </SoundDef>
+</Defs>

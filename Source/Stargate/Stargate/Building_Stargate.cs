@@ -7,6 +7,7 @@ using Verse;
 using UnityEngine;
 using RimWorld;
 using Verse.AI;
+using Verse.Sound;
 
 namespace BetterRimworlds.Stargate
 {
@@ -58,6 +59,12 @@ namespace BetterRimworlds.Stargate
         protected Map currentMap;
 
         #endregion
+
+        public Dictionary<string, SoundDef> stargateSounds = new Dictionary<string, SoundDef>()
+        {
+            { "Stargate Open",  DefDatabase<SoundDef>.GetNamed("StargateOpen") },
+            { "Stargate Close", DefDatabase<SoundDef>.GetNamed("StargateClose") },
+        };
 
         static Building_Stargate()
         {
@@ -234,11 +241,6 @@ namespace BetterRimworlds.Stargate
             }
         }
 
-        protected IEnumerable<Gizmo> GetDefaultGizmos()
-        {
-            return base.GetGizmos();
-        }
-
         public override IEnumerable<Gizmo> GetGizmos()
         {
             // Add the stock Gizmoes
@@ -317,7 +319,12 @@ namespace BetterRimworlds.Stargate
             {
                 // if (foundThing.Spawned && this.stargateBuffer.Count < 1000)
                 // {
-                    this.stargateBuffer.TryAdd(foundThing);
+                if (!this.stargateBuffer.Any())
+                {
+                    this.stargateSounds["Stargate Open"].PlayOneShotOnCamera();
+                }
+
+                this.stargateBuffer.TryAdd(foundThing);
                 // }
             }
         }
@@ -354,6 +361,11 @@ namespace BetterRimworlds.Stargate
                     //     pawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(pawn);
                     // }
 
+                    if (!this.stargateBuffer.Any())
+                    {
+                        this.stargateSounds["Stargate Open"].PlayOneShotOnCamera();
+                    }
+
                     this.stargateBuffer.TryAdd(pawn);
                 }
 
@@ -380,6 +392,8 @@ namespace BetterRimworlds.Stargate
 
             // Tell the MapDrawer that here is something thats changed
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
+
+            this.stargateSounds["Stargate Close"].PlayOneShotOnCamera();
 
             this.currentCapacitorCharge = 0;
         }
@@ -790,6 +804,11 @@ namespace BetterRimworlds.Stargate
                 this.rebuildRelationships(relationships);
 
                 this.MoveToBackup();
+            }
+
+            if (this.HasThingsInBuffer() == false)
+            {
+                this.stargateSounds["Stargate Close"].PlayOneShotOnCamera();
             }
 
             return !this.stargateBuffer.Any();
