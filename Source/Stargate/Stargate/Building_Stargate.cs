@@ -185,7 +185,7 @@ namespace BetterRimworlds.Stargate
                     this.updatePowerDrain();
                 }
 
-                if (this.fullyCharged == false && this.power.PowerOn)
+                if (this.fullyCharged == false && this.power.PowerOn == true && this.PoweringUp == true)
                 {
                     currentCapacitorCharge += chargeSpeed;
 
@@ -205,16 +205,37 @@ namespace BetterRimworlds.Stargate
             }
 
             // Stop using power if it's full.
-            if (this.fullyCharged)
+            if (this.fullyCharged == true)
             {
                 this.PoweringUp = false;
                 currentCapacitorCharge = requiredCapacitorCharge;
                 this.chargeSpeed = 0;
                 this.updatePowerDrain();
 
-                if (this.power.PowerNet == null || !this.power.PowerNet.HasActivePowerSource)
+                bool hasNoPower = this.power.PowerNet == null || !this.power.PowerNet.HasActivePowerSource;
+                bool hasInsufficientPower = this.power.PowerOn == false;
+                if (hasNoPower || hasInsufficientPower)
                 {
+                    // if (hasNoPower)
+                    // {
+                    //     Log.Error("NO POWER");
+                    // }
+                    //
+                    // if (hasInsufficientPower)
+                    // {
+                    //     Log.Error("INSUFFICIENT POWER");
+                    // }
+
+                    // Ignore power requirements during a solar flare.
+                    bool isSolarFlare = this.currentMap.gameConditionManager.ConditionIsActive(GameConditionDefOf.SolarFlare);
+                    if (isSolarFlare)
+                    {
+                        return;
+                    }
+
+                    // Log.Error("========= NOT ENOUGH POWER +========");
                     this.EjectLeastMassive();
+                    return;
                 }
 
                 // Auto-add stuff if it's inside the Stargate area.

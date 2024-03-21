@@ -45,10 +45,18 @@
             <wantsHopperAdjacent>true</wantsHopperAdjacent>
         </building>
         <comps>
+        <!--
+            <li Class="CompProperties_Battery">
+                <storedEnergyMax>10000</storedEnergyMax>
+                <efficiency>1.2</efficiency>
+                <shortCircuitInRain>true</shortCircuitInRain>
+                <transmitsPower>true</transmitsPower>
+            </li>
+        -->
             <li Class="CompProperties_Power">
                 <compClass>CompPowerTrader</compClass>
                 <shortCircuitInRain>false</shortCircuitInRain>
-                <basePowerConsumption>1000</basePowerConsumption>
+                <basePowerConsumption>0</basePowerConsumption>
             </li>
         </comps>
         <size>(3,3)</size>
