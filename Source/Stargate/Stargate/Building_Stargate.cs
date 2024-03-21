@@ -75,7 +75,7 @@ namespace BetterRimworlds.Stargate
             UI_GATE_OUT = ContentFinder<Texture2D>.Get("UI/StargateGUI-Out", true);
 
 
-            UI_POWER_UP = ContentFinder<Texture2D>.Get("UI/PowerUp", true);
+            UI_POWER_UP = ContentFinder<Texture2D>.Get("UI/Wormhole", true);
             UI_POWER_DOWN = ContentFinder<Texture2D>.Get("UI/PowerDown", true);
 #if RIMWORLD12
             GraphicRequest requestActive = new GraphicRequest(Type.GetType("Graphic_Single"), "Things/Buildings/Stargate-Active",   ShaderDatabase.DefaultShader, new Vector2(3, 3), Color.white, Color.white, new GraphicData(), 0, null);
@@ -297,8 +297,8 @@ namespace BetterRimworlds.Stargate
                 //act.action = () => Designator_Deconstruct.DesignateDeconstruct(this);
                 act.action = () => this.PoweringUp = true;
                 act.icon = UI_POWER_UP;
-                act.defaultLabel = "Dial the Stargate";
-                act.defaultDesc = "Dial the Stargate";
+                act.defaultLabel = "Transmit to Subspace Pocket";
+                act.defaultDesc = "Transmit to Subspace Pocket";
                 act.activateSound = SoundDef.Named("Click");
                 //act.hotKey = KeyBindingDefOf.DesignatorDeconstruct;
                 //act.groupKey = 689736;

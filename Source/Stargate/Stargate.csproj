@@ -14,29 +14,23 @@
     <TargetFrameworkProfile />
     <LangVersion>8</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug v1.2|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <DefineConstants>DEBUG;TRACE;RIMWORLD12</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <OutputPath>/rimworld/1.2/Mods/Stargate/1.2/Assemblies</OutputPath>
-  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release v1.2|AnyCPU' ">
     <Optimize>true</Optimize>
-    <DefineConstants>TRACE;RIMWORLD12</DefineConstants>
+    <DefineConstants>RIMWORLD12</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <OutputPath>/rimworld/1.2/Mods/Stargate/1.2/Assemblies</OutputPath>
+    <MainPath>/tmp/rimworld/1.2/Mods/Stargate/1.2/Assemblies</MainPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release v1.3|AnyCPU' ">
-    <OutputPath>/rimworld/1.3/Mods/Stargate/1.3/Assemblies</OutputPath>
     <DefineConstants>RIMWORLD13</DefineConstants>
+    <OutputPath>/rimworld/1.3/Mods/Stargate/1.3/Assemblies</OutputPath>
+    <MainPath>/rimworld/1.2/Mods/Stargate/1.3/Assemblies</MainPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release v1.4|AnyCPU' ">
-    <OutputPath>/rimworld/1.4/Mods/Stargate/1.4/Assemblies</OutputPath>
     <DefineConstants>RIMWORLD14</DefineConstants>
+    <OutputPath>/rimworld/1.4/Mods/Stargate/1.4/Assemblies</OutputPath>
+    <MainPath>/rimworld/1.2/Mods/Stargate/1.4/Assemblies</MainPath>
   </PropertyGroup>
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release v1.2|AnyCPU' ">
     <Reference Include="Assembly-CSharp, Version=1.2.7528.19748, Culture=neutral, PublicKeyToken=null">
@@ -60,7 +54,8 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug v1.2|AnyCPU' ">
+
+  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release v1.2|AnyCPU' ">
     <Reference Include="Assembly-CSharp, Version=1.2.7528.19748, Culture=neutral, PublicKeyToken=null">
       <HintPath>/rimworld/1.2/RimWorldLinux_Data/Managed/Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
@@ -107,10 +102,6 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release v1.4|AnyCPU' ">
-    <Reference Include="Assembly-CSharp, Culture=neutral, PublicKeyToken=null">
-      <HintPath>/rimworld/1.4/RimWorldLinux_Data/Managed/Assembly-CSharp.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -119,11 +110,15 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <Reference Include="Assembly-CSharp">
+      <HintPath>/rimworld/1.4/RimWorldLinux_Data/Managed/Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
       <HintPath>/rimworld/1.4/RimWorldLinux_Data/Managed/UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <Reference Include="UnityEngine.CoreModule">
       <HintPath>/rimworld/1.4/RimWorldLinux_Data/Managed/UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
@@ -147,4 +142,16 @@
   </ItemGroup>
 
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition=" '$(OS)' != 'Windows_NT' ">
+    <PropertyGroup>
+      <FilesSource>$(ProjectDir)..\..\Stargate</FilesSource>
+      <FilesDestination>$(OutputPath)..</FilesDestination>
+    </PropertyGroup>
+    <Exec Command="cp -rvf $(FilesSource)/* '$(FilesDestination)/../'" />
+    <Exec Command="cp '$(FilesSource)/../README.md' '$(FilesDestination)/../'" />
+    <Exec Command="mkdir -p '$(MainPath)'" />
+    <Exec Command="cp -vf $(OutputPath)* '$(MainPath)/'" />
+    <Exec Command="unix2dos '$(FilesDestination)/../README.md'" />
+  </Target>
 </Project>
