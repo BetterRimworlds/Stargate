@@ -267,10 +267,19 @@ namespace BetterRimworlds.Stargate
             // Add the stock Gizmoes
             foreach (var g in base.GetGizmos())
             {
-                yield return g;
+                if (
+                    g is Command command && 
+                    command.Label != "Reconnect" && 
+                    command.Label != "Copy settings" && 
+                    command.Label != "Paste settings" &&
+                    command.Label != "Link settings"
+                )
+                {
+                    yield return g;
+                }
             }
 
-            if (true)
+            if (this.fullyCharged == true)
             {
                 Command_Action act = new Command_Action();
                 //act.action = () => Designator_Deconstruct.DesignateDeconstruct(this);
@@ -284,7 +293,7 @@ namespace BetterRimworlds.Stargate
                 yield return act;
             }
 
-            if (true)
+            if (this.HasThingsInBuffer())
             {
                 Command_Action act = new Command_Action();
                 //act.action = () => Designator_Deconstruct.DesignateDeconstruct(this);
@@ -298,7 +307,7 @@ namespace BetterRimworlds.Stargate
                 yield return act;
             }
 
-            if (true)
+            if (this.HasThingsInBuffer() || this.hasIncomingWormhole())
             {
                 Command_Action act = new Command_Action();
                 //act.action = () => Designator_Deconstruct.DesignateDeconstruct(this);
@@ -312,14 +321,14 @@ namespace BetterRimworlds.Stargate
                 yield return act;
             }
 
-            if (true)
+            if (this.PoweringUp == false && this.fullyCharged == false)
             {
                 Command_Action act = new Command_Action();
                 //act.action = () => Designator_Deconstruct.DesignateDeconstruct(this);
                 act.action = () => this.PoweringUp = true;
                 act.icon = UI_POWER_UP;
-                act.defaultLabel = "Transmit to Subspace Pocket";
-                act.defaultDesc = "Transmit to Subspace Pocket";
+                act.defaultLabel = "Create Subspace Pocket";
+                act.defaultDesc = "Create Subspace Pocket";
                 act.activateSound = SoundDef.Named("Click");
                 //act.hotKey = KeyBindingDefOf.DesignatorDeconstruct;
                 //act.groupKey = 689736;
@@ -913,6 +922,12 @@ namespace BetterRimworlds.Stargate
         {
             // Drop the lightest items first.
             this.stargateBuffer.EjectLeastMassive();
+        }
+
+        public bool hasIncomingWormhole()
+        {
+            return String.IsNullOrEmpty(this.FileLocationPrimary) == false &&
+                   System.IO.File.Exists(this.FileLocationPrimary);
         }
     }
 }
