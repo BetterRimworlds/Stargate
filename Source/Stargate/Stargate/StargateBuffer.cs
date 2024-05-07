@@ -179,6 +179,7 @@ namespace BetterRimworlds.Stargate
             #endif
 
             this.maxStacks = 5000;
+            this.storedMass = 0;
         }
 
         public int getMaxStacks()
@@ -189,6 +190,12 @@ namespace BetterRimworlds.Stargate
         public float GetStoredMass()
         {
             return this.storedMass;
+        }
+
+        public void Empty()
+        {
+            this.storedMass = 0;
+            this.Clear();
         }
     }
 }

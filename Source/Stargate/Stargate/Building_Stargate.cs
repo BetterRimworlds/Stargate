@@ -450,7 +450,7 @@ namespace BetterRimworlds.Stargate
         {
             var itemsToTeleport = new List<Thing>();
             itemsToTeleport.AddRange(this.stargateBuffer);
-            this.stargateBuffer.Clear();
+            this.stargateBuffer.Empty();
 
             // Tell the MapDrawer that here is something that's changed.
             #if RIMWORLD15
@@ -937,7 +937,7 @@ namespace BetterRimworlds.Stargate
             //this.requiredCapacitorCharge += extraPower;
             Log.Warning("===== New Power Req: " + this.power.powerOutputInt + "=====");
             this.power.powerOutputInt = -1 * extraPower;
-            
+
 
             return true;
         }
