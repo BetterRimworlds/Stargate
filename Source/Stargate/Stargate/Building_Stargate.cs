@@ -149,7 +149,7 @@ namespace BetterRimworlds.Stargate
         {
             Scribe_Values.Look<int>(ref currentCapacitorCharge, "currentCapacitorCharge");
             Scribe_Values.Look<int>(ref requiredCapacitorCharge, "requiredCapacitorCharge");
-            Scribe_Values.Look<int>(ref chargeSpeed, "chargeSpeed");
+            Scribe_Values.Look<int>(ref chargeSpeed, "chargeSpeed", 1);
             Scribe_Values.Look<bool>(ref PoweringUp, "poweringUp");
 
             Scribe_Deep.Look<StargateBuffer>(ref this.stargateBuffer, "stargateBuffer", new object[]
@@ -186,17 +186,21 @@ namespace BetterRimworlds.Stargate
 
                 if (this.fullyCharged == false && this.power.PowerOn == true && this.PoweringUp == true)
                 {
+                    // Log.Error("1: " + chargeSpeed);
                     currentCapacitorCharge += chargeSpeed;
 
                     float excessPower = this.power.PowerNet.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick;
+                    // Log.Warning("2: Excess Power: " + excessPower + " | Current Stored Energy: " + (this.power.PowerNet.CurrentStoredEnergy() * 1000));
                     if (excessPower + (this.power.PowerNet.CurrentStoredEnergy() * 1000) > 5000)
                     {
                         // chargeSpeed += 5 - (this.chargeSpeed % 5);
-                        chargeSpeed = (int)Math.Round(this.power.PowerNet.CurrentStoredEnergy() * 0.25 / 10);
+                        chargeSpeed = (int)Math.Round(((excessPower - (excessPower % 1_000)) / 1000) + this.power.PowerNet.CurrentStoredEnergy() * 0.25 / 10);
+                        // Log.Error("3a: " + chargeSpeed);
                         this.updatePowerDrain();
                     }
                     else if (excessPower + (this.power.PowerNet.CurrentStoredEnergy() * 1000) > 1000)
                     {
+                        // Log.Error("3b");
                         chargeSpeed += 1;
                         this.updatePowerDrain();
                     }
@@ -882,6 +886,7 @@ namespace BetterRimworlds.Stargate
         {
             get
             {
+                //Log.Error("Has thing in buffer? " + this.HasThingsInBuffer());
                 if (this.HasThingsInBuffer())
                 {
                     return Building_Stargate.graphicActive;

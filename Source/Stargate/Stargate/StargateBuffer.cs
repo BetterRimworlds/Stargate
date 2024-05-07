@@ -65,7 +65,7 @@ namespace BetterRimworlds.Stargate
             this.StargateBufferFilePath = stargateBufferFilePath;
         }
 
-        private bool SetRequiredStargatePower()
+        public bool SetRequiredStargatePower()
         {
             var stargate = (Building_Stargate)this.owner;
 
