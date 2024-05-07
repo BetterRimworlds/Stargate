@@ -165,21 +165,23 @@ namespace BetterRimworlds.Stargate
             base.TickRare();
         }
 
+        private int transmittedHumansWarningCount = 0;
 
         public override void TickRare()
         {
             base.TickRare();
 
-            if (TransmittedHumans == true)
+            if (TransmittedHumans == true && this.transmittedHumansWarningCount < 25)
             {
                 Messages.Message("Humans are suffering from Stargate Psychosis. Save and Reload immediately!", MessageTypeDefOf.ThreatBig);
+                ++this.transmittedHumansWarningCount;
             }
 
             if (!this.stargateBuffer.Any())
             {
                 if (this.fullyCharged == true)
                 {
-                    this.power.powerOutputInt = 0;
+                    this.stargateBuffer.SetRequiredStargatePower();
                     chargeSpeed = 0;
                     this.updatePowerDrain();
                 }
@@ -667,13 +669,15 @@ namespace BetterRimworlds.Stargate
                         // pawn.stances = new Pawn_StanceTracker(pawn);
                         if (offworldEvent)
                         {
-                            pawn.relations = new Pawn_RelationsTracker(pawn);
-                            pawn.needs = new Pawn_NeedsTracker(pawn);
+                            // pawn.relations = new Pawn_RelationsTracker(pawn);
+                            // pawn.needs = new Pawn_NeedsTracker(pawn);
                         }
 
                         pawn.jobs = new Pawn_JobTracker(pawn);
-                        pawn.verbTracker = new VerbTracker(pawn);
-                        pawn.carryTracker = new Pawn_CarryTracker(pawn);
+                        // pawn.verbTracker = new VerbTracker(pawn);
+                        // pawn.carryTracker = new Pawn_CarryTracker(pawn);
+                        pawn.verbTracker.directOwner = pawn;
+                        pawn.carryTracker.pawn = pawn;
 
                         if (pawn.RaceProps.Humanlike)
                         {
@@ -810,6 +814,7 @@ namespace BetterRimworlds.Stargate
                                 // thisPawn.equipment.DropAllEquipment(thisPawn.Position);
                                 thisPawn.drafter.Drafted = true;
                                 thisPawn.drafter.Drafted = false;
+                                thisPawn.drafter.pawn = thisPawn;
                             }
 
                             if (thisPawn.RaceProps.Animal)
@@ -821,24 +826,36 @@ namespace BetterRimworlds.Stargate
                             if (thisPawn.RaceProps.ToolUser)
                             {
                                 if (thisPawn.equipment == null)
+                                {
                                     thisPawn.equipment = new Pawn_EquipmentTracker(thisPawn);
-                                if (thisPawn.apparel == null)
-                                    thisPawn.apparel = new Pawn_ApparelTracker(thisPawn);
+                                    // thisPawn.equipment.pawn = thisPawn;
+                                }
 
-                                thisPawn.equipment.Notify_PawnSpawned();
-                                thisPawn.verbTracker = new VerbTracker(thisPawn);
-                                thisPawn.meleeVerbs = new Pawn_MeleeVerbs(thisPawn);
+                                if (thisPawn.apparel == null)
+                                {
+                                    // thisPawn.apparel = new Pawn_ApparelTracker(thisPawn);
+                                    thisPawn.apparel.pawn = thisPawn;
+                                }
+
+                                thisPawn.equipment.pawn = thisPawn;
+                                // thisPawn.equipment.Notify_PawnSpawned();
+                                // thisPawn.verbTracker = new VerbTracker(thisPawn);
+                                // thisPawn.meleeVerbs = new Pawn_MeleeVerbs(thisPawn);
 
                                 // // Reset their equipped weapon's verbTrackers as well, or they'll go insane if they're carrying an out-of-phase weapon...
                                 if (thisPawn.equipment.HasAnything() && thisPawn.equipment.Primary != null)
                                 {
+                                    foreach (var verb in thisPawn.equipment.PrimaryEq.verbTracker.AllVerbs)
+                                    {
+                                        verb.caster = thisPawn;
+                                    }
                                     // thisPawn.equipment.Primary.InitializeComps();
                                     // thisPawn.equipment.PrimaryEq.verbTracker = new VerbTracker(thisPawn);
                                     // thisPawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
                                 }
 
-                                thisPawn.verbTracker.AllVerbs.Clear();
-                                thisPawn.verbTracker.AllVerbs.Add(new Verb_MeleeAttackDamage());
+                                // thisPawn.verbTracker.AllVerbs.Clear();
+                                // thisPawn.verbTracker.AllVerbs.Add(new Verb_MeleeAttackDamage());
 
                             }
                         }
