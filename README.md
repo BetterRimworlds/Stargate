@@ -10,6 +10,13 @@ The Stargate system allows you to transport materials over the great distances b
 
 ## Latest Changes
 
+**v9.1.0: 2024-05-07**
+* **[2024-05-07 01:14:20 CDT]** [major] Effectively cured Stargate Psychosis (!!!).
+* **[2024-05-07 00:18:59 CDT]** [major] Found the cure for Animal Stargate Psychosis!
+* **[2024-05-06 23:56:35 CDT]** Fixed a major edgecase when the Stargate tried to charge with no batteries pn the power grid.
+* **[2024-05-06 23:55:17 CDT]** Fixed some bugs with the stored mass not resetting when appropriate.
+* **[2024-05-06 23:54:33 CDT]** Shuffled the offworld gate psionic curses to their own class.
+
 **v9.0.0: 2024-03-21**
 * **[2024-03-21 18:44:28 CDT]** **[Major]** Upgraded to Rimworld v1.5.
 * **[2024-03-21 18:41:38 CDT]** Fixed a bug where local teleports didn't work correctly with an offworld team.
@@ -43,7 +50,6 @@ The Stargate system allows you to transport materials over the great distances b
 * **[2023-05-22 19:11:08 CDT]** **[Major]** Properly fixed Stargate Psychosis and fully remove Pawns after going through the stargate.
 * **[2023-05-22 19:11:45 CDT]** Add Pawns to the top of the Stargate Buffer to ensure they're always exited first.
 * **[2023-05-22 19:12:20 CDT]** Allow an unlimited number of Pawns through the stargate, because there are no stack issues.
-* **[2023-05-22 20:54:13 CDT]** [m] Updated the deploy script.
 * **[2023-05-22 20:55:35 CDT]** Added more prereq tech: Quantum Teleportation and Quantum Storage.
 * **[2023-06-03 03:32:18 CDT]** Now, the colonists are removed from the top Colony Bar when they're transmitted.
 

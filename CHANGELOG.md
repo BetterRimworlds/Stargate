@@ -1,3 +1,12 @@
+**v9.1.0: 2024-05-07**
+* **[2024-05-07 01:14:20 CDT]** [major] Effectively cured Stargate Psychosis (!!!).
+* **[2024-05-07 01:13:08 CDT]** [m] Reduced the size of the wormhole icon (from 1.56 MB to 31 KB (-98%)).
+* **[2024-05-07 00:18:59 CDT]** [major] Found the cure for Animal Stargate Psychosis!
+* **[2024-05-06 23:56:35 CDT]** Fixed a major edgecase when the Stargate tried to charge with no batteries pn the power grid.
+* **[2024-05-06 23:55:49 CDT]** [m] Cosmetic edits to the definition files and README.
+* **[2024-05-06 23:55:17 CDT]** Fixed some bugs with the stored mass not resetting when appropriate.
+* **[2024-05-06 23:54:33 CDT]** Shuffled the offworld gate psionic curses to their own class.
+
 **v9.0.0: 2024-03-21**
 * **[2024-03-21 18:44:28 CDT]** **[Major]** Upgraded to Rimworld v1.5.
 * **[2024-03-21 18:41:38 CDT]** Fixed a bug where local teleports didn't work correctly with an offworld team.

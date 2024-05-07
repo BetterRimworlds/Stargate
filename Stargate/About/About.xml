@@ -10,7 +10,7 @@
     </supportedVersions>
     <author>HopeSeekr</author>
     <url>https://ludeon.com/forums/index.php?topic=18995.0</url>
-    <description>Version 9.0.0
+    <description>Version 9.1.0
 Please post all bug reports on the GitHub repo, if possible.
 https://github.com/BetterRimworlds/Stargate/
 
@@ -22,15 +22,21 @@ Please make sure that the savegames are both at the same version of Rimworld, or
 softly corrupting your save (Your savegame will error out until the incompatible Pawns / Things are destroyed or sent
 back through the Stargate).
 
-**ALERT: The transdimensional construction of an Offworld Stargate has *devastating* consequences for all higher 
+**ALERT: The transdimensional construction of an Offworld Stargate has *devastating* consequences for all higher
 lifeforms on the map!**
 
 WARNING: This mod uses the Rimworld Base Save Functionality in ways that it was never designed to support, mainly saving
          specific things into a separate file instead of saving everything on the map to one file at once. Because of this
          there may be adverse effects. The main one that I have found is that after traveling through the Stargate Social
-         opinions relating to that colonist will be lost, they will effectively be meeting everyone for the first time 
+         opinions relating to that colonist will be lost, they will effectively be meeting everyone for the first time
          again. At this time I do not know of a practical way to resolve this issue.
 
 Forked from Jaxxa's ED-Stargate (but only ~100 lines remain of the original code).
+
+• **[2024-05-07]** [major] Found the cure for Animal Stargate Psychosis!
+• **[2024-05-07]** [major] Effectively cured Stargate Psychosis (!!!).
+• **[2024-05-06]** Fixed a major edgecase when the Stargate tried to charge with no batteries pn the power grid.
+• **[2024-05-06]** Shuffled the offworld gate psionic curses to their own class.
+• **[2024-05-06]** Fixed some bugs with the stored mass not resetting when appropriate.
     </description>
 </ModMetaData>
