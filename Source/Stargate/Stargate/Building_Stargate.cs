@@ -812,6 +812,12 @@ namespace BetterRimworlds.Stargate
                                 thisPawn.drafter.Drafted = false;
                             }
 
+                            if (thisPawn.RaceProps.Animal)
+                            {
+                                //thisPawn.training = new Pawn_TrainingTracker(thisPawn);
+                                thisPawn.training.pawn = thisPawn;
+                            }
+
                             if (thisPawn.RaceProps.ToolUser)
                             {
                                 if (thisPawn.equipment == null)
