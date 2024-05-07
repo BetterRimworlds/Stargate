@@ -80,11 +80,11 @@ namespace BetterRimworlds.Stargate
 
         public void EjectLeastMassive()
         {
-            this.InnerListForReading.Sort((x, y) => 
+            this.InnerListForReading.Sort((x, y) =>
                 this.findThingMass(y).CompareTo(this.findThingMass(x)));
             var mostMassive = this.InnerListForReading.Pop();
             this.storedMass -= this.findThingMass(mostMassive);
-            
+
             Messages.Message("Due to lack of power, the Stargate lost " + mostMassive.Label + " x" + mostMassive.stackCount, MessageTypeDefOf.NegativeEvent);
             this.SetRequiredStargatePower();
         }

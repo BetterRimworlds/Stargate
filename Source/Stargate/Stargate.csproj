@@ -161,6 +161,7 @@
     <Compile Include="Stargate\ITab_StargateBuffer_Inventory.cs" />
     <Compile Include="Stargate\PlaceWorker_OnlyOneBuilding.cs" />
     <Compile Include="Stargate\PlaceWorker_OnlyOneStargate.cs" />
+    <Compile Include="Stargate\PsionicBlast.cs" />
     <Compile Include="Stargate\Saving\Dialog\Dialog_LoadPreset.cs" />
     <Compile Include="Stargate\Saving\Dialog\Dialog_Preset.cs" />
     <Compile Include="Stargate\Saving\Dialog\Dialog_SavePreset.cs" />

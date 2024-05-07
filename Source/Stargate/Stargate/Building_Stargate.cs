@@ -273,9 +273,9 @@ namespace BetterRimworlds.Stargate
             foreach (var g in base.GetGizmos())
             {
                 if (
-                    g is Command command && 
-                    command.Label != "Reconnect" && 
-                    command.Label != "Copy settings" && 
+                    g is Command command &&
+                    command.Label != "Reconnect" &&
+                    command.Label != "Copy settings" &&
                     command.Label != "Paste settings" &&
                     command.Label != "Link settings"
                 )
@@ -349,7 +349,7 @@ namespace BetterRimworlds.Stargate
             }
 
             List<Thing> foundThings = Enhanced_Development.Utilities.Utilities.FindItemThingsNearBuilding(this, Building_Stargate.ADDITION_DISTANCE, this.currentMap);
- 
+
             foreach (Thing foundThing in foundThings)
             {
                 // if (foundThing.Spawned && this.stargateBuffer.Count < 1000)
@@ -364,10 +364,10 @@ namespace BetterRimworlds.Stargate
             }
         }
 
-        public void AddPawns() 
-        { 
+        public void AddPawns()
+        {
             if (!this.fullyCharged)
-            { 
+            {
                 Messages.Message("Insufficient Power to add Colonist", MessageTypeDefOf.RejectInput);
                 return;
             }
@@ -525,7 +525,7 @@ namespace BetterRimworlds.Stargate
                 var loadResponse = Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary);
                 originalTimelineTicks = loadResponse.Item1;
                 relationships.AddRange(loadResponse.Item2);
-                
+
                 // Log.Warning("Number of items in the wormhole: " + inboundBuffer.Count);
             }
 
@@ -560,10 +560,10 @@ namespace BetterRimworlds.Stargate
 
                 PawnRelationDef pawnRelationDef = DefDatabase<PawnRelationDef>.GetNamedSilentFail(relationship.relationship);
                 pawn1.relations.AddDirectRelation(pawnRelationDef, pawn2);
-            
+
                 pawn1.ClearMind();
                 pawn2.ClearMind();
-            
+
                 pawn1.thinker = new Pawn_Thinker(pawn1);
                 pawn2.thinker = new Pawn_Thinker(pawn2);
 
@@ -580,7 +580,7 @@ namespace BetterRimworlds.Stargate
                 Messages.Message("WARNING: The Stargate buffer was empty!!", MessageTypeDefOf.ThreatBig);
                 return false;
             }
-            
+
             int originalTimelineTicks = recallData.Item1;
             List<Thing> inboundBuffer = recallData.Item2;
             List<StargateRelation> relationships = recallData.Item3;
@@ -815,7 +815,7 @@ namespace BetterRimworlds.Stargate
                                 if (thisPawn.apparel == null)
                                     thisPawn.apparel = new Pawn_ApparelTracker(thisPawn);
 
-                                thisPawn.equipment.Notify_PawnSpawned(); 
+                                thisPawn.equipment.Notify_PawnSpawned();
                                 thisPawn.verbTracker = new VerbTracker(thisPawn);
                                 thisPawn.meleeVerbs = new Pawn_MeleeVerbs(thisPawn);
 
@@ -826,7 +826,7 @@ namespace BetterRimworlds.Stargate
                                     // thisPawn.equipment.PrimaryEq.verbTracker = new VerbTracker(thisPawn);
                                     // thisPawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
                                 }
-                                
+
                                 thisPawn.verbTracker.AllVerbs.Clear();
                                 thisPawn.verbTracker.AllVerbs.Add(new Verb_MeleeAttackDamage());
 
@@ -899,7 +899,7 @@ namespace BetterRimworlds.Stargate
             return base.GetInspectString() + "\n"
                                            + "Buffer Items: " + this.stargateBuffer.Count + " / " +
                                            this.stargateBuffer.getMaxStacks() + "\n"
-                                           + "Capacitor Charge: " + this.currentCapacitorCharge + " / " + this.requiredCapacitorCharge
+                                           + "Capacitor Charge: " + this.currentCapacitorCharge + " / " + this.requiredCapacitorCharge + "\n"
                                            + "New Power Req: " + this.power.powerOutputInt + "\n"
                                            + "Stored Mass: " + this.stargateBuffer.GetStoredMass() + " kg"
                 // + "Gain Rate: " + excessPower + "\n"
