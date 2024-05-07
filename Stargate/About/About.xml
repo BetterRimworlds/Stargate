@@ -11,12 +11,16 @@
     <author>HopeSeekr</author>
     <url>https://ludeon.com/forums/index.php?topic=18995.0</url>
     <description>Version 9.0.0
-Discussion, Non Steam Downloads and GitHub Repositories of this mod is available at: https://ludeon.com/forums/index.php?topic=18995
-Please Use that Thread for Discussion / Feedback that would like me to reply to. 
-Ideally Bugs should be logged on GitHub although in the discussion thread is also fine.
-https://github.com/hopeseekr/Rimworld-Stargate/
+Please post all bug reports on the GitHub repo, if possible.
+https://github.com/BetterRimworlds/Stargate/
 
 The Stargate system allows you to transport materials over the great distances between colonies, both off-world and on.
+
+In other words, you can transfer your pawns and items across Savegames on the same machine.
+
+Please make sure that the savegames are both at the same version of Rimworld, or crazy things can happen, including
+softly corrupting your save (Your savegame will error out until the incompatible Pawns / Things are destroyed or sent
+back through the Stargate).
 
 **ALERT: The transdimensional construction of an Offworld Stargate has *devastating* consequences for all higher 
 lifeforms on the map!**
