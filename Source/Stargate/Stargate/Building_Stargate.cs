@@ -179,31 +179,46 @@ namespace BetterRimworlds.Stargate
 
             if (!this.stargateBuffer.Any())
             {
+                Log.Error("0");
                 if (this.fullyCharged == true)
                 {
+                    Log.Error("0a");
                     this.stargateBuffer.SetRequiredStargatePower();
                     chargeSpeed = 0;
                     this.updatePowerDrain();
                 }
 
-                if (this.fullyCharged == false && this.power.PowerOn == true && this.PoweringUp == true)
+                if (this.fullyCharged == false && /*this.power.PowerOn == true &&*/ this.PoweringUp == true)
                 {
-                    // Log.Error("1: " + chargeSpeed);
+                    Log.Error("1: " + chargeSpeed);
                     currentCapacitorCharge += chargeSpeed;
 
+                    if (this.power.PowerOn == false)
+                    {
+                        chargeSpeed = 0;
+                        this.updatePowerDrain();
+                    }
+
                     float excessPower = this.power.PowerNet.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick;
-                    // Log.Warning("2: Excess Power: " + excessPower + " | Current Stored Energy: " + (this.power.PowerNet.CurrentStoredEnergy() * 1000));
+                    Log.Warning("2: Excess Power: " + excessPower + " | Current Stored Energy: " + (this.power.PowerNet.CurrentStoredEnergy() * 1000));
                     if (excessPower + (this.power.PowerNet.CurrentStoredEnergy() * 1000) > 5000)
                     {
                         // chargeSpeed += 5 - (this.chargeSpeed % 5);
                         chargeSpeed = (int)Math.Round(((excessPower - (excessPower % 1_000)) / 1000) + this.power.PowerNet.CurrentStoredEnergy() * 0.25 / 10);
-                        // Log.Error("3a: " + chargeSpeed);
+                        Log.Error("3a: " + chargeSpeed + " | Excess Power: " + ((int)Math.Round(((excessPower - (excessPower % 1_000)) / 1000))) + " | Stored Energy: " + (this.power.PowerNet.CurrentStoredEnergy() * 0.25 / 10));
                         this.updatePowerDrain();
                     }
                     else if (excessPower + (this.power.PowerNet.CurrentStoredEnergy() * 1000) > 1000)
                     {
-                        // Log.Error("3b");
                         chargeSpeed += 1;
+                        Log.Error("3b: " + chargeSpeed);
+                        this.updatePowerDrain();
+                    }
+                    else if (excessPower + (this.power.PowerNet.CurrentStoredEnergy() * 1000) < 0)
+                    {
+                        // Restart the charge speed...
+                        chargeSpeed = 1;
+                        Log.Error("3b: " + chargeSpeed);
                         this.updatePowerDrain();
                     }
                 }
