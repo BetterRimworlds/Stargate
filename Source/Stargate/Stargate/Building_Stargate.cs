@@ -635,6 +635,20 @@ namespace BetterRimworlds.Stargate
                     // if they enter a Stargate after they've ever been drafted.
                     if (currentThing is Pawn pawn)
                     {
+                        // Compatibility shim between Rimworld v1.4 and v1.5 with v1.2 and v1.3.
+                        var crownTypesByVersion = new Dictionary<string, List<string>>()
+                        {
+                            { "1.2", new List<string>() { "Average", "Narrow" } }
+                        };
+
+                        #if RIMWORLD12 || RIMWORLD13
+                        if (pawn.story.crownType == CrownType.Undefined)
+                        {
+                            Log.Error("MISSING CROWN TYPE!!");
+                            pawn.story.crownType = CrownType.Average;
+                        }
+                        #endif
+
                         pawn.relations = new Pawn_RelationsTracker(pawn);
                         // Carry over injuries, sicknesses, addictions, and artificial body parts.
                         var hediffSet = pawn.health.hediffSet;
