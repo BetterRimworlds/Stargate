@@ -658,7 +658,7 @@ namespace BetterRimworlds.Stargate
 
                     // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
                     // if they enter a Stargate after they've ever been drafted.
-                    if (currentThing is Pawn pawn)
+                    if (currentThing is Pawn pawn && pawn.RaceProps.Humanlike)
                     {
                         // Compatibility shim between Rimworld v1.4 and v1.5 with v1.2 and v1.3.
                         var crownTypesByVersion = new Dictionary<string, List<string>>()
