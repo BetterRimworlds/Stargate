@@ -188,37 +188,47 @@ namespace BetterRimworlds.Stargate
                     this.updatePowerDrain();
                 }
 
-                if (this.fullyCharged == false && /*this.power.PowerOn == true &&*/ this.PoweringUp == true)
+                if (this.fullyCharged == false && this.PoweringUp == true)
                 {
                     Log.Error("1: " + chargeSpeed);
                     currentCapacitorCharge += chargeSpeed;
+                    this.updatePowerDrain();
+
 
                     if (this.power.PowerOn == false)
                     {
-                        chargeSpeed = 0;
+                        chargeSpeed -= 2;
+                        Log.Error("0b: " + chargeSpeed);
+                        this.updatePowerDrain();
                         this.updatePowerDrain();
                     }
 
                     float excessPower = this.power.PowerNet.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick;
-                    Log.Warning("2: Excess Power: " + excessPower + " | Current Stored Energy: " + (this.power.PowerNet.CurrentStoredEnergy() * 1000));
+                    Log.Warning("2: Excess Power: " + excessPower + " | Current Stored Energy: " +
+                                (this.power.PowerNet.CurrentStoredEnergy() * 1000));
+                    Log.Warning("Excess Power Calculation: CurrentEnergyGainRate: " +
+                                this.power.PowerNet.CurrentEnergyGainRate() + " | WattsToWattDaysPerTick: " +
+                                CompPower.WattsToWattDaysPerTick);
+
                     if (excessPower + (this.power.PowerNet.CurrentStoredEnergy() * 1000) > 5000)
                     {
-                        // chargeSpeed += 5 - (this.chargeSpeed % 5);
-                        chargeSpeed = (int)Math.Round(((excessPower - (excessPower % 1_000)) / 1000) + this.power.PowerNet.CurrentStoredEnergy() * 0.25 / 10);
-                        Log.Error("3a: " + chargeSpeed + " | Excess Power: " + ((int)Math.Round(((excessPower - (excessPower % 1_000)) / 1000))) + " | Stored Energy: " + (this.power.PowerNet.CurrentStoredEnergy() * 0.25 / 10));
+                        chargeSpeed = (int)Math.Round(((excessPower - (excessPower % 1_000)) / 1000) +
+                                                      this.power.PowerNet.CurrentStoredEnergy() * 0.25 / 10);
+                        Log.Error("3a: Charge Speed: " + chargeSpeed + " | Excess Power: " +
+                                  ((int)Math.Round(((excessPower - (excessPower % 1_000)) / 1000))) +
+                                  " | Stored Energy: " + (this.power.PowerNet.CurrentStoredEnergy() * 0.25 / 10));
                         this.updatePowerDrain();
                     }
                     else if (excessPower + (this.power.PowerNet.CurrentStoredEnergy() * 1000) > 1000)
                     {
                         chargeSpeed += 1;
-                        Log.Error("3b: " + chargeSpeed);
+                        Log.Error("3b: Charge Speed: " + chargeSpeed);
                         this.updatePowerDrain();
                     }
-                    else if (excessPower + (this.power.PowerNet.CurrentStoredEnergy() * 1000) < 0)
+                    else
                     {
-                        // Restart the charge speed...
-                        chargeSpeed = 1;
-                        Log.Error("3b: " + chargeSpeed);
+                        chargeSpeed -= (int)Math.Round((excessPower - (excessPower % 1_000)) / 1000);
+                        Log.Error("3c: Charge Speed: " + chargeSpeed);
                         this.updatePowerDrain();
                     }
                 }
