@@ -783,7 +783,7 @@ namespace BetterRimworlds.Stargate
                         }
                         else
                         {
-                            pawn.ownership = new Pawn_Ownership(pawn);
+                            // pawn.ownership = new Pawn_Ownership(pawn);
                         }
 
                         // if (pawn.RaceProps.ToolUser)
@@ -806,11 +806,11 @@ namespace BetterRimworlds.Stargate
                         if (pawn.RaceProps.Humanlike)
                         {
                             // pawn.guest = new Pawn_GuestTracker(pawn);
-#if RIMWORLD12
+                            #if RIMWORLD12
                             pawn.guilt = new Pawn_GuiltTracker();
-#else
-                        pawn.guilt = new Pawn_GuiltTracker(pawn);
-#endif
+                            #else
+                            pawn.guilt = new Pawn_GuiltTracker(pawn);
+                            #endif
                             pawn.abilities = new Pawn_AbilityTracker(pawn);
                             pawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(pawn);
                         }
