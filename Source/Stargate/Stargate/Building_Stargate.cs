@@ -151,6 +151,7 @@ namespace BetterRimworlds.Stargate
             Scribe_Values.Look<int>(ref requiredCapacitorCharge, "requiredCapacitorCharge");
             Scribe_Values.Look<int>(ref chargeSpeed, "chargeSpeed", 1);
             Scribe_Values.Look<bool>(ref PoweringUp, "poweringUp");
+            Scribe_Values.Look<bool>(ref IsRecalling, "isRecalling", true);
 
             Scribe_Deep.Look<StargateBuffer>(ref this.stargateBuffer, "stargateBuffer", new object[]
             {
@@ -165,6 +166,7 @@ namespace BetterRimworlds.Stargate
             base.TickRare();
         }
 
+        private bool IsRecalling = false;
         private int transmittedHumansWarningCount = 0;
 
         public override void TickRare()
@@ -270,7 +272,11 @@ namespace BetterRimworlds.Stargate
                     }
 
                     // Log.Error("========= NOT ENOUGH POWER +========");
-                    this.EjectLeastMassive();
+                    if (this.IsRecalling == false)
+                    {
+                        this.EjectLeastMassive();
+                    }
+
                     return;
                 }
 
@@ -612,6 +618,8 @@ namespace BetterRimworlds.Stargate
                 return false;
             }
 
+            this.IsRecalling = true;
+
             int originalTimelineTicks = recallData.Item1;
             List<Thing> inboundBuffer = recallData.Item2;
             List<StargateRelation> relationships = recallData.Item3;
@@ -934,7 +942,12 @@ namespace BetterRimworlds.Stargate
                 this.stargateSounds["Stargate Close"].PlayOneShotOnCamera();
             }
 
-            return !this.stargateBuffer.Any();
+            if (this.HasThingsInBuffer() == false)
+            {
+                this.IsRecalling = false;
+            }
+
+            return this.HasThingsInBuffer() == false;
         }
 
 
