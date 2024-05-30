@@ -37,9 +37,12 @@ namespace BetterRimworlds.Stargate
                 return false;
             }
 
-            // If they were successfully recalled, destroy the gate.
-            this.Destroy(DestroyMode.Vanish);
-            Messages.Message("The Transdimensional Transfer was a success!", MessageTypeDefOf.PositiveEvent);
+            if (this.HasThingsInBuffer() == false)
+            {
+                // If they were successfully recalled, destroy the gate.
+                this.Destroy(DestroyMode.Vanish);
+                Messages.Message("The Transdimensional Transfer was a success!", MessageTypeDefOf.PositiveEvent);
+            }
 
             return true;
         }

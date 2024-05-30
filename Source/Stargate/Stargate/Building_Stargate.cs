@@ -625,7 +625,6 @@ namespace BetterRimworlds.Stargate
             List<StargateRelation> relationships = recallData.Item3;
             bool offworldEvent = !this.LocalTeleportEvent;
 
-            bool wasPlaced;
             // this.stargateBuffer.Clear();
             foreach (Thing currentThing in inboundBuffer.ToList())
             {
@@ -633,6 +632,7 @@ namespace BetterRimworlds.Stargate
                 {
                     // If it's just a teleport, destroy the thing first...
                     // Log.Warning("a1: is offworld? " + offworldEvent + " | Stargate Buffer count: " + this.stargateBuffer.Count);
+                    bool wasPlaced = false;
                     if (!offworldEvent)
                     {
                         wasPlaced = GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2),
@@ -914,6 +914,9 @@ namespace BetterRimworlds.Stargate
                 catch (Exception e)
                 {
                     Log.Error("Could not spawn " + currentThing + " because: " + e.Message);
+                    inboundBuffer.Remove(currentThing);
+                    this.stargateBuffer.Remove(currentThing);
+
                     continue;
                 }
 
