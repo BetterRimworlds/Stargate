@@ -202,7 +202,6 @@ namespace BetterRimworlds.Stargate
                         chargeSpeed -= 2;
                         Log.Error("0b: " + chargeSpeed);
                         this.updatePowerDrain();
-                        this.updatePowerDrain();
                     }
 
                     float excessPower = this.power.PowerNet.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick;
