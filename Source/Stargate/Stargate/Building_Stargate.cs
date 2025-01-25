@@ -388,15 +388,19 @@ namespace BetterRimworlds.Stargate
 
             foreach (Thing foundThing in foundThings)
             {
-                // if (foundThing.Spawned && this.stargateBuffer.Count < 1000)
-                // {
                 if (!this.stargateBuffer.Any())
                 {
                     this.stargateSounds["Stargate Open"].PlayOneShotOnCamera();
                 }
 
                 this.stargateBuffer.TryAdd(foundThing);
-                // }
+
+                // Tell the MapDrawer that here is something thats changed
+                #if RIMWORLD15
+                Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlagDefOf.Things, true, false);
+                #else
+                Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
+                #endif
             }
         }
 
