@@ -181,10 +181,8 @@ namespace BetterRimworlds.Stargate
 
             if (!this.stargateBuffer.Any())
             {
-                Log.Error("0");
                 if (this.fullyCharged == true)
                 {
-                    Log.Error("0a");
                     this.stargateBuffer.SetRequiredStargatePower();
                     chargeSpeed = 0;
                     this.updatePowerDrain();
@@ -192,7 +190,7 @@ namespace BetterRimworlds.Stargate
 
                 if (this.fullyCharged == false && this.PoweringUp == true)
                 {
-                    Log.Error("1: " + chargeSpeed);
+                    // Log.Warning("1: " + chargeSpeed);
                     currentCapacitorCharge += chargeSpeed;
                     this.updatePowerDrain();
 
@@ -200,36 +198,35 @@ namespace BetterRimworlds.Stargate
                     if (this.power.PowerOn == false)
                     {
                         chargeSpeed -= 2;
-                        Log.Error("0b: " + chargeSpeed);
                         this.updatePowerDrain();
                     }
 
                     float excessPower = this.power.PowerNet.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick;
-                    Log.Warning("2: Excess Power: " + excessPower + " | Current Stored Energy: " +
-                                (this.power.PowerNet.CurrentStoredEnergy() * 1000));
-                    Log.Warning("Excess Power Calculation: CurrentEnergyGainRate: " +
-                                this.power.PowerNet.CurrentEnergyGainRate() + " | WattsToWattDaysPerTick: " +
-                                CompPower.WattsToWattDaysPerTick);
+                    // Log.Warning("2: Excess Power: " + excessPower + " | Current Stored Energy: " +
+                                // (this.power.PowerNet.CurrentStoredEnergy() * 1000));
+                    // Log.Warning("Excess Power Calculation: CurrentEnergyGainRate: " +
+                                // this.power.PowerNet.CurrentEnergyGainRate() + " | WattsToWattDaysPerTick: " +
+                                // CompPower.WattsToWattDaysPerTick);
 
                     if (excessPower + (this.power.PowerNet.CurrentStoredEnergy() * 1000) > 5000)
                     {
                         chargeSpeed = (int)Math.Round(((excessPower - (excessPower % 1_000)) / 1000) +
                                                       this.power.PowerNet.CurrentStoredEnergy() * 0.25 / 10);
-                        Log.Error("3a: Charge Speed: " + chargeSpeed + " | Excess Power: " +
-                                  ((int)Math.Round(((excessPower - (excessPower % 1_000)) / 1000))) +
-                                  " | Stored Energy: " + (this.power.PowerNet.CurrentStoredEnergy() * 0.25 / 10));
+                        // Log.Warning("3a: Charge Speed: " + chargeSpeed + " | Excess Power: " +
+                                    // ((int)Math.Round(((excessPower - (excessPower % 1_000)) / 1000))) +
+                                    // " | Stored Energy: " + (this.power.PowerNet.CurrentStoredEnergy() * 0.25 / 10));
                         this.updatePowerDrain();
                     }
                     else if (excessPower + (this.power.PowerNet.CurrentStoredEnergy() * 1000) > 1000)
                     {
                         chargeSpeed += 1;
-                        Log.Error("3b: Charge Speed: " + chargeSpeed);
+                        // Log.Warning("3b: Charge Speed: " + chargeSpeed);
                         this.updatePowerDrain();
                     }
                     else
                     {
                         chargeSpeed -= (int)Math.Round((excessPower - (excessPower % 1_000)) / 1000);
-                        Log.Error("3c: Charge Speed: " + chargeSpeed);
+                        // Log.Warning("3c: Charge Speed: " + chargeSpeed);
                         this.updatePowerDrain();
                     }
                 }
