@@ -867,7 +867,7 @@ namespace BetterRimworlds.Stargate
                             if (thisPawn.RaceProps.Animal)
                             {
                                 #if RIMWORLD12
-                                thisPawn.training = new Pawn_TrainingTracker(thisPawn);
+                                // thisPawn.training = new Pawn_TrainingTracker(thisPawn);
                                 #else
                                 thisPawn.training.pawn = thisPawn;
                                 #endif
