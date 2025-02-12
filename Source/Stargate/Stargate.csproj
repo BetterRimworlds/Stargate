@@ -158,6 +158,7 @@
     <Compile Include="Stargate\Building_OffWorldStargate.cs" />
     <Compile Include="Stargate\Building_Stargate.cs" />
     <Compile Include="Stargate\Building_TrandimensionalStargate.cs" />
+    <Compile Include="Stargate\GateTravelerImplant.cs" />
     <Compile Include="Stargate\ITab_StargateBuffer_Inventory.cs" />
     <Compile Include="Stargate\PlaceWorker_OnlyOneBuilding.cs" />
     <Compile Include="Stargate\PlaceWorker_OnlyOneStargate.cs" />

@@ -118,6 +118,8 @@ namespace BetterRimworlds.Stargate
             {
                 // Increase the maxStacks size for every Pawn, as they don't affect the dispersion area.
                 ++this.maxStacks;
+
+                this.AttachGateTravelerImplant(pawn);
             }
             else
             {
@@ -233,6 +235,15 @@ namespace BetterRimworlds.Stargate
             Find.WorldPawns.PassToWorld(missingPawn, PawnDiscardDecideMode.Decide);
 
             return missingPawn;
+        }
+
+        private void AttachGateTravelerImplant(Pawn pawn)
+        {
+            HediffDef gateTravelerImplant = HediffDef.Named("GateTravelerImplant");
+
+            BodyPartRecord brain = pawn.RaceProps.body.AllParts.Find(bpr => bpr.def.defName == "Brain");
+
+            pawn.health.AddHediff(gateTravelerImplant, brain);
         }
     }
 }
