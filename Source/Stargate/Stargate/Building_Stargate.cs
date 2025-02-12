@@ -570,6 +570,11 @@ namespace BetterRimworlds.Stargate
             return new Tuple<int, List<Thing>>(originalTimelineTicks, inboundBuffer);
         }
 
+        private void cleanseHistoricalRecord(Pawn transmittedPawn)
+        {
+            StargateBuffer.ClearExistingWorldPawn(transmittedPawn);
+        }
+
         // @FIXME: Need to refactor this to a StargateBuffer.
         private void rebuildRelationships(Pawn transmittedPawn)
         {
@@ -693,6 +698,8 @@ namespace BetterRimworlds.Stargate
                     {
                         if (offworldEvent)
                         {
+                            // Cleanse the historical record for returning pawns.
+                            this.cleanseHistoricalRecord(pawn);
                         }
                         if (pawn.RaceProps.Humanlike)
                         {
@@ -859,6 +866,16 @@ namespace BetterRimworlds.Stargate
                         // Give them a brief psychic shock so that they will be given proper Melee Verbs and not act like a Visitor.
                         // Hediff shock = HediffMaker.MakeHediff(HediffDefOf.PsychicShock, pawn, null);
                         // pawn.health.AddHediff(shock, null, null);
+                        PawnComponentsUtility.AddAndRemoveDynamicComponents(pawn, true);
+
+                        // Find.CurrentMap.mapPawns.AllPawnsUnspawned.Remove(pawn);
+                        // Find.WorldPawns.AllPawnsDead.Remove(pawn);
+                        Pawn pawnToRemove = Find.WorldPawns.AllPawnsDead
+                            .FirstOrDefault(p => p.thingIDNumber == pawn.thingIDNumber);
+                        if (pawnToRemove != null)
+                        {
+                            Find.WorldPawns.RemovePawn(pawnToRemove);
+                        }
                     }
 
                     wasPlaced = GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2),

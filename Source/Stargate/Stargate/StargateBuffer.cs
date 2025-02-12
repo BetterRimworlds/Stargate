@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
@@ -244,6 +245,20 @@ namespace BetterRimworlds.Stargate
             BodyPartRecord brain = pawn.RaceProps.body.AllParts.Find(bpr => bpr.def.defName == "Brain");
 
             pawn.health.AddHediff(gateTravelerImplant, brain);
+        }
+
+        public static bool ClearExistingWorldPawn(Pawn pawn)
+        {
+            // See if the pawn exists in the Dead WorldPawns, and if so, remove the record, because now she/he is back!
+            Messages.Message($"Removed dead world pawn: {pawn.Name.ToStringFull}", MessageTypeDefOf.NeutralEvent);
+            Pawn pawnToRemove = Find.WorldPawns.AllPawnsDead.FirstOrDefault(p => p.thingIDNumber == pawn.thingIDNumber);
+            if (pawnToRemove != null)
+            {
+                Find.WorldPawns.RemovePawn(pawnToRemove);
+                return true;
+            }
+
+            return false;
         }
     }
 }
