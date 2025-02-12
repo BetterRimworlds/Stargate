@@ -501,7 +501,7 @@ namespace BetterRimworlds.Stargate
             return itemsToTeleport;
         }
 
-        public Tuple<int, List<Thing>, List<StargateRelation>> recall()
+        public Tuple<int, List<Thing>> recall()
         {
             // List<Thing> inboundBuffer = (List<Thing>)null;
             int originalTimelineTicks = Current.Game.tickManager.TicksAbs;
@@ -511,7 +511,6 @@ namespace BetterRimworlds.Stargate
             // this.stargateBuffer.Clear();
             Log.Message("Number of stargates on this planet: " + GateNetwork.Count);
 
-            var relationships = this.stargateBuffer.relationships;
             // See if any of the stargates on this planet (including this gate) have items in their buffer...
             // and if so, recall them here.
             // @FIXME: Use  DefDatabase<ThingDef>.AllDefs.Where((ThingDef def) => typeof(Building_Stargate)
@@ -561,7 +560,6 @@ namespace BetterRimworlds.Stargate
 
                 var loadResponse = Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary);
                 originalTimelineTicks = loadResponse.Item1;
-                relationships.AddRange(loadResponse.Item2);
 
                 // Log.Warning("Number of items in the wormhole: " + inboundBuffer.Count);
             }
@@ -569,43 +567,68 @@ namespace BetterRimworlds.Stargate
             Messages.Message("Incoming wormhole!", MessageTypeDefOf.PositiveEvent);
             Messages.Message("You really must save and reload the game to fix Stargate Syndrome.", MessageTypeDefOf.ThreatBig);
 
-            return new Tuple<int, List<Thing>, List<StargateRelation>>(originalTimelineTicks, inboundBuffer, relationships);
+            return new Tuple<int, List<Thing>>(originalTimelineTicks, inboundBuffer);
         }
 
         // @FIXME: Need to refactor this to a StargateBuffer.
-        private void rebuildRelationships(List<StargateRelation> relationships)
+        private void rebuildRelationships(Pawn transmittedPawn)
         {
             // Re-add the relationships.
-            foreach (var relationship in relationships)
+            var gateTravelImplant =
+                (GateTravelerImplant)transmittedPawn.health.hediffSet.hediffs.Find(
+                    h => h.def.defName == "GateTravelerImplant");
+            if (gateTravelImplant == null)
+            {
+                Log.Error("No Gate Traveler Implant found... No relationships rebuilt.");
+                return;
+            }
+
+            foreach (var relationship in gateTravelImplant.relationships)
             {
                 Log.Message($"Loading the relationship between {relationship.pawn1ID} and {relationship.pawn2ID}: {relationship.relationship}");
-
-                var pawn1 = Find.CurrentMap.mapPawns.AllPawnsSpawned.FirstOrDefault(p => p.ThingID == relationship.pawn1ID);
-                Log.Warning("Pawn 1 (" + relationship.pawn1ID + ") with Pawn 2 (" + relationship.pawn2ID + ") related: " + relationship.relationship);
-                if (pawn1 is null)
-                {
-                    // Log.Error($"Could not find a pawn with the ID of {relationship.pawn1ID}.");
-                    continue;
-                }
 
                 var pawn2 = Find.CurrentMap.mapPawns.AllPawnsSpawned.FirstOrDefault(p =>
                     p.thingIDNumber == relationship.pawn2ID);
 
                 if (pawn2 == null)
                 {
+                    Log.Warning("Generating missing relationship with " + relationship.pawn2Name);
                     pawn2 = StargateBuffer.GenerateMissingRelationshipRecord(relationship.pawn2ID, relationship.pawn2Name);
                 }
+                else
+                {
+                    // Remove the existing relationship with the previously-offworld pawn...
+                    // Get a copy of all direct relations where pawn1 is the other pawn.
+                    var relationsToRemove = pawn2.relations.DirectRelations
+                        .Where(rel => rel.otherPawn.Name == transmittedPawn.Name)
+                        .ToList();
 
-                PawnRelationDef pawnRelationDef = DefDatabase<PawnRelationDef>.GetNamedSilentFail(relationship.relationship);
-                pawn1.relations.AddDirectRelation(pawnRelationDef, pawn2);
+                    // Iterate over the copied list and remove each relation.
+                    foreach (var rel in relationsToRemove)
+                    {
+                        Log.Warning($"Removing relationship {rel.def.defName} from {pawn2.Name.ToStringFull} with {transmittedPawn.Name.ToStringFull}");
+                        pawn2.relations.RemoveDirectRelation(rel.def, transmittedPawn);
+                    }
+                }
 
-                pawn1.ClearMind();
-                pawn2.ClearMind();
+                Log.Warning("Pawn 1 (" + relationship.pawn1ID + ") with Pawn 2 (" + relationship.pawn2ID +
+                            ") related: " + relationship.relationship);
 
-                pawn1.thinker = new Pawn_Thinker(pawn1);
-                pawn2.thinker = new Pawn_Thinker(pawn2);
+                bool relationHasBeenAdded = false;
 
-                Log.Message($"Loaded the relationship between {relationship.pawn1ID} and {relationship.pawn2ID}: {relationship.relationship}");
+                PawnRelationDef pawnRelationDef =
+                    DefDatabase<PawnRelationDef>.GetNamedSilentFail(relationship.relationship);
+
+                transmittedPawn.relations.AddDirectRelation(pawnRelationDef, pawn2);
+                transmittedPawn.ClearMind();
+
+
+                // pawn1.thinker = new Pawn_Thinker(pawn1);
+                // pawn2.thinker = new Pawn_Thinker(pawn2);
+
+                Log.Message(
+                    $"Loaded the relationship between {relationship.pawn1ID} and {relationship.pawn2ID}: {relationship.relationship}"
+                );
             }
         }
 
@@ -623,7 +646,6 @@ namespace BetterRimworlds.Stargate
 
             int originalTimelineTicks = recallData.Item1;
             List<Thing> inboundBuffer = recallData.Item2;
-            List<StargateRelation> relationships = recallData.Item3;
             bool offworldEvent = !this.LocalTeleportEvent;
 
             // this.stargateBuffer.Clear();
@@ -667,21 +689,27 @@ namespace BetterRimworlds.Stargate
 
                     // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
                     // if they enter a Stargate after they've ever been drafted.
-                    if (currentThing is Pawn pawn && pawn.RaceProps.Humanlike)
+                    if (currentThing is Pawn pawn)
                     {
-                        // Compatibility shim between Rimworld v1.4 and v1.5 with v1.2 and v1.3.
-                        var crownTypesByVersion = new Dictionary<string, List<string>>()
+                        if (offworldEvent)
                         {
-                            { "1.2", new List<string>() { "Average", "Narrow" } }
-                        };
-
-                        #if RIMWORLD12 || RIMWORLD13
-                        if (pawn.story.crownType == CrownType.Undefined)
-                        {
-                            Log.Error("MISSING CROWN TYPE!!");
-                            pawn.story.crownType = CrownType.Average;
                         }
-                        #endif
+                        if (pawn.RaceProps.Humanlike)
+                        {
+                            // Compatibility shim between Rimworld v1.4 and v1.5 with v1.2 and v1.3.
+                            var crownTypesByVersion = new Dictionary<string, List<string>>()
+                            {
+                                { "1.2", new List<string>() { "Average", "Narrow" } }
+                            };
+
+                            #if RIMWORLD12 || RIMWORLD13
+                            if (pawn.story.crownType == CrownType.Undefined)
+                            {
+                                Log.Warning("Converting Pawn from future Rimworld version to current version.");
+                                pawn.story.crownType = CrownType.Average;
+                            }
+                            #endif
+                        }
 
                         pawn.relations = new Pawn_RelationsTracker(pawn);
                         // Carry over injuries, sicknesses, addictions, and artificial body parts.
@@ -800,7 +828,6 @@ namespace BetterRimworlds.Stargate
                         {
                             pawn.equipment.PrimaryEq.verbTracker = new VerbTracker(pawn);
                             pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
-
                         }
 
                         // Remove memories or they will go insane...
@@ -832,7 +859,6 @@ namespace BetterRimworlds.Stargate
                         // Give them a brief psychic shock so that they will be given proper Melee Verbs and not act like a Visitor.
                         // Hediff shock = HediffMaker.MakeHediff(HediffDefOf.PsychicShock, pawn, null);
                         // pawn.health.AddHediff(shock, null, null);
-                        PawnComponentsUtility.AddAndRemoveDynamicComponents(pawn, true);
                     }
 
                     wasPlaced = GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2),
@@ -908,6 +934,11 @@ namespace BetterRimworlds.Stargate
                                 // thisPawn.verbTracker.AllVerbs.Clear();
                                 // thisPawn.verbTracker.AllVerbs.Add(new Verb_MeleeAttackDamage());
 
+                                if (offworldEvent)
+                                {
+                                    // Re-add relationships.
+                                    this.rebuildRelationships(thisPawn);
+                                }
                             }
                         }
                     }
@@ -935,10 +966,14 @@ namespace BetterRimworlds.Stargate
 
             if (offworldEvent)
             {
-                // Re-add relationships.
-                this.rebuildRelationships(relationships);
-
-                this.MoveToBackup();
+                try
+                {
+                    this.MoveToBackup();
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Couldn't move the stargate buffer to backup: " + e.Message);
+                }
             }
 
             if (this.HasThingsInBuffer() == false)

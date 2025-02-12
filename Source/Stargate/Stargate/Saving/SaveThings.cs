@@ -11,7 +11,7 @@ namespace Enhanced_Development.Stargate.Saving
         private List<StargateRelation> relationships = new List<StargateRelation>();
 
         /** ThingID1, ThingID2 **/
-        private List<Tuple<string, string>> pawnPairs = new List<Tuple<string, string>>();
+        private List<Tuple<int, int>> pawnPairs = new List<Tuple<int, int>>();
 
         public new void Add(StargateRelation item)
         {
@@ -19,11 +19,11 @@ namespace Enhanced_Development.Stargate.Saving
             if (this.ContainsRelationship(item.pawn1ID, item.pawn2ID) == true)
             {
                 return;
-            }  
+            }
 
-            var tuple = new Tuple<string, string>(item.pawn1ID, item.pawn2ID);
+            var tuple = new Tuple<int, int>(item.pawn1ID, item.pawn2ID);
             this.pawnPairs.Add(tuple);
-            
+
             this.relationships.Add(item);
             Log.Message($"Recorded the relationship between {item.pawn1ID} and {item.pawn2ID}: {item.relationship}");
         }
@@ -44,7 +44,7 @@ namespace Enhanced_Development.Stargate.Saving
             this.pawnPairs.RemoveAll( p => p.Item1 == item.pawn1ID);
             this.pawnPairs.RemoveAll( p => p.Item2 == item.pawn1ID);
 
-            
+
             return this.relationships.Remove(item);
         }
 
@@ -60,9 +60,9 @@ namespace Enhanced_Development.Stargate.Saving
             if (this.ContainsRelationship(item.pawn1ID, item.pawn2ID) == true)
             {
                 return;
-            }  
+            }
 
-            var tuple = new Tuple<string, string>(item.pawn1ID, item.pawn2ID);
+            var tuple = new Tuple<int, int>(item.pawn1ID, item.pawn2ID);
             this.pawnPairs.Add(tuple);
 
             this.relationships.Insert(index, item);
@@ -79,20 +79,32 @@ namespace Enhanced_Development.Stargate.Saving
             set => this.relationships[index] = value;
         }
 
-        public bool ContainsRelationship(string pawnID1, string pawnID2)
+        public bool ContainsRelationship(int pawnID1, int pawnID2)
         {
-            if (pawnPairs.Contains(new Tuple<string, string>(pawnID1, pawnID2)))
+            if (pawnPairs.Contains(new Tuple<int, int>(pawnID1, pawnID2)))
             {
                 return true;
             }
 
-            return pawnPairs.Contains(new Tuple<string, string>(pawnID2, pawnID1));
+            return pawnPairs.Contains(new Tuple<int, int>(pawnID2, pawnID1));
         }
 
         public List<StargateRelation> ToList()
         {
             return this.relationships;
         }
+
+        public void ExposeData()
+        {
+            Scribe_Deep.Look(ref relationships, "relationships");
+            // Scribe_Values.Look<DirectPawnRelation>(ref relationship, "relationship", LookMode.Deep);
+            // Scribe_Deep.Look(ref relationship, "relationship");
+
+
+            // Scribe_Defs.Look(ref relationshipDef, "relationship");
+
+        }
+
     }
 
     class SaveThings
@@ -105,12 +117,11 @@ namespace Enhanced_Development.Stargate.Saving
             //Log.Message("Starting Save");
             //Save Pawn
 
-            var relationships = new StargateRelations();
             var loadedPawns = new List<Pawn>();
             var loadedPawnIds = new List<string>();
 
             var sortedThingsToSave = new List<Thing>();
-            
+
             foreach (var item in thingsToSave)
             {
                 if (item is Pawn pawn)
@@ -125,33 +136,10 @@ namespace Enhanced_Development.Stargate.Saving
                     sortedThingsToSave.Add(item);
                 }
             }
-            
-            foreach (var pawn in loadedPawns)
-            {
-                foreach (var relationship in pawn.relations.DirectRelations)
-                {
-                    // See if this relation is already recorded using the other pawn as the primary.
-                    if (relationships.ContainsRelationship(relationship.otherPawn.ThingID, pawn.ThingID))
-                    {
-                        continue;
-                    }
-            
-                    // // Only record if the other pawn is in the same outgoing buffer.
-                    // if (loadedPawnIds.Contains(relation.otherPawn.ThingID) == false)
-                    // {
-                    //     continue;
-                    // }
 
-                    relationships.Add(new StargateRelation(pawn.ThingID, relationship.otherPawn.ThingID, relationship.def.defName));
-                }
-            }
-            
-            var relationshipsList = relationships.ToList();
-            
             int currentTimelineTicks = Current.Game.tickManager.TicksAbs;
             Scribe_Values.Look<int>(ref currentTimelineTicks, "originalTimelineTicks");
             // Log.Error(relationshipsList.ToString());
-            Scribe_Collections.Look<StargateRelation>(ref relationshipsList, "relationships");
             Scribe_Collections.Look<Thing>(ref sortedThingsToSave, "things", LookMode.Deep, (object)null);
 
             //Scribe.ExitNode();
@@ -184,7 +172,7 @@ namespace Enhanced_Development.Stargate.Saving
         /**
          * @return int The absolute ticks from when the team was first dematerialized.
          */
-        public static Tuple<int, List<StargateRelation>> load(ref List<Thing> thingsToLoad, string fileLocation)
+        public static Tuple<int> load(ref List<Thing> thingsToLoad, string fileLocation)
         {
             Log.Message("ScribeINIT, loding from:" + fileLocation);
             Scribe.loader.InitLoading(fileLocation);
@@ -201,10 +189,6 @@ namespace Enhanced_Development.Stargate.Saving
             Scribe_Collections.Look<Thing>(ref thingsToLoad, "things", LookMode.Deep);
 
             DeepProfiler.End();
-
-            var relationshipsList = new List<StargateRelation>();
-            Scribe_Collections.Look<StargateRelation>(ref relationshipsList, "relationships", LookMode.Deep);
-            // Log.Error(String.Join(",", relationshipsList.ToList()));
 
             Scribe.mode = LoadSaveMode.Inactive;
 
@@ -224,7 +208,7 @@ namespace Enhanced_Development.Stargate.Saving
             var p = new PostLoadIniter();
             p.DoAllPostLoadInits();
 
-            return new Tuple<int, List<StargateRelation>>(originalTimelineTicks, relationshipsList);
+            return new Tuple<int>(originalTimelineTicks);
         }
     }
 }
