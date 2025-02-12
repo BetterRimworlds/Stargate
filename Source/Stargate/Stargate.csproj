@@ -167,6 +167,7 @@
     <Compile Include="Stargate\Saving\Dialog\Dialog_SavePreset.cs" />
     <Compile Include="Stargate\Saving\SaveThings.cs" />
     <Compile Include="Stargate\StargateBuffer.cs" />
+    <Compile Include="Stargate\StargateRelation.cs" />
     <Compile Include="Stargate\StargateThingDef.cs" />
     <Compile Include="Utilities\FindingThings.cs" />
   </ItemGroup>

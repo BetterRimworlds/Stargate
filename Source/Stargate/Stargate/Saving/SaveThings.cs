@@ -1,45 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Verse;
 using System.Xml;
-using RimWorld;
+using BetterRimworlds.Stargate;
 
 namespace Enhanced_Development.Stargate.Saving
 {
-    public class StargateRelation: IExposable
-    {
-        public string pawn1ID;
-        public string pawn2ID;
-        public string relationship;
-
-        public StargateRelation()
-        {
-        }
-
-        public StargateRelation(string pawn1ID, string pawn2ID, string relationship)
-        {
-            this.pawn1ID = pawn1ID;
-            this.pawn2ID = pawn2ID;
-            this.relationship = relationship;
-        }
-
-        public void ExposeData()
-        {
-            Scribe_Values.Look(ref pawn1ID, "pawn1");
-            Scribe_Values.Look(ref pawn2ID, "pawn2");
-            Scribe_Values.Look(ref relationship, "relationship");
-            // Scribe_Values.Look<DirectPawnRelation>(ref relationship, "relationship", LookMode.Deep);
-            // Scribe_Deep.Look(ref relationship, "relationship");
-            
-             
-            // Scribe_Defs.Look(ref relationshipDef, "relationship");
-
-        }
-    }
-
     public class StargateRelations: List<StargateRelation>
     {
         private List<StargateRelation> relationships = new List<StargateRelation>();

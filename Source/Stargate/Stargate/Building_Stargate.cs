@@ -581,7 +581,6 @@ namespace BetterRimworlds.Stargate
                 Log.Message($"Loading the relationship between {relationship.pawn1ID} and {relationship.pawn2ID}: {relationship.relationship}");
 
                 var pawn1 = Find.CurrentMap.mapPawns.AllPawnsSpawned.FirstOrDefault(p => p.ThingID == relationship.pawn1ID);
-                var pawn2 = Find.CurrentMap.mapPawns.AllPawnsSpawned.FirstOrDefault(p => p.ThingID == relationship.pawn2ID);
                 Log.Warning("Pawn 1 (" + relationship.pawn1ID + ") with Pawn 2 (" + relationship.pawn2ID + ") related: " + relationship.relationship);
                 if (pawn1 is null)
                 {
@@ -589,10 +588,12 @@ namespace BetterRimworlds.Stargate
                     continue;
                 }
 
-                if (pawn2 is null)
+                var pawn2 = Find.CurrentMap.mapPawns.AllPawnsSpawned.FirstOrDefault(p =>
+                    p.thingIDNumber == relationship.pawn2ID);
+
+                if (pawn2 == null)
                 {
-                    // Log.Error($"Could not find a pawn with the ID of {relationship.pawn2ID}.");
-                    continue;
+                    pawn2 = StargateBuffer.GenerateMissingRelationshipRecord(relationship.pawn2ID, relationship.pawn2Name);
                 }
 
                 PawnRelationDef pawnRelationDef = DefDatabase<PawnRelationDef>.GetNamedSilentFail(relationship.relationship);
