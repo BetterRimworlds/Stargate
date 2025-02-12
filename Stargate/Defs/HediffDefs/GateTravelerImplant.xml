@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+    <!-- Gate Traveler Implament -->
+
+    <HediffDef ParentName="ImplantHediffBase">
+        <defName>GateTravelerImplant</defName>
+        <label>Stargate Traveler Implant</label>
+        <labelNoun>a gate traveler implant</labelNoun>
+        <description>Keeps track of info pertinent to gate travel.</description>
+        <hediffClass>BetterRimworlds.Stargate.GateTravelerImplant</hediffClass>
+        <stages>
+            <li>
+            </li>
+        </stages>
+        <comps>
+        </comps>
+    </HediffDef>
+
+</Defs>

@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using Enhanced_Development.Stargate.Saving;
+using System.Linq;
 using RimWorld;
+using RimWorld.Planet;
 using Verse;
 
 namespace BetterRimworlds.Stargate
 {
     public class StargateBuffer : ThingOwner<Thing>, IList<Thing>
     {
-        // private Dictionary<string, Dictionary<stri-ng, PawnRelationDef>> relationships = new Dictionary<string, Dictionary<string, PawnRelationDef>>();
-        public StargateRelations relationships = new StargateRelations();
-
         protected String StargateBufferFilePath;
         protected int numberOfPawns = 0;
 
@@ -121,22 +119,8 @@ namespace BetterRimworlds.Stargate
             {
                 // Increase the maxStacks size for every Pawn, as they don't affect the dispersion area.
                 ++this.maxStacks;
-                foreach (var relationship in pawn.relations.DirectRelations)
-                {
-                    // See if this relation is already recorded using the other pawn as the primary.
-                    if (relationships.ContainsRelationship(relationship.otherPawn.ThingID, pawn.ThingID))
-                    {
-                        continue;
-                    }
 
-                    // // Only record if the other pawn is in the same outgoing buffer.
-                    // if (loadedPawnIds.Contains(relation.otherPawn.ThingID) == false)
-                    // {
-                    //     continue;
-                    // }
-
-                    relationships.Add(new StargateRelation(pawn.ThingID, relationship.otherPawn.ThingID, relationship.def.defName));
-                }
+                this.AttachGateTravelerImplant(pawn);
             }
             else
             {
@@ -165,6 +149,7 @@ namespace BetterRimworlds.Stargate
             for (int a = this.InnerListForReading.Count - 1; a >= 0; --a)
             {
                 var thing = this.InnerListForReading[a];
+
                 thing.Destroy();
             }
 
@@ -196,6 +181,84 @@ namespace BetterRimworlds.Stargate
         {
             this.storedMass = 0;
             this.Clear();
+        }
+
+        public static Pawn GenerateMissingRelationshipRecord(int thingID, Name pawnName)
+        {
+            // Create a pawn generation request.
+            // Here we use PawnKindDefOf.Colonist as a placeholder.
+            // You may wish to use another kind that fits your mod better.
+            PawnGenerationRequest request = new PawnGenerationRequest(
+                kind: PawnKindDefOf.Colonist,
+                faction: null, // No faction: it’s not really “alive” in this game.
+                context: PawnGenerationContext.NonPlayer,
+                forceGenerateNewPawn: true);
+
+            Pawn missingPawn = PawnGenerator.GeneratePawn(request);
+            missingPawn.relations.everSeenByPlayer = true;
+
+            // Set the pawn's name to what we want.
+            missingPawn.Name = pawnName;
+
+            // If an existing pawn has the same thingID then,
+            var existingPawn = Find.WorldPawns.AllPawnsAliveOrDead.Find(p => p.thingIDNumber == thingID);
+            if (existingPawn != null)
+            {
+                // Give them a random ThingID if they aren't named the same. It won't really matter.
+                if (existingPawn.Name != pawnName)
+                {
+                    existingPawn.thingIDNumber = -1;
+                    Verse.ThingIDMaker.GiveIDTo(existingPawn);
+                }
+                else
+                {
+                    // If they have the same name, they're the same entity from another universe.
+                    // So give the new guy a random ThingID...
+                    Verse.ThingIDMaker.GiveIDTo(missingPawn);
+                }
+            }
+
+            // Now override the automatically-assigned thingIDNumber with our saved thingID.
+            missingPawn.thingIDNumber = thingID;
+
+            // Ensure the pawn is not spawned anywhere.
+            if (missingPawn.Spawned)
+            {
+                missingPawn.DeSpawn();
+            }
+
+            // Now destroy the pawn so that she/he is marked as "Missing" and can never respawn.
+            missingPawn.Destroy();
+
+            // Register the pawn with the WorldPawns list.
+            // This will flag the pawn as a “world pawn” (i.e. not present on any map)
+            // so that if other pawns refer to it in relationships, it appears as Missing.
+            Find.WorldPawns.PassToWorld(missingPawn, PawnDiscardDecideMode.Decide);
+
+            return missingPawn;
+        }
+
+        private void AttachGateTravelerImplant(Pawn pawn)
+        {
+            HediffDef gateTravelerImplant = HediffDef.Named("GateTravelerImplant");
+
+            BodyPartRecord brain = pawn.RaceProps.body.AllParts.Find(bpr => bpr.def.defName == "Brain");
+
+            pawn.health.AddHediff(gateTravelerImplant, brain);
+        }
+
+        public static bool ClearExistingWorldPawn(Pawn pawn)
+        {
+            // See if the pawn exists in the Dead WorldPawns, and if so, remove the record, because now she/he is back!
+            Messages.Message($"Removed dead world pawn: {pawn.Name.ToStringFull}", MessageTypeDefOf.NeutralEvent);
+            Pawn pawnToRemove = Find.WorldPawns.AllPawnsDead.FirstOrDefault(p => p.thingIDNumber == pawn.thingIDNumber);
+            if (pawnToRemove != null)
+            {
+                Find.WorldPawns.RemovePawn(pawnToRemove);
+                return true;
+            }
+
+            return false;
         }
     }
 }

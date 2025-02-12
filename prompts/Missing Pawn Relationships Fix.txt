@@ -1,0 +1,64 @@
+I am creating a mod for Rimworld, a Stargate that sends Pawns and Things from one saved game to another. Rimworld was never designed with this in mind and the mod hacks the game in order to accomplish this.
+
+One of the biggest problems is that pawns' existing relationships, such as husband and wife, are lost when they don't travel through the stargate together. In order to solve this, the Stargate implants a GateTraveler brain implant when they go through the gate which records their unique ThingID, their partner's ThingID, and their partner's full name.
+
+The idea being, if they ever see someone with that same thingID and same full name, they can be relatively confident it's the same exact pawn, and restore a relationship whenever gate travel occurs and they both end up in the same savegame.
+
+However, there is a big challenge: When the partner pawn does not exist in a new savegame, they need to be listed as "Missing". We do this by creating a new pawn with the partner's identity (same ThingID and same Full Name) but the specs don't matter, as this entity should never be spawned. 
+
+Here's the code:
+
+        public static Pawn CreateMissingWorldPawn(int thingID, Name pawnName)
+        {
+            // Create a pawn generation request.
+            // Here we use PawnKindDefOf.Colonist as a placeholder.
+            // You may wish to use another kind that fits your mod better.
+            PawnGenerationRequest request = new PawnGenerationRequest(
+                kind: PawnKindDefOf.Colonist,
+                faction: null, // No faction: it’s not really “alive” in this game.
+                context: PawnGenerationContext.NonPlayer,
+                forceGenerateNewPawn: true);
+
+            Pawn missingPawn = PawnGenerator.GeneratePawn(request);
+
+            // Set the pawn's name to what we want.
+            missingPawn.Name = pawnName;
+
+            // If an existing pawn has the same thingID then,
+            var existingPawn = Find.WorldPawns.AllPawnsAliveOrDead.Find(p => p.thingIDNumber == thingID);
+            if (existingPawn != null)
+            {
+                // Give them a random ThingID if they aren't named the same. It won't really matter.
+                if (existingPawn.Name != pawnName)
+                {
+                    existingPawn.thingIDNumber = -1;
+                    Verse.ThingIDMaker.GiveIDTo(existingPawn);
+                }
+                else
+                {
+                    // If they have the same name, they're the same entity from another universe.
+                    // So give the new guy a random ThingID...
+                    Verse.ThingIDMaker.GiveIDTo(missingPawn);
+                }
+            }
+
+            // Now override the automatically-assigned thingIDNumber with our saved thingID.
+            missingPawn.thingIDNumber = thingID;
+
+            // Ensure the pawn is not spawned anywhere.
+            if (missingPawn.Spawned)
+            {
+                missingPawn.DeSpawn();
+            }
+
+            // Register the pawn with the WorldPawns list.
+            // This will flag the pawn as a “world pawn” (i.e. not present on any map)
+            // so that if other pawns refer to it in relationships, it appears as Missing.
+            Find.WorldPawns.PassToWorld(missingPawn, PawnDiscardDecideMode.Decide);
+
+            return missingPawn;
+        }
+
+This code *does* create a worldpawn with the same ThingID and Full Name, but unfortunately, the relationship does NOT show up in the Bio section of the primary pawn. 
+
+Any ideas how to fix?
