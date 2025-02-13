@@ -10,6 +10,23 @@ The Stargate system allows you to transport materials over the great distances b
 
 ## Latest Changes
 
+**v10.0.0: 2025-02-13**
+* **[2025-02-13 17:26:19 CST]** Rebuild relationships when a pawn comes through the Stargate.
+* **[2025-02-12 10:30:18 CST]** Remove any ghost WorldPawns for all transmitted pawns.
+* **[2025-02-12 10:25:43 CST]** Completely reimplemented relationships to being stored inside each Pawn's Gate Traveler brain implant.
+* **[2025-02-12 10:02:48 CST]** Added the Gate Traveler brain implant.
+* **[2025-02-12 05:17:46 CST]** Introduce GenerateMissingRelationshipRecord for missing pawn relationships
+* **[2025-02-09 08:39:40 CST]** Animals training is no longer reset by gate travel.
+* **[2025-01-24 22:52:39 CST]** Fixed a reversion: Stargate's wormhole shows immediately on resources being sent through.
+* **[2024-05-30 00:41:53 CDT]** More tweaks to hopefully address lack of training transfer in animals.
+* **[2024-05-30 00:41:27 CDT]** Try to skip but continue when a particular Thing cannot be transmitted.
+* **[2024-05-29 23:47:23 CDT]** Don't require extra power for incoming wormholes' Stargate Buffer.
+* **[2024-05-27 23:35:21 CDT]** Fixed a reversion where animals couldn't be transmitted.
+* **[2024-05-27 23:14:08 CDT]** Refactored power draw logic.
+* **[2024-05-20 05:12:37 CDT]** Added enhanced logging to try to solve powering up bugs.
+* **[2024-05-20 00:30:02 CDT]** Added more compat for transferring Humans between Rimworld v1.4 and v1.5 to v1.2 and v1.3.
+* **[2024-05-09 00:10:46 CDT]** Fixed Rimworld v1.2 compatibility.
+
 **v9.1.0: 2024-05-07**
 * **[2024-05-07 01:14:20 CDT]** [major] Effectively cured Stargate Psychosis (!!!).
 * **[2024-05-07 00:18:59 CDT]** [major] Found the cure for Animal Stargate Psychosis!
@@ -28,30 +45,6 @@ The Stargate system allows you to transport materials over the great distances b
 * **[2024-03-20 03:37:47 CDT]** Fixed a bug where colonists couldn't be recalled after a local teleport.
 * **[2024-03-12 05:57:00 CDT]** Make the Stargate require more and more power, 2 kW for every 1 kg in the Stargate buffer over 1,000 kg.
 * **[2024-02-17 11:08:29 CST]** Added to Steam Workshop.
-
-**v8.1.0: 2023-09-02**
-* **[2023-09-02 23:00:35 CDT]** Fixed a terrible bug where Colonists without weapons get stuck in the Stargate Buffer.
-* **[2023-09-02 22:57:36 CDT]** Do not destroy the Transdimensional Stargate until the entire buffer is emptied.
-
-**v8.0.2: 2023-07-28**
-* **[2023-07-28 17:30:51 CDT]** Fixed relationships reassignment on gate travel.
-* **[2023-07-28 17:30:28 CDT]** Increased the stargate buffer to 5000 items.
-
-**v8.0.1: 2023-06-16**
-* **[2023-06-16 14:48:57 CDT]** Fixed a bug where the Stargate would not power up without a battery on the grid.
-
-**v8.0.0: 2023-06-07**
-* **[2023-05-22 18:50:19 CDT]** **[Major]** Added compilation support for Rimworld v1.4.
-* **[2023-05-22 18:54:13 CDT]** Fixed a bug where Stargates from other instances of RimWorld interfered with one another.
-* **[2023-05-22 18:57:44 CDT]** **[Major]** Completely reworked Power: Now increases based on Power Availability.
-* **[2023-05-22 19:04:32 CDT]** **[Major]** Automatically add resources to the Stargate that surround it.
-* **[2023-05-22 19:05:30 CDT]** [m] Removed some Stargate Psychosis fixes that are fixed elsewhere now.
-* **[2023-05-22 19:06:55 CDT]** Fixed bugs with the local teleportation mechanism.
-* **[2023-05-22 19:11:08 CDT]** **[Major]** Properly fixed Stargate Psychosis and fully remove Pawns after going through the stargate.
-* **[2023-05-22 19:11:45 CDT]** Add Pawns to the top of the Stargate Buffer to ensure they're always exited first.
-* **[2023-05-22 19:12:20 CDT]** Allow an unlimited number of Pawns through the stargate, because there are no stack issues.
-* **[2023-05-22 20:55:35 CDT]** Added more prereq tech: Quantum Teleportation and Quantum Storage.
-* **[2023-06-03 03:32:18 CDT]** Now, the colonists are removed from the top Colony Bar when they're transmitted.
 
 You can also read the full [CHANGELOG.md](CHANGELOG.md).
 

@@ -1,3 +1,20 @@
+**v10.0.0: 2025-02-13**
+* **[2025-02-13 17:26:19 CST]** Rebuild relationships when a pawn comes through the Stargate.
+* **[2025-02-12 10:30:18 CST]** Remove any ghost WorldPawns for all transmitted pawns. origin/relationships-redux.2, origin/relationships-redux, relationships-redux.2, relationships-redux
+* **[2025-02-12 10:25:43 CST]** Completely reimplemented relationships to being stored inside each Pawn's Gate Traveler brain implant.
+* **[2025-02-12 10:02:48 CST]** Added the Gate Traveler brain implant.
+* **[2025-02-12 05:17:46 CST]** Introduce GenerateMissingRelationshipRecord for missing pawn relationships
+* **[2025-02-09 08:39:40 CST]** Animals training is no longer reset by gate travel.
+* **[2025-01-24 22:52:39 CST]** Fixed a reversion: Stargate's wormhole shows immediately on resources being sent through.
+* **[2024-05-30 00:41:53 CDT]** More tweaks to hopefully address lack of training transfer in animals.
+* **[2024-05-30 00:41:27 CDT]** Try to skip but continue when a particular Thing cannot be transmitted.
+* **[2024-05-29 23:47:23 CDT]** Don't require extra power for incoming wormholes' Stargate Buffer.
+* **[2024-05-27 23:35:21 CDT]** Fixed a reversion where animals couldn't be transmitted.
+* **[2024-05-27 23:14:08 CDT]** Refactored power draw logic.
+* **[2024-05-20 05:12:37 CDT]** Added enhanced logging to try to solve powering up bugs.
+* **[2024-05-20 00:30:02 CDT]** Added more compat for transferring Humans between Rimworld v1.4 and v1.5 to v1.2 and v1.3.
+* **[2024-05-09 00:10:46 CDT]** Fixed Rimworld v1.2 compatibility.
+
 **v9.1.0: 2024-05-07**
 * **[2024-05-07 01:14:20 CDT]** [major] Effectively cured Stargate Psychosis (!!!).
 * **[2024-05-07 01:13:08 CDT]** [m] Reduced the size of the wormhole icon (from 1.56 MB to 31 KB (-98%)).
