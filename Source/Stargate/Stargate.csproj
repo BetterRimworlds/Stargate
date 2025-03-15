@@ -10,10 +10,11 @@
     <RootNamespace>Stargate</RootNamespace>
     <AssemblyName>Stargate</AssemblyName>
     <LangVersion>10</LangVersion>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
+
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release v1.2|AnyCPU' ">
     <Optimize>true</Optimize>
     <DefineConstants>RIMWORLD12</DefineConstants>
@@ -24,18 +25,15 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release v1.3|AnyCPU' ">
     <DefineConstants>RIMWORLD13</DefineConstants>
-    <OutputPath>/rimworld/1.3/Mods/Stargate/1.3/Assemblies</OutputPath>
-    <MainPath>/rimworld/1.2/Mods/Stargate/1.3/Assemblies</MainPath>
+    <OutputPath>/rimworld/1.2/Mods/Stargate/1.3/Assemblies</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release v1.4|AnyCPU' ">
     <DefineConstants>RIMWORLD14</DefineConstants>
-    <OutputPath>/rimworld/1.4/Mods/Stargate/1.4/Assemblies</OutputPath>
-    <MainPath>/rimworld/1.2/Mods/Stargate/1.4/Assemblies</MainPath>
+    <OutputPath>/rimworld/1.2/Mods/Stargate/1.4/Assemblies</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release v1.5|AnyCPU' ">
     <DefineConstants>RIMWORLD15</DefineConstants>
-    <OutputPath>/rimworld/1.5/Mods/Stargate/1.5/Assemblies</OutputPath>
-    <MainPath>/rimworld/1.2/Mods/Stargate/1.5/Assemblies</MainPath>
+    <OutputPath>/rimworld/1.2/Mods/Stargate/1.5/Assemblies</OutputPath>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release v1.2|AnyCPU' ">
@@ -202,10 +200,6 @@
     </PropertyGroup>
     <Exec Command="cp -avf $(FilesSource)/* '$(FilesDestination)/../'" />
     <Exec Command="cp -a '$(FilesSource)/../README.md' '$(FilesDestination)/../'" />
-    <Exec Command="mkdir -p '$(MainPath)'" />
-    <Exec Command="cp -avf $(OutputPath)* '$(MainPath)/'" />
     <Exec Command="unix2dos '$(FilesDestination)/../README.md'" />
-    <!-- Copy over the other versions, too... -->
-    <Exec Command="cp -avf $(MainPath)/../../{1.2,1.3,1.4,1.5} $(OutputPath)../../" />
   </Target>
 </Project>
