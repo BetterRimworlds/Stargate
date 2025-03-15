@@ -1,85 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿
+
+using System.Collections.Generic;     // For List<T>
+using System.Collections.ObjectModel; // For ReadOnlyCollection<T>
+using System.Linq;                    // For LINQ methods like Where()
 using Verse;
-using RimWorld;
+namespace BetterRimworlds.Utilities;
+public class Utilities {
+    public static ReadOnlyCollection<Pawn> findClosePawns(IntVec3 position, float radius) {
+        var pawns = Find.CurrentMap.mapPawns.AllPawnsSpawned.ToList();
+        var closePawns = pawns.Where(t => t.Position.InHorDistOf(position, radius)).ToList();
+        return new ReadOnlyCollection<Pawn>(closePawns); }
+    public static Thing FindItemThingsInAutoLoader(Thing centerBuilding) {
+        var hopperDef = ThingDef.Named("AutoLoader");
+        return GenAdj.CellsAdjacentCardinal(centerBuilding)
+            .Select(cell => Find.CurrentMap.thingGrid.ThingsAt(cell))
+            .FirstOrDefault(things =>
+                things.Any(t => t.def == hopperDef) &&
+                things.Any(t => t.def.category == ThingCategory.Item))
+            ?.FirstOrDefault(t => t.def.category == ThingCategory.Item);
+     }
 
-namespace Enhanced_Development.Utilities
-{
-    public class Utilities
-    {
-        public static IEnumerable<Pawn> findPawnsInColony(IntVec3 position, float radius)
-        {
-            //IEnumerable<Pawn> pawns = Find.ListerPawns.ColonistsAndPrisoners;
-            //IEnumerable<Pawn> pawns = Find.ListerPawns.FreeColonists;
-            //IEnumerable<Pawn> pawns = Find.ListerPawns.AllPawns.Where(item => item.IsColonistPlayerControlled || item.IsColonistPlayerControlled);
-
-            IEnumerable<Pawn> pawns = Find.CurrentMap.mapPawns.PawnsInFaction(Faction.OfPlayer);
-
-            IEnumerable<Pawn> closePawns;
-
-            if (pawns != null)
-            {
-                closePawns = pawns.Where<Pawn>(t => t.Position.InHorDistOf(position, radius));
-                return closePawns;
-            }
-            return null;
-        }
-
-        static public Thing FindItemThingsInAutoLoader(Thing centerBuilding)
-        {
-
-            ThingDef thingDefHopper = ThingDef.Named("AutoLoader");
-            //ThingDef thingDefAmmoType = ThingDef.Named("Shells");
-            //ThingDef thingDefAmmoType = ThingDef.Named(this.ammoType);
-
-            foreach (IntVec3 sq in GenAdj.CellsAdjacentCardinal(centerBuilding))
-            {
-                Thing thingAmmo = (Thing)null;
-                Thing thingContainer = (Thing)null;
-                foreach (Thing tempThing in Find.CurrentMap.thingGrid.ThingsAt(sq))
-                {
-                    //if (tempThing is ThingWithComponents)
-                    //{
-                    //if (tempThing.def == ThingDefOf.Metal) ;
-                    if (tempThing.def.category == ThingCategory.Item)
-                    {
-                        thingAmmo = tempThing;
-                    }
-
-                    if (tempThing.def == thingDefHopper)
-                    {
-                        thingContainer = tempThing;
-                    }
-                    //}
-                }
-                //if (thingAmmo != null && thingContainer != null && thingAmmo.stackCount >= this.ammoAmountUsedToFire)
-
-                if (thingAmmo != null && thingContainer != null)
-                {
-                    return thingAmmo;
-                }
-            }
-            return (Thing)null;
-        }
-
-        static public List<Thing> FindItemThingsNearBuilding(Thing centerBuilding, int radius, Map map)
-        {
-            IEnumerable<Thing> closeThings = GenRadial.RadialDistinctThingsAround(centerBuilding.Position, map, radius, true);
-
-            var closeItems = new List<Thing>(closeThings.Count());
-
-            foreach (Thing tempThing in closeThings)
-            {
-                if (tempThing.def.category == ThingCategory.Item)
-                {
-                    closeItems.Add(tempThing);
-                }
-            }
-
-            return closeItems;
-        }
-    }
-}
-
+    public static List<Thing> FindItemThingsNearBuilding(Thing centerBuilding, int radius, Map map)
+     {
+        return GenRadial.RadialDistinctThingsAround(centerBuilding.Position, map, radius, true)
+            .Where(t => t.def.category == ThingCategory.Item)
+            .ToList();
+     }
+ }
