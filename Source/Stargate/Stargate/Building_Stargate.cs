@@ -54,8 +54,6 @@ namespace BetterRimworlds.Stargate
         private int requiredCapacitorCharge = 1000;
         private int chargeSpeed = 1;
 
-        private bool TransmittedHumans = false;
-
         protected Map currentMap;
 
         #endregion
@@ -167,17 +165,10 @@ namespace BetterRimworlds.Stargate
         }
 
         private bool IsRecalling = false;
-        private int transmittedHumansWarningCount = 0;
 
         public override void TickRare()
         {
             base.TickRare();
-
-            if (TransmittedHumans == true && this.transmittedHumansWarningCount < 25)
-            {
-                Messages.Message("Humans are suffering from Stargate Psychosis. Save and Reload immediately!", MessageTypeDefOf.ThreatBig);
-                ++this.transmittedHumansWarningCount;
-            }
 
             if (!this.stargateBuffer.Any())
             {
@@ -381,7 +372,7 @@ namespace BetterRimworlds.Stargate
                 return;
             }
 
-            List<Thing> foundThings = Enhanced_Development.Utilities.Utilities.FindItemThingsNearBuilding(this, Building_Stargate.ADDITION_DISTANCE, this.currentMap);
+            List<Thing> foundThings = BetterRimworlds.Utilities.Utilities.FindItemThingsNearBuilding(this, Building_Stargate.ADDITION_DISTANCE, this.currentMap);
 
             foreach (Thing foundThing in foundThings)
             {
@@ -409,7 +400,7 @@ namespace BetterRimworlds.Stargate
                 return;
             }
 
-            IEnumerable<Pawn> closePawns = Enhanced_Development.Utilities.Utilities.findPawnsInColony(this.Position, Building_Stargate.ADDITION_DISTANCE);
+            var closePawns = BetterRimworlds.Utilities.Utilities.findClosePawns(this.Position, Building_Stargate.ADDITION_DISTANCE);
 
             if (closePawns != null)
             {
@@ -684,12 +675,7 @@ namespace BetterRimworlds.Stargate
                     // to an alternate dimension). This is the equivalent of how Olivia goes insane in the TV series Fringe.
                     if (currentThing is ThingWithComps item)
                     {
-                        item.InitializeComps();
-                    }
-
-                    if (currentThing.def.CanHaveFaction)
-                    {
-                        currentThing.SetFactionDirect(Faction.OfPlayer);
+                        // item.InitializeComps();
                     }
 
                     // Fixes a bug w/ support for B19+ and later where colonists go *crazy*
@@ -701,6 +687,50 @@ namespace BetterRimworlds.Stargate
                             // Cleanse the historical record for returning pawns.
                             this.cleanseHistoricalRecord(pawn);
                         }
+
+                        if (pawn.def.CanHaveFaction)
+                        {
+                            if (pawn.guest == null || pawn.guest.IsPrisoner == false)
+                            {
+                                pawn.SetFactionDirect(Faction.OfPlayer);
+                            }
+                            else
+                            {
+                                // v1 attempt
+                                // // Handle Prisoners and Guests.
+                                // float resistanceLevel = pawn.guest.Resistance;
+                                //
+                                // pawn.guest = new Pawn_GuestTracker(pawn);
+                                // // pawn.guest.isPrisonerInt = true;
+                                // // pawn.guest.SetGuestStatus(Faction.OfPlayer, true);
+                                // #if RIMWORLD12
+                                // pawn.guest.SetGuestStatus(Faction.OfPlayer, pawn.guest.IsPrisoner);
+                                // pawn.SetFactionDirect(Faction.Empire);
+                                // #else
+                                // GuestStatus status = GuestStatus.Guest; // Default value
+                                //
+                                // if (pawn.guest.IsPrisoner)
+                                // {
+                                //     status = GuestStatus.Prisoner;
+                                // }
+                                // else if (pawn.guest.IsSlave)
+                                // {
+                                //     status = GuestStatus.Slave;
+                                // }
+                                //
+                                // pawn.guest.SetGuestStatus(Faction.OfPlayer, status);
+                                // #endif
+                                // pawn.guest.resistance = resistanceLevel;
+
+                                // v2 attempt
+                                #if RIMWORLD12
+                                pawn.SetFaction(Faction.Empire);
+                                #else
+                                pawn.SetFactionDirect(Faction.OfEmpire);
+                                #endif
+                            }
+                        }
+
                         if (pawn.RaceProps.Humanlike)
                         {
                             // Compatibility shim between Rimworld v1.4 and v1.5 with v1.2 and v1.3.
@@ -814,12 +844,10 @@ namespace BetterRimworlds.Stargate
                                 pawn.meleeVerbs = new Pawn_MeleeVerbs(pawn);
                                 pawn.verbTracker.AllVerbs.Add(new Verb_MeleeAttackDamage());
                             }
-
-                            TransmittedHumans = true;
                         }
                         else
                         {
-                            // pawn.ownership = new Pawn_Ownership(pawn);
+                            pawn.ownership = new Pawn_Ownership(pawn);
                         }
 
                         // if (pawn.RaceProps.ToolUser)
