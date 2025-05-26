@@ -15,6 +15,13 @@
         </stages>
         <comps>
         </comps>
+
+        <!-- override the default “Implant” tag so Body-Purist won’t see it -->
+        <countsAsAddedPartOrImplant>false</countsAsAddedPartOrImplant>
+        <hediffTags>
+            <!-- you can leave this empty, or use a mod-unique tag -->
+            <li>SGTraveler</li>
+        </hediffTags>
     </HediffDef>
 
 </Defs>
