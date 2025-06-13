@@ -26,7 +26,7 @@
         </thingCategories>  
         <altitudeLayer>Building</altitudeLayer>
         <passability>Impassable</passability>
-        <castEdgeShadows>true</castEdgeShadows>
+        <castEdgeShadows>false</castEdgeShadows>
         <fillPercent>1</fillPercent>
         <specialDisplayRadius>3</specialDisplayRadius>
         <tickerType>Rare</tickerType>
