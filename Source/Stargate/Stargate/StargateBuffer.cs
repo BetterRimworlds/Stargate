@@ -260,5 +260,37 @@ namespace BetterRimworlds.Stargate
 
             return false;
         }
+
+        public bool isOffworldTeleportEvent()
+        {
+            return System.IO.File.Exists(this.StargateBufferFilePath);
+        }
+
+        public Tuple<int, List<Thing>> receiveIncomingStream()
+        {
+            var inboundBuffer = new List<Thing>();
+            int originalTimelineTicks;
+
+            // Load off-world teams only if there isn't a local teleportation taking place.
+            // bool offworldEvent = this.stargateBuffer.Count == 0;
+            // bool offworldEvent = inboundBuffer.Any();
+            bool offworldEvent = this.isOffworldTeleportEvent();
+            Log.Warning("Is offworldEvent? " + offworldEvent);
+            Log.Warning("Inbound Buffer Count? " + inboundBuffer.Count);
+
+            if (!offworldEvent)
+            {
+                Messages.Message("No incoming wormhole detected.", MessageTypeDefOf.RejectInput);
+
+                return null;
+            }
+
+            var loadResponse = Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.StargateBufferFilePath);
+            originalTimelineTicks = loadResponse.Item1;
+
+            // Log.Warning("Number of items in the wormhole: " + inboundBuffer.Count);
+
+            return new Tuple<int, List<Thing>>(originalTimelineTicks, inboundBuffer);
+        }
     }
 }

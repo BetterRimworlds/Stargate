@@ -117,18 +117,13 @@ namespace Enhanced_Development.Stargate.Saving
             //Log.Message("Starting Save");
             //Save Pawn
 
-            var loadedPawns = new List<Pawn>();
-            var loadedPawnIds = new List<string>();
-
             var sortedThingsToSave = new List<Thing>();
 
             foreach (var item in thingsToSave)
             {
                 if (item is Pawn pawn)
                 {
-                    loadedPawns.Add(pawn);
-                    loadedPawnIds.Add(pawn.ThingID);
-                    // pawn.Discard();
+                    //pawn.Discard();
                     sortedThingsToSave.Insert(0, pawn);
                 }
                 else
@@ -160,10 +155,19 @@ namespace Enhanced_Development.Stargate.Saving
             XmlDocument doc = new XmlDocument();
             doc.Load(fileLocation);
             XmlNode root = doc.DocumentElement;
-            XmlNodeList xpResetTimestampNodes = root.SelectNodes("//lastXpSinceMidnightResetTimestamp");
-            foreach (XmlNode xpResetTimestampNode in xpResetTimestampNodes)
+            if (root == null)
             {
-                xpResetTimestampNode.InnerText = "-1";
+                Log.Error("Root node is null in SaveThings.save");
+                return;
+            }
+
+            XmlNodeList xpResetTimestampNodes = root.SelectNodes("//lastXpSinceMidnightResetTimestamp");
+            if (xpResetTimestampNodes != null)
+            {
+                foreach (XmlNode xpResetTimestampNode in xpResetTimestampNodes)
+                {
+                    xpResetTimestampNode.InnerText = "-1";
+                }
             }
 
             doc.Save(fileLocation);
@@ -191,9 +195,6 @@ namespace Enhanced_Development.Stargate.Saving
             DeepProfiler.End();
 
             Scribe.mode = LoadSaveMode.Inactive;
-
-            //Log.Message("list: " + thingsToLoad.Count.ToString());
-
 
             Log.Message("Exit Node");
             //Scribe.ExitNode();

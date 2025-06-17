@@ -492,12 +492,10 @@ namespace BetterRimworlds.Stargate
             return itemsToTeleport;
         }
 
-        public Tuple<int, List<Thing>> recall()
+        public Tuple<int, List<Thing>> receiveMatterStream()
         {
-            // List<Thing> inboundBuffer = (List<Thing>)null;
             int originalTimelineTicks = Current.Game.tickManager.TicksAbs;
 
-            var inboundBuffer = new List<Thing>();
             // var inboundBuffer = this.stargateBuffer.ToList();
             // this.stargateBuffer.Clear();
             Log.Message("Number of stargates on this planet: " + GateNetwork.Count);
@@ -510,12 +508,6 @@ namespace BetterRimworlds.Stargate
             {
                 Log.Message("Found a Stargate with the ID of " + stargate.ThingID);
 
-                // if (this.ThingID == stargate.ThingID)
-                // {
-                //     Log.Message("BUT.... It is this very Stargate, so we are going to skip it.");
-                //     continue;
-                // }
-
                 if (!stargate.HasThingsInBuffer())
                 {
                     Log.Warning("Nothing in this Stargate's buffer....");
@@ -524,41 +516,20 @@ namespace BetterRimworlds.Stargate
 
                 Log.Warning($"Stargate {stargate.ThingID} has something in its buffer.");
                 this.LocalTeleportEvent = true;
-                inboundBuffer.AddRange(stargate.Teleport());
+
+                return new Tuple<int, List<Thing>>(originalTimelineTicks, stargate.Teleport());
             }
 
-            // Load off-world teams only if there isn't a local teleportation taking place.
-            // bool offworldEvent = this.stargateBuffer.Count == 0;
-            // bool offworldEvent = inboundBuffer.Any();
-            bool offworldEvent = !this.LocalTeleportEvent;
-            Log.Warning("Is offworldEvent? " + offworldEvent);
-            Log.Warning("Inbound Buffer Count? " + inboundBuffer.Count);
-
-            if (!offworldEvent && !inboundBuffer.Any())
+            if (this.stargateBuffer.isOffworldTeleportEvent() == false)
             {
+                Messages.Message("No incoming wormhole detected.", MessageTypeDefOf.RejectInput);
+
                 return null;
             }
 
-            if (offworldEvent)
-            {
-                // Log.Warning("Found an off-world wormhole.");
-                if (!System.IO.File.Exists(this.FileLocationPrimary))
-                {
-                    Messages.Message("No Off-world Teams were found", MessageTypeDefOf.RejectInput);
-
-                    return null;
-                }
-
-                var loadResponse = Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.FileLocationPrimary);
-                originalTimelineTicks = loadResponse.Item1;
-
-                // Log.Warning("Number of items in the wormhole: " + inboundBuffer.Count);
-            }
-
-            Messages.Message("Incoming wormhole!", MessageTypeDefOf.PositiveEvent);
             Messages.Message("You really must save and reload the game to fix Stargate Syndrome.", MessageTypeDefOf.ThreatBig);
 
-            return new Tuple<int, List<Thing>>(originalTimelineTicks, inboundBuffer);
+            return this.stargateBuffer.receiveIncomingStream();
         }
 
         private void cleanseHistoricalRecord(Pawn transmittedPawn)
@@ -622,16 +593,16 @@ namespace BetterRimworlds.Stargate
                 // pawn1.thinker = new Pawn_Thinker(pawn1);
                 // pawn2.thinker = new Pawn_Thinker(pawn2);
 
-                Log.Message(
-                    $"Loaded the relationship between {relationship.pawn1ID} and {relationship.pawn2ID}: {relationship.relationship}"
-                );
+                // Log.Message(
+                //     $"Loaded the relationship between {relationship.pawn1ID} and {relationship.pawn2ID}: {relationship.relationship}"
+                // );
             }
         }
 
         public virtual bool StargateRecall()
         {
             /* Tuple<int, List<Thing>> **/
-            var recallData = this.recall();
+            var recallData = this.receiveMatterStream();
             if (recallData == null)
             {
                 Messages.Message("WARNING: The Stargate buffer was empty!!", MessageTypeDefOf.ThreatBig);
@@ -642,7 +613,7 @@ namespace BetterRimworlds.Stargate
 
             int originalTimelineTicks = recallData.Item1;
             List<Thing> inboundBuffer = recallData.Item2;
-            bool offworldEvent = !this.LocalTeleportEvent;
+            bool offworldEvent = this.stargateBuffer.isOffworldTeleportEvent();
 
             // this.stargateBuffer.Clear();
             foreach (Thing currentThing in inboundBuffer.ToList())
@@ -828,8 +799,8 @@ namespace BetterRimworlds.Stargate
                             {
                                 skill.xpSinceMidnight = 0;
                                 //lastXpSinceMidnightResetTimestamp
-
                             }
+
                             if (pawn.equipment != null && pawn.equipment.HasAnything() && pawn.equipment.Primary != null)
                             {
                                 // pawn.equipment.Primary.InitializeComps();
@@ -992,14 +963,13 @@ namespace BetterRimworlds.Stargate
                 {
                     Log.Error("Could not spawn " + currentThing + " because: " + e.Message);
                     inboundBuffer.Remove(currentThing);
-                    this.stargateBuffer.Remove(currentThing);
+                    this.stargateBuffer.TryAdd(currentThing);
 
                     continue;
                 }
 
                 // inboundBuffer.Remove(currentThing);
             }
-
             inboundBuffer.Clear();
 
             // Tell the MapDrawer that here is something that's changed
