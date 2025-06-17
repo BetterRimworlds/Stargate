@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
     <OutputType>Library</OutputType>
-    <RootNamespace>Stargate</RootNamespace>
+    <RootNamespace>BetterRimworlds.Stargate</RootNamespace>
     <AssemblyName>Stargate</AssemblyName>
     <LangVersion>10</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -113,6 +113,6 @@
     <Exec Command="cp -avf $(FilesSource)/* '$(FilesDestination)/../'" />
     <Exec Command="cp -a '$(FilesSource)/../README.md' '$(FilesDestination)/../'" />
     <Exec Command="unix2dos '$(FilesDestination)/../README.md'" />
-    <Exec Command="rm -v $(FilesDestination)/Assemblies/*.{json,pdb}" />
+<!--    <Exec Command="rm -v $(FilesDestination)/Assemblies/*.{json,pdb}" />-->
   </Target>
 </Project>
