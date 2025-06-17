@@ -259,7 +259,7 @@ namespace BetterRimworlds.Stargate
                     }
 
                     // Log.Error("========= NOT ENOUGH POWER +========");
-                    if (this.IsRecalling == false)
+                    if (this.IsRecalling == false && this.stargateBuffer.GetStoredMass() > 1_000f)
                     {
                         this.EjectLeastMassive();
                     }
