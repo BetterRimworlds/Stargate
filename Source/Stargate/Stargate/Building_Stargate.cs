@@ -449,7 +449,7 @@ namespace BetterRimworlds.Stargate
                 return;
             }
 
-            if (System.IO.File.Exists(this.FileLocationPrimary))
+            if (this.stargateBuffer.isOffworldTeleportEvent())
             {
                 Messages.Message("Please Recall Offworld Teams First", MessageTypeDefOf.RejectInput);
                 return;
@@ -537,68 +537,6 @@ namespace BetterRimworlds.Stargate
             StargateBuffer.ClearExistingWorldPawn(transmittedPawn);
         }
 
-        // @FIXME: Need to refactor this to a StargateBuffer.
-        private void rebuildRelationships(Pawn transmittedPawn)
-        {
-            // Re-add the relationships.
-            var gateTravelImplant =
-                (GateTravelerImplant)transmittedPawn.health.hediffSet.hediffs.Find(
-                    h => h.def.defName == "GateTravelerImplant");
-            if (gateTravelImplant == null)
-            {
-                Log.Error("No Gate Traveler Implant found... No relationships rebuilt.");
-                return;
-            }
-
-            foreach (var relationship in gateTravelImplant.relationships)
-            {
-                Log.Message($"Loading the relationship between {relationship.pawn1ID} and {relationship.pawn2ID}: {relationship.relationship}");
-
-                var pawn2 = Find.CurrentMap.mapPawns.AllPawnsSpawned.FirstOrDefault(p =>
-                    p.thingIDNumber == relationship.pawn2ID);
-
-                if (pawn2 == null)
-                {
-                    Log.Warning("Generating missing relationship with " + relationship.pawn2Name);
-                    pawn2 = StargateBuffer.GenerateMissingRelationshipRecord(relationship.pawn2ID, relationship.pawn2Name);
-                }
-                else
-                {
-                    // Remove the existing relationship with the previously-offworld pawn...
-                    // Get a copy of all direct relations where pawn1 is the other pawn.
-                    var relationsToRemove = pawn2.relations.DirectRelations
-                        .Where(rel => rel.otherPawn.Name == transmittedPawn.Name)
-                        .ToList();
-
-                    // Iterate over the copied list and remove each relation.
-                    foreach (var rel in relationsToRemove)
-                    {
-                        Log.Warning($"Removing relationship {rel.def.defName} from {pawn2.Name.ToStringFull} with {transmittedPawn.Name.ToStringFull}");
-                        pawn2.relations.RemoveDirectRelation(rel.def, transmittedPawn);
-                    }
-                }
-
-                Log.Warning("Pawn 1 (" + relationship.pawn1ID + ") with Pawn 2 (" + relationship.pawn2ID +
-                            ") related: " + relationship.relationship);
-
-                bool relationHasBeenAdded = false;
-
-                PawnRelationDef pawnRelationDef =
-                    DefDatabase<PawnRelationDef>.GetNamedSilentFail(relationship.relationship);
-
-                transmittedPawn.relations.AddDirectRelation(pawnRelationDef, pawn2);
-                transmittedPawn.ClearMind();
-
-
-                // pawn1.thinker = new Pawn_Thinker(pawn1);
-                // pawn2.thinker = new Pawn_Thinker(pawn2);
-
-                // Log.Message(
-                //     $"Loaded the relationship between {relationship.pawn1ID} and {relationship.pawn2ID}: {relationship.relationship}"
-                // );
-            }
-        }
-
         public virtual bool StargateRecall()
         {
             /* Tuple<int, List<Thing>> **/
@@ -653,12 +591,6 @@ namespace BetterRimworlds.Stargate
                     // if they enter a Stargate after they've ever been drafted.
                     if (currentThing is Pawn pawn)
                     {
-                        if (offworldEvent)
-                        {
-                            // Cleanse the historical record for returning pawns.
-                            this.cleanseHistoricalRecord(pawn);
-                        }
-
                         if (pawn.def.CanHaveFaction)
                         {
                             if (pawn.guest == null || pawn.guest.IsPrisoner == false)
@@ -732,7 +664,14 @@ namespace BetterRimworlds.Stargate
                             }
 
                             hediff.pawn = pawn;
-                            pawn.health.AddHediff(hediff, hediff.Part);
+                            try
+                            {
+                                pawn.health.AddHediff(hediff, hediff.Part);
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Warning($"Could not add hediff {hediff} to pawn {pawn.Label}: {ex.Message}");
+                            }
                         }
 
                         // @FIXME: Animals still have partial Stargate Insanity and many times will never fall asleep
@@ -877,12 +816,123 @@ namespace BetterRimworlds.Stargate
                         }
                     }
 
+                    // Try initial placement
                     wasPlaced = GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2),
                         this.currentMap, ThingPlaceMode.Near);
+
+                    // If it's a pawn and placement failed, try with different recovery strategies
+                    // Use a different variable name here to avoid the naming conflict
+                    if (!wasPlaced && currentThing is Pawn recoveryPawn)
+                    {
+                        Log.Warning($"Initial placement of {recoveryPawn.Label} failed. Attempting recovery strategies for version compatibility...");
+
+                        // Try up to 5 different recovery strategies
+                        for (int attempt = 1; attempt <= 5 && !wasPlaced; attempt++)
+                        {
+                            try
+                            {
+                                Log.Message($"Pawn recovery attempt #{attempt} for {recoveryPawn.Label}");
+
+                                switch (attempt)
+                                {
+                                    case 1:
+                                        // Reset apparel
+                                        Log.Message("Strategy 1: Resetting apparel tracker");
+                                        recoveryPawn.apparel = new Pawn_ApparelTracker(recoveryPawn);
+                                        break;
+
+                                    case 2:
+                                        // Reset equipment
+                                        Log.Message("Strategy 2: Resetting equipment tracker");
+                                        recoveryPawn.equipment = new Pawn_EquipmentTracker(recoveryPawn);
+                                        if (recoveryPawn.equipment.Primary != null)
+                                        {
+                                            recoveryPawn.equipment.DestroyEquipment(recoveryPawn.equipment.Primary);
+                                        }
+                                        break;
+
+                                    case 3:
+                                        // Reset health - strip problematic hediffs
+                                        Log.Message("Strategy 3: Sanitizing hediffs");
+                                        var hediffSet = recoveryPawn.health.hediffSet;
+                                        recoveryPawn.health = new Pawn_HealthTracker(recoveryPawn);
+
+                                        // Only keep core hediffs that exist in v1.2
+                                        foreach (var hediff in hediffSet.hediffs.ToList())
+                                        {
+                                            if (hediff is Hediff_MissingPart || hediff is Hediff_Injury || hediff is Hediff_Addiction)
+                                            {
+                                                hediff.pawn = recoveryPawn;
+                                                try
+                                                {
+                                                    recoveryPawn.health.AddHediff(hediff, hediff.Part);
+                                                }
+                                                catch (Exception)
+                                                {
+                                                    // Skip hediffs that can't be added - likely version incompatibility
+                                                }
+                                            }
+                                        }
+                                        break;
+
+                                    case 4:
+                                        // Reset both apparel and equipment entirely
+                                        Log.Message("Strategy 4: Resetting both apparel and equipment");
+                                        recoveryPawn.apparel = new Pawn_ApparelTracker(recoveryPawn);
+                                        recoveryPawn.equipment = new Pawn_EquipmentTracker(recoveryPawn);
+                                        break;
+
+                                    case 5:
+                                        // Nuclear option - strip down to bare essentials
+                                        Log.Message("Strategy 5: Nuclear option - minimal pawn");
+                                        // Reset all trackers to minimal state
+                                        recoveryPawn.equipment = new Pawn_EquipmentTracker(recoveryPawn);
+                                        recoveryPawn.apparel = new Pawn_ApparelTracker(recoveryPawn);
+                                        recoveryPawn.health = new Pawn_HealthTracker(recoveryPawn);
+                                        recoveryPawn.needs.SetInitialLevels();
+                                        recoveryPawn.jobs = new Pawn_JobTracker(recoveryPawn);
+                                        recoveryPawn.mindState = new Pawn_MindState(recoveryPawn);
+
+                                        // Clear any custom data that might cause problems
+                                        if (recoveryPawn.RaceProps.Humanlike)
+                                        {
+                                            #if RIMWORLD12 || RIMWORLD13
+                                            recoveryPawn.story.childhood = BackstoryDatabase.RandomBackstory(BackstorySlot.Childhood);
+                                            recoveryPawn.story.adulthood = BackstoryDatabase.RandomBackstory(BackstorySlot.Adulthood);
+                                            #else
+                                            recoveryPawn.story.Childhood = DefDatabase<BackstoryDef>
+                                                .AllDefsListForReading
+                                                .Where(bs => bs.slot == BackstorySlot.Childhood)
+                                                .RandomElement();
+                                            recoveryPawn.story.Adulthood = DefDatabase<BackstoryDef>
+                                                .AllDefsListForReading
+                                                .Where(bs => bs.slot == BackstorySlot.Adulthood)
+                                                .RandomElement();
+#endif
+                                        }
+                                        break;
+                                }
+
+                                // Try to place the pawn again after the fix
+                                wasPlaced = GenPlace.TryPlaceThing(recoveryPawn, this.Position + new IntVec3(0, 0, -2),
+                                    this.currentMap, ThingPlaceMode.Near);
+
+                                if (wasPlaced)
+                                {
+                                    Log.Message($"Successfully placed {recoveryPawn.Label} after recovery attempt #{attempt}");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Error($"Error during recovery attempt #{attempt} for {recoveryPawn.Label}: {ex.Message}");
+                            }
+                        }
+                    }
+
                     // Readd the unplaced Thing into the stargateBuffer.
                     if (!wasPlaced)
                     {
-                        Log.Warning("Could not place " + currentThing.Label);
+                        Log.Warning("Could not place " + currentThing.Label + " after all attempts");
                         this.stargateBuffer.TryAdd(currentThing);
                     }
                     else
@@ -949,12 +999,6 @@ namespace BetterRimworlds.Stargate
 
                                 // thisPawn.verbTracker.AllVerbs.Clear();
                                 // thisPawn.verbTracker.AllVerbs.Add(new Verb_MeleeAttackDamage());
-
-                                if (offworldEvent)
-                                {
-                                    // Re-add relationships.
-                                    this.rebuildRelationships(thisPawn);
-                                }
                             }
                         }
                     }
@@ -970,6 +1014,8 @@ namespace BetterRimworlds.Stargate
 
                 // inboundBuffer.Remove(currentThing);
             }
+
+
             inboundBuffer.Clear();
 
             // Tell the MapDrawer that here is something that's changed
@@ -978,6 +1024,12 @@ namespace BetterRimworlds.Stargate
             #else
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
             #endif
+
+            // if (offworldEvent)
+            // {
+            // Re-add relationships.
+            this.stargateBuffer.RebuildRelationships();
+            // }
 
             if (offworldEvent)
             {
@@ -1052,12 +1104,12 @@ namespace BetterRimworlds.Stargate
             if (System.IO.File.Exists(this.FileLocationSecondary))
             {
                 int index = 1;
-                newFile = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate", $"StargateBackup-${index}.xml");
+                newFile = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate", $"StargateBackup-{index}.xml");
 
                 while (System.IO.File.Exists(newFile))
                 {
                     ++index;
-                    newFile = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate", $"StargateBackup-${index}.xml");
+                    newFile = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate", $"StargateBackup-{index}.xml");
                 }
 
                 System.IO.File.Move(this.FileLocationSecondary, newFile);

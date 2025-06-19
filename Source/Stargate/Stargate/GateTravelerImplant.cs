@@ -5,6 +5,17 @@ using Verse;
 
 namespace BetterRimworlds.Stargate
 {
+    public static class StargateHediffDefOf
+    {
+        public static HediffDef GateTravelerImplant;
+
+        // static constructor is required so that RimWorld knows to initialize this DefOf
+        static StargateHediffDefOf()
+        {
+            DefOfHelper.EnsureInitializedInCtor(typeof(StargateHediffDefOf));
+        }
+    }
+
     public class GateTravelerImplant : Hediff_Implant
     {
         public List<StargateRelation> relationships = new List<StargateRelation>();
@@ -31,14 +42,11 @@ namespace BetterRimworlds.Stargate
 
                 //if (this.relationships.Contains())
 
-                // Use the pawn's unique thingIDNumber as an identifier.
-                int pawn1ID = this.pawn.thingIDNumber;
-
                 // Record the relationship using its definition name.
                 string relationshipName = rel.def.defName;
 
                 // Create and add the new StargateRelation.
-                var relationship = new StargateRelation(pawn1ID, otherPawn, relationshipName);
+                var relationship = new StargateRelation(otherPawn, relationshipName, rel);
                 if (this.relationships.Contains(relationship))
                 {
                     continue;
@@ -52,6 +60,7 @@ namespace BetterRimworlds.Stargate
         public override void PostMake()
         {
             base.PostMake();
+
             this.RefreshRelationships();
         }
     }
