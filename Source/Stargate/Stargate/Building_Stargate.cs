@@ -539,6 +539,8 @@ namespace BetterRimworlds.Stargate
 
         public virtual bool StargateRecall()
         {
+            bool hasTransmittedPawns = false;
+
             /* Tuple<int, List<Thing>> **/
             var recallData = this.receiveMatterStream();
             if (recallData == null)
@@ -591,6 +593,7 @@ namespace BetterRimworlds.Stargate
                     // if they enter a Stargate after they've ever been drafted.
                     if (currentThing is Pawn pawn)
                     {
+                        hasTransmittedPawns = true;
                         if (pawn.def.CanHaveFaction)
                         {
                             if (pawn.guest == null || pawn.guest.IsPrisoner == false)
@@ -1025,11 +1028,11 @@ namespace BetterRimworlds.Stargate
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
             #endif
 
-            // if (offworldEvent)
-            // {
-            // Re-add relationships.
-            this.stargateBuffer.RebuildRelationships();
-            // }
+            if (offworldEvent && hasTransmittedPawns)
+            {
+                // Re-add relationships.
+                this.stargateBuffer.RebuildRelationships();
+            }
 
             if (offworldEvent)
             {
