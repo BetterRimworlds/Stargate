@@ -8,11 +8,11 @@ if [ -z "$(which inotifywait)" ]; then
 fi
 
 # Directory to monitor for changes
-dir="./Source/Stargate"
+dir="./Source"
 MOD=$(basename $PWD)
 
 # Define the path to your solution file
-solutionPath="Source/Stargate/${MOD}.sln"
+solutionPath="Source/${MOD}.sln"
 
 # Define an array of configurations
 configurations=("Release v1.2" "Release v1.3" "Release v1.4" "Release v1.5")
