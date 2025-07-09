@@ -593,15 +593,20 @@ namespace BetterRimworlds.Stargate
                     // if they enter a Stargate after they've ever been drafted.
                     if (currentThing is Pawn pawn)
                     {
+                        // Log.Warning("1");
                         hasTransmittedPawns = true;
                         if (pawn.def.CanHaveFaction)
                         {
+                            // Log.Warning("2");
+
                             if (pawn.guest == null || pawn.guest.IsPrisoner == false)
                             {
                                 pawn.SetFactionDirect(Faction.OfPlayer);
                             }
                             else
                             {
+                                // Log.Warning("3");
+
                                 // v1 attempt
                                 // // Handle Prisoners and Guests.
                                 // float resistanceLevel = pawn.guest.Resistance;
@@ -636,9 +641,12 @@ namespace BetterRimworlds.Stargate
                                 #endif
                             }
                         }
+                        // Log.Warning("4");
 
                         if (pawn.RaceProps.Humanlike)
                         {
+                            // Log.Warning("5");
+
                             // Compatibility shim between Rimworld v1.4 and v1.5 with v1.2 and v1.3.
                             var crownTypesByVersion = new Dictionary<string, List<string>>()
                             {
@@ -653,6 +661,7 @@ namespace BetterRimworlds.Stargate
                             }
                             #endif
                         }
+                        // Log.Warning("6");
 
                         pawn.relations = new Pawn_RelationsTracker(pawn);
                         // Carry over injuries, sicknesses, addictions, and artificial body parts.
@@ -665,6 +674,7 @@ namespace BetterRimworlds.Stargate
                             {
                                 continue;
                             }
+                            // Log.Warning("7");
 
                             hediff.pawn = pawn;
                             try
@@ -704,9 +714,12 @@ namespace BetterRimworlds.Stargate
                         // pawn.carryTracker = new Pawn_CarryTracker(pawn);
                         pawn.verbTracker.directOwner = pawn;
                         pawn.carryTracker.pawn = pawn;
+                        // Log.Warning("8");
 
                         if (pawn.RaceProps.Humanlike)
                         {
+                            // Log.Warning("9");
+
                             // pawn.thinker = new Pawn_Thinker(pawn);
                             // pawn.mindState = new Pawn_MindState(pawn);
                             // pawn.jobs = new Pawn_JobTracker(pawn);
@@ -745,21 +758,29 @@ namespace BetterRimworlds.Stargate
 
                             if (pawn.equipment != null && pawn.equipment.HasAnything() && pawn.equipment.Primary != null)
                             {
+                                // Log.Warning("10");
+
                                 // pawn.equipment.Primary.InitializeComps();
                                 if (pawn.equipment.PrimaryEq != null && pawn.equipment.PrimaryEq.verbTracker != null)
                                 {
+                                    // Log.Warning("11");
+
                                     pawn.equipment.PrimaryEq.verbTracker = new VerbTracker(pawn);
                                     pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
                                 }
                             }
                             else
                             {
+                                // Log.Warning("12");
+
                                 pawn.meleeVerbs = new Pawn_MeleeVerbs(pawn);
                                 pawn.verbTracker.AllVerbs.Add(new Verb_MeleeAttackDamage());
                             }
                         }
                         else
                         {
+                            // Log.Warning("13");
+
                             pawn.ownership = new Pawn_Ownership(pawn);
                         }
 
@@ -774,6 +795,8 @@ namespace BetterRimworlds.Stargate
                         // }
                         if (pawn.equipment != null && pawn.equipment.PrimaryEq != null)
                         {
+                            // Log.Warning("14");
+
                             pawn.equipment.PrimaryEq.verbTracker = new VerbTracker(pawn);
                             pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
                         }
@@ -781,6 +804,8 @@ namespace BetterRimworlds.Stargate
                         // Remove memories or they will go insane...
                         if (pawn.RaceProps.Humanlike)
                         {
+                            // Log.Warning("15");
+
                             // pawn.guest = new Pawn_GuestTracker(pawn);
                             #if RIMWORLD12
                             pawn.guilt = new Pawn_GuiltTracker();
@@ -790,6 +815,7 @@ namespace BetterRimworlds.Stargate
                             pawn.abilities = new Pawn_AbilityTracker(pawn);
                             pawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(pawn);
                         }
+                        // Log.Warning("16");
 
                         // Alter the pawn's chronological age based upon the temporal drift between their origin universe
                         // and the destination universe.
@@ -800,6 +826,7 @@ namespace BetterRimworlds.Stargate
                         // There are 60,000 ticks per day.
                         long timelineTicksDiff = Current.Game.tickManager.TicksAbs - originalTimelineTicks;
                         long newAbsBirthdate = pawn.ageTracker.BirthAbsTicks + timelineTicksDiff;
+
                         Log.Message(
                             $"Subtracting {timelineTicksDiff} from the pawn's absolute ticks. From {pawn.ageTracker.BirthAbsTicks} to {newAbsBirthdate}");
                         pawn.ageTracker.BirthAbsTicks = newAbsBirthdate;
@@ -815,9 +842,13 @@ namespace BetterRimworlds.Stargate
                             .FirstOrDefault(p => p.thingIDNumber == pawn.thingIDNumber);
                         if (pawnToRemove != null)
                         {
+                            // Log.Warning("17");
+
                             Find.WorldPawns.RemovePawn(pawnToRemove);
                         }
                     }
+
+                    // Log.Warning("18");
 
                     // Try initial placement
                     wasPlaced = GenPlace.TryPlaceThing(currentThing, this.Position + new IntVec3(0, 0, -2),
@@ -827,6 +858,8 @@ namespace BetterRimworlds.Stargate
                     // Use a different variable name here to avoid the naming conflict
                     if (!wasPlaced && currentThing is Pawn recoveryPawn)
                     {
+                        // Log.Warning("19");
+
                         Log.Warning($"Initial placement of {recoveryPawn.Label} failed. Attempting recovery strategies for version compatibility...");
 
                         // Try up to 5 different recovery strategies
@@ -917,6 +950,8 @@ namespace BetterRimworlds.Stargate
                                 }
 
                                 // Try to place the pawn again after the fix
+                                // Log.Warning("20");
+
                                 wasPlaced = GenPlace.TryPlaceThing(recoveryPawn, this.Position + new IntVec3(0, 0, -2),
                                     this.currentMap, ThingPlaceMode.Near);
 
@@ -931,6 +966,7 @@ namespace BetterRimworlds.Stargate
                             }
                         }
                     }
+                    // Log.Warning("21");
 
                     // Readd the unplaced Thing into the stargateBuffer.
                     if (!wasPlaced)
@@ -940,6 +976,8 @@ namespace BetterRimworlds.Stargate
                     }
                     else
                     {
+                        // Log.Warning("22");
+
                         if (currentThing is Pawn thisPawn)
                         {
                             this.currentMap.mapPawns.RegisterPawn(thisPawn);
@@ -954,6 +992,8 @@ namespace BetterRimworlds.Stargate
                             // if any. This is effectively the cure of Stargate Insanity.
                             if (thisPawn.RaceProps.Humanlike)
                             {
+                                // Log.Warning("22a");
+
                                 // thisPawn.equipment.DropAllEquipment(thisPawn.Position);
                                 thisPawn.drafter.Drafted = true;
                                 thisPawn.drafter.Drafted = false;
@@ -962,6 +1002,8 @@ namespace BetterRimworlds.Stargate
 
                             if (thisPawn.RaceProps.Animal)
                             {
+                                // Log.Warning("22b");
+
                                 #if RIMWORLD12
                                 // thisPawn.training = new Pawn_TrainingTracker(thisPawn);
                                 #else
@@ -971,6 +1013,8 @@ namespace BetterRimworlds.Stargate
 
                             if (thisPawn.RaceProps.ToolUser)
                             {
+                                // Log.Warning("23");
+
                                 if (thisPawn.equipment == null)
                                 {
                                     thisPawn.equipment = new Pawn_EquipmentTracker(thisPawn);
@@ -991,6 +1035,8 @@ namespace BetterRimworlds.Stargate
                                 // // Reset their equipped weapon's verbTrackers as well, or they'll go insane if they're carrying an out-of-phase weapon...
                                 if (thisPawn.equipment.HasAnything() && thisPawn.equipment.Primary != null)
                                 {
+                                    // Log.Warning("24");
+
                                     foreach (var verb in thisPawn.equipment.PrimaryEq.verbTracker.AllVerbs)
                                     {
                                         verb.caster = thisPawn;
