@@ -246,7 +246,7 @@ namespace BetterRimworlds.Stargate
                     // }
 
                     // Ignore power requirements during a solar flare.
-                    #if RIMWORLD15
+                    #if RIMWORLD15 || RIMWORLD16
                     // Solar flares do not exist in Rimworld v1.5.
                     var solarFlareDef = DefDatabase<GameConditionDef>.GetNamed("SolarFlare");
                     bool isSolarFlare = this.currentMap.gameConditionManager.ConditionIsActive(solarFlareDef);
@@ -384,7 +384,7 @@ namespace BetterRimworlds.Stargate
                 this.stargateBuffer.TryAdd(foundThing);
 
                 // Tell the MapDrawer that here is something thats changed
-                #if RIMWORLD15
+                #if RIMWORLD15 || RIMWORLD16
                 Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlagDefOf.Things, true, false);
                 #else
                 Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
@@ -433,7 +433,7 @@ namespace BetterRimworlds.Stargate
                 }
 
                 // Tell the MapDrawer that here is something thats changed
-                #if RIMWORLD15
+                #if RIMWORLD15 || RIMWORLD16
                 Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlagDefOf.Things, true, false);
                 #else
                 Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
@@ -458,7 +458,7 @@ namespace BetterRimworlds.Stargate
             this.stargateBuffer.TransmitContents();
 
             // Tell the MapDrawer that here is something thats changed
-            #if RIMWORLD15
+            #if RIMWORLD15 || RIMWORLD16
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlagDefOf.Things, true, false);
             #else
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
@@ -481,7 +481,7 @@ namespace BetterRimworlds.Stargate
             this.stargateBuffer.Empty();
 
             // Tell the MapDrawer that here is something that's changed.
-            #if RIMWORLD15
+            #if RIMWORLD15 || RIMWORLD16
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlagDefOf.Things, true, false);
             #else
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
@@ -1067,7 +1067,7 @@ namespace BetterRimworlds.Stargate
             inboundBuffer.Clear();
 
             // Tell the MapDrawer that here is something that's changed
-            #if RIMWORLD15
+            #if RIMWORLD15 || RIMWORLD16
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlagDefOf.Things, true, false);
             #else
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);

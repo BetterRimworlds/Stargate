@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <!-- Configuration-specific properties -->
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release v1.2|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)' == 'Release v1.2'">
     <Optimize>true</Optimize>
     <DefineConstants>RIMWORLD12</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -19,21 +19,25 @@
     <OutputPath>/rimworld/1.2/Mods/Stargate/1.2/Assemblies</OutputPath>
     <MainPath>/tmp/rimworld/1.2/Mods/Stargate/1.2/Assemblies</MainPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release v1.3|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)' == 'Release v1.3'">
     <DefineConstants>RIMWORLD13</DefineConstants>
     <OutputPath>/rimworld/1.2/Mods/Stargate/1.3/Assemblies</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release v1.4|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)' == 'Release v1.4'">
     <DefineConstants>RIMWORLD14</DefineConstants>
     <OutputPath>/rimworld/1.2/Mods/Stargate/1.4/Assemblies</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release v1.5|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)' == 'Release v1.5'">
     <DefineConstants>RIMWORLD15</DefineConstants>
     <OutputPath>/rimworld/1.2/Mods/Stargate/1.5/Assemblies</OutputPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release v1.6'">
+    <DefineConstants>RIMWORLD16</DefineConstants>
+    <OutputPath>/rimworld/1.2/Mods/Stargate/1.6/Assemblies</OutputPath>
+  </PropertyGroup>
 
   <!-- References for Release v1.2 -->
-  <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Release v1.2|AnyCPU'">
+  <ItemGroup Condition="'$(Configuration)' == 'Release v1.2'">
     <Reference Include="Assembly-CSharp">
       <HintPath>/rimworld/1.2/RimWorldLinux_Data/Managed/Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
@@ -50,7 +54,7 @@
   </ItemGroup>
 
   <!-- References for Release v1.3 -->
-  <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Release v1.3|AnyCPU'">
+  <ItemGroup Condition="'$(Configuration)' == 'Release v1.3'">
     <Reference Include="Assembly-CSharp">
       <HintPath>/rimworld/1.3/RimWorldLinux_Data/Managed/Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
@@ -67,7 +71,7 @@
   </ItemGroup>
 
   <!-- References for Release v1.4 -->
-  <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Release v1.4|AnyCPU'">
+  <ItemGroup Condition="'$(Configuration)' == 'Release v1.4'">
     <Reference Include="Assembly-CSharp">
       <HintPath>/rimworld/1.4/RimWorldLinux_Data/Managed/Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
@@ -84,14 +88,10 @@
   </ItemGroup>
 
   <!-- References for Release v1.5 -->
-  <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Release v1.5|AnyCPU'">
+  <ItemGroup Condition="'$(Configuration)' == 'Release v1.5'">
     <Reference Include="Assembly-CSharp">
       <HintPath>/rimworld/1.5/RimWorldLinux_Data/Managed/Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
-    </Reference>
-    <Reference Include="System.Collections.Immutable">
-      <HintPath>$(NuGetPackageRoot)system.collections.immutable\5.0.0\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>/rimworld/1.5/RimWorldLinux_Data/Managed/UnityEngine.dll</HintPath>
@@ -99,6 +99,23 @@
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>/rimworld/1.5/RimWorldLinux_Data/Managed/UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- References for Release v1.6 -->
+  <ItemGroup Condition="'$(Configuration)' == 'Release v1.6'">
+    <Reference Include="Assembly-CSharp">
+      <HintPath>/rimworld/1.6-steam/RimWorldLinux_Data/Managed/Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>/rimworld/1.6-steam/RimWorldLinux_Data/Managed/UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>/rimworld/1.6-steam/RimWorldLinux_Data/Managed/UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />

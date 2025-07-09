@@ -169,7 +169,7 @@ namespace BetterRimworlds.Stargate
             Find.ColonistBar.MarkColonistsDirty();
 
             // Tell the MapDrawer that here is something that's changed.
-            #if RIMWORLD15
+            #if RIMWORLD15 || RIMWORLD16
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlagDefOf.Things, true, false);
             #else
             Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
@@ -195,15 +195,22 @@ namespace BetterRimworlds.Stargate
             this.Clear();
         }
 
+        private static IEnumerable<Pawn> GetAllAlivePawns()
+        {
+            #if RIMWORLD16
+            return PawnsFinder.AllMapsCaravansAndTravellingTransporters_Alive;
+            #else
+            return PawnsFinder.AllMapsCaravansAndTravelingTransportPods_Alive;
+            #endif
+        }
+
         public void RebuildRelationships()
         {
             // var implantDef = DefDatabase<HediffDef>.GetNamedSilentFail("BetterRimworlds.Stargate.GateTravelerImplant");
             var implantDef = HediffDef.Named("GateTravelerImplant");
-            var pawnsWithGateTravelerImplant = PawnsFinder.AllMapsCaravansAndTravelingTransportPods_Alive
+            var pawnsWithGateTravelerImplant = GetAllAlivePawns()
                 .Where(pawn => pawn.health.hediffSet.HasHediff(implantDef))
                 .ToList();
-
-            Log.Error("Pawns with Gate Traveler Implant: " + pawnsWithGateTravelerImplant.Count);
 
             // Now you can do whatever you need with that list:
             foreach (var pawn in pawnsWithGateTravelerImplant)
@@ -215,9 +222,9 @@ namespace BetterRimworlds.Stargate
 
                 foreach (var relationship in gateTravelImplant.relationships)
                 {
-                    Log.Message($"Loading the relationship between {pawn.Name} and {relationship.pawnName}: {relationship.relationship}");
-                    var pawn2 = PawnsFinder.AllMapsCaravansAndTravelingTransportPods_Alive.FirstOrDefault(p =>
-                        p.thingIDNumber == relationship.pawnID);
+                    Log.Message($"Processing relationship for {pawn.LabelShort}: {relationship.relationship} with {relationship.pawnName}.");
+
+                    var pawn2 = GetAllAlivePawns().FirstOrDefault(p => p.thingIDNumber == relationship.pawnID);
 
                     if (pawn2 == null)
                     {
