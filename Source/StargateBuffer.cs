@@ -137,7 +137,10 @@ namespace BetterRimworlds.Stargate
                 return false;
             }
 
-            item.DeSpawn();
+            if (item.Spawned)
+            {
+                item.DeSpawn();
+            }
 
             return true;
         }
@@ -150,8 +153,17 @@ namespace BetterRimworlds.Stargate
             {
                 var thing = this.InnerListForReading[a];
 
-                thing.Destroy();
+                if (thing.Destroyed == false)
+                {
+                    thing.Destroy();
+                }
+                else
+                {
+                    thing.Discard();
+                }
             }
+
+            // this.Clear();
 
             // Inform the Colonist Bar that 1 or more Colonists may be missing.
             Find.ColonistBar.MarkColonistsDirty();

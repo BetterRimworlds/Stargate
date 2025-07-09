@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Defs>
-    <ThingDef Class="BetterRimworlds.Stargate.StargateThingDef" ParentName="BuildingBase">
+    <ThingDef Name="HopesBuildingBase" Abstract="True">
+        <category>Building</category>
+        <soundImpactDefault>BulletImpact_Metal</soundImpactDefault>
+        <selectable>true</selectable>
+        <drawerType>MapMeshAndRealTime</drawerType>
+        <terrainAffordanceNeeded>Light</terrainAffordanceNeeded>
+        <repairEffect>Repair</repairEffect>
+    </ThingDef>
+
+    <ThingDef Class="BetterRimworlds.Stargate.StargateThingDef" ParentName="HopesBuildingBase">
         <defName>Stargate</defName>
         <label>Stargate</label>
         <thingClass>BetterRimworlds.Stargate.Building_Stargate</thingClass>

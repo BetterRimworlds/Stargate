@@ -145,13 +145,13 @@ namespace BetterRimworlds.Stargate
         // Saving game
         public override void ExposeData()
         {
-            Scribe_Values.Look<int>(ref currentCapacitorCharge, "currentCapacitorCharge");
-            Scribe_Values.Look<int>(ref requiredCapacitorCharge, "requiredCapacitorCharge");
-            Scribe_Values.Look<int>(ref chargeSpeed, "chargeSpeed", 1);
-            Scribe_Values.Look<bool>(ref PoweringUp, "poweringUp");
-            Scribe_Values.Look<bool>(ref IsRecalling, "isRecalling", true);
+            Scribe_Values.Look(ref currentCapacitorCharge, "currentCapacitorCharge");
+            Scribe_Values.Look(ref requiredCapacitorCharge, "requiredCapacitorCharge");
+            Scribe_Values.Look(ref chargeSpeed, "chargeSpeed", 1);
+            Scribe_Values.Look(ref PoweringUp, "poweringUp");
+            Scribe_Values.Look(ref IsRecalling, "isRecalling", true);
 
-            Scribe_Deep.Look<StargateBuffer>(ref this.stargateBuffer, "stargateBuffer", new object[]
+            Scribe_Deep.Look(ref this.stargateBuffer, "stargateBuffer", new object[]
             {
                 this
             });
@@ -571,7 +571,7 @@ namespace BetterRimworlds.Stargate
                         if (!wasPlaced)
                         {
                             Log.Warning("Could not place " + currentThing.Label);
-                            this.stargateBuffer.TryAdd(currentThing);
+                            // this.stargateBuffer.TryAdd(currentThing);
                         }
 
                         continue;
@@ -692,7 +692,7 @@ namespace BetterRimworlds.Stargate
                         //         Some of them also become Godlings, literally unkillable except via the Dev Mode.
                         // Quickly draft and undraft the Colonist. This will cause them to become aware of the newly-in-phase weapon they are holding,
                         // if any. This is effectively the cure of Stargate Insanity.
-                        pawn.needs.SetInitialLevels();
+                        // pawn.needs.SetInitialLevels();
 
                         // pawn.verbTracker = new VerbTracker(pawn);
                         // pawn.thinker = new Pawn_Thinker(pawn);
@@ -748,7 +748,6 @@ namespace BetterRimworlds.Stargate
                             pawn.psychicEntropy = new Pawn_PsychicEntropyTracker(pawn);
                             // pawn.workSettings = new Pawn_WorkSettings(pawn);
 
-                            pawn.skills.SkillsTick();
                             // Reset Skills Since Midnight.
                             foreach (SkillRecord skill in pawn.skills.skills)
                             {
