@@ -206,7 +206,6 @@ namespace BetterRimworlds.Stargate
 
         public void RebuildRelationships()
         {
-            // var implantDef = DefDatabase<HediffDef>.GetNamedSilentFail("BetterRimworlds.Stargate.GateTravelerImplant");
             var implantDef = HediffDef.Named("GateTravelerImplant");
             var pawnsWithGateTravelerImplant = GetAllAlivePawns()
                 .Where(pawn => pawn.health.hediffSet.HasHediff(implantDef))
@@ -215,10 +214,8 @@ namespace BetterRimworlds.Stargate
             // Now you can do whatever you need with that list:
             foreach (var pawn in pawnsWithGateTravelerImplant)
             {
-                Log.Message($"{pawn.LabelShort} has a GateTravelerImplant.");
-                var gateTravelImplant =
-                    (GateTravelerImplant)pawn.health.hediffSet.hediffs.Find(
-                        h => h.def.defName == "GateTravelerImplant");
+                var gateTravelImplant = (GateTravelerImplant)pawn.health.hediffSet.hediffs.Find(h => h.def == implantDef);
+                if (gateTravelImplant == null) continue;
 
                 foreach (var relationship in gateTravelImplant.relationships)
                 {
@@ -231,27 +228,49 @@ namespace BetterRimworlds.Stargate
                         pawn2 = Find.WorldPawns.AllPawnsAliveOrDead.FirstOrDefault(p => p.thingIDNumber == relationship.pawnID);
                         if (pawn2 == null)
                         {
-                            Log.Warning("Generating missing relationship with " + relationship.pawnID + "...");
+                            Log.Warning($"Could not find pawn {relationship.pawnName} ({relationship.pawnID}). Generating a 'Missing' record.");
                             pawn2 = StargateBuffer.GenerateMissingRelationshipRecord(relationship.pawnID, relationship.pawnName, relationship.pawnGender);
                         }
                     }
 
-                    Log.Warning("Pawn 1 (" + pawn.Name + ") with Pawn 2 (" + relationship.pawnName +
-                                ") related: " + relationship.relationship);
+                    PawnRelationDef pawnRelationDef = DefDatabase<PawnRelationDef>.GetNamedSilentFail(relationship.relationship);
 
-                    PawnRelationDef pawnRelationDef =
-                        DefDatabase<PawnRelationDef>.GetNamedSilentFail(relationship.relationship);
-
-                    bool alreadyRelated = pawn.relations.DirectRelations
-                        .Any(rel =>
-                            rel.def == pawnRelationDef
-                            && rel.otherPawn == pawn2);
-
-                    if (alreadyRelated == false)
+                    if (pawnRelationDef == null)
                     {
-                        pawn.relations.AddDirectRelation(pawnRelationDef, pawn2);
-                        pawn.ClearMind();
+                        Log.Error($"Could not find PawnRelationDef named '{relationship.relationship}'. Skipping.");
+                        continue;
                     }
+
+                    // =================================================================
+                    // START OF THE FIX
+                    // =================================================================
+
+                    // Find any existing direct relationship of this type (e.g., "Spouse").
+                    // THIS IS THE CORRECTED LINE: We use LINQ's FirstOrDefault on the DirectRelations list.
+                    var existingRelation = pawn.relations.DirectRelations.FirstOrDefault(rel => rel.def == pawnRelationDef);
+
+                    if (existingRelation != null)
+                    {
+                        // If the existing relation is already with the correct pawn, do nothing.
+                        if (existingRelation.otherPawn == pawn2)
+                        {
+                            Log.Message($"Correct relationship between {pawn.LabelShort} and {pawn2.LabelShort} already exists. Skipping.");
+                            continue;
+                        }
+
+                        // Otherwise, remove the old, stale relationship (e.g., Lu -> "Missing" Ryan)
+                        Log.Warning($"Found a stale relationship ({pawnRelationDef.defName}) for {pawn.LabelShort} with {existingRelation.otherPawn.LabelShort}. Removing it.");
+                        pawn.relations.RemoveDirectRelation(existingRelation);
+                    }
+
+                    // Now, add the new, correct relationship.
+                    Log.Message($"Adding direct relation {pawnRelationDef.defName} between {pawn.LabelShort} and {pawn2.LabelShort}.");
+                    pawn.relations.AddDirectRelation(pawnRelationDef, pawn2);
+                    pawn.ClearMind(true); // Clear thoughts and memories to recalculate mood based on the new relation.
+
+                    // =================================================================
+                    // END OF THE FIX
+                    // =================================================================
                 }
             }
         }
@@ -308,6 +327,16 @@ namespace BetterRimworlds.Stargate
         private void AttachGateTravelerImplant(Pawn pawn)
         {
             HediffDef gateTravelerImplant = HediffDef.Named("GateTravelerImplant");
+
+            // Find any existing implant hediff
+            Hediff existingImplant = pawn.health.hediffSet.hediffs
+                .FirstOrDefault(h => h.def == gateTravelerImplant);
+
+            // Remove the existing implant if found
+            if (existingImplant != null)
+            {
+                pawn.health.RemoveHediff(existingImplant);
+            }
 
             BodyPartRecord brain = pawn.RaceProps.body.AllParts.Find(bpr => bpr.def.defName == "Brain");
 
