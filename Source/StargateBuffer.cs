@@ -263,7 +263,8 @@ namespace BetterRimworlds.Stargate
                     // Now, add the new, correct relationship.
                     Log.Message($"Adding direct relation {pawnRelationDef.defName} between {pawn.LabelShort} and {pawn2.LabelShort}.");
                     pawn.relations.AddDirectRelation(pawnRelationDef, pawn2);
-                    pawn.ClearMind(true); // Clear thoughts and memories to recalculate mood based on the new relation.
+                    // Clear thoughts and memories to recalculate mood based on the new relation.
+                    pawn.ClearMind(true);
 
                     // =================================================================
                     // END OF THE FIX
