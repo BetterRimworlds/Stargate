@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+// ==== Source/StargateBuffer.cs ====
 using RimWorld;
-using RimWorld.Planet;
 using Verse;
 
 namespace BetterRimworlds.Stargate
@@ -332,15 +329,15 @@ namespace BetterRimworlds.Stargate
             Hediff existingImplant = pawn.health.hediffSet.hediffs
                 .FirstOrDefault(h => h.def == gateTravelerImplant);
 
-            // Remove the existing implant if found
-            if (existingImplant != null)
+            GateTravelerImplant implant = existingImplant as GateTravelerImplant;
+            if (implant == null)
             {
-                pawn.health.RemoveHediff(existingImplant);
+                BodyPartRecord brain = pawn.RaceProps.body.AllParts.Find(bpr => bpr.def.defName == "Brain");
+
+                implant = pawn.health.AddHediff(gateTravelerImplant, brain) as GateTravelerImplant;
             }
 
-            BodyPartRecord brain = pawn.RaceProps.body.AllParts.Find(bpr => bpr.def.defName == "Brain");
-
-            pawn.health.AddHediff(gateTravelerImplant, brain);
+            implant?.RecordStargateBufferEntry();
         }
 
         public static bool ClearExistingWorldPawn(Pawn pawn)

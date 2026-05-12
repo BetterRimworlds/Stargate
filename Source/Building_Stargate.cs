@@ -819,16 +819,38 @@ namespace BetterRimworlds.Stargate
                         // Alter the pawn's chronological age based upon the temporal drift between their origin universe
                         // and the destination universe.
                         //
-                        // This is the only way in which even the pawns themselves and their co-travelers, dopplegangers
-                        // in parallel realities, and the Observer can possibly tell how Old they really are...
+                        // The pawn is timeless while serialized inside the Stargate buffer. However, the destination
+                        // save may be earlier or later than the origin save. Without this correction, a pawn sent from
+                        // 5524 to 5502 would appear to have negative/incorrect chronological drift, and a pawn sent
+                        // from 5524 to 5530 would falsely gain years while in the buffer.
+                        //
+                        // This adjusts BirthAbsTicks so the pawn keeps the same apparent chronological age after
+                        // rematerialization, regardless of the destination save's current year.
                         //
                         // There are 60,000 ticks per day.
                         long timelineTicksDiff = Current.Game.tickManager.TicksAbs - originalTimelineTicks;
-                        long newAbsBirthdate = pawn.ageTracker.BirthAbsTicks + timelineTicksDiff;
+                        long oldAbsBirthdate = pawn.ageTracker.BirthAbsTicks;
+                        long newAbsBirthdate = oldAbsBirthdate + timelineTicksDiff;
 
                         Log.Message(
-                            $"Subtracting {timelineTicksDiff} from the pawn's absolute ticks. From {pawn.ageTracker.BirthAbsTicks} to {newAbsBirthdate}");
+                            $"Applying Stargate timeline correction for {pawn.LabelShort}: " +
+                            $"timelineTicksDiff={timelineTicksDiff}, " +
+                            $"BirthAbsTicks {oldAbsBirthdate} -> {newAbsBirthdate}"
+                        );
+
                         pawn.ageTracker.BirthAbsTicks = newAbsBirthdate;
+
+                        // The Gate Traveler implant tracks true lived time / true suspended time.
+                        // Entry into the Stargate buffer records lived time up to the event horizon.
+                        // Exit must NOT add the time spent serialized in the buffer, because the buffer is timeless.
+                        //
+                        // This reset must happen AFTER BirthAbsTicks is corrected, so the implant's future baseline
+                        // matches the pawn's corrected vanilla age values in this destination timeline.
+                        GateTravelerImplant gateTravelerImplant = pawn.health.hediffSet.hediffs
+                            .OfType<GateTravelerImplant>()
+                            .FirstOrDefault();
+
+                        gateTravelerImplant?.RecordStargateBufferExit();
 
                         // Give them a brief psychic shock so that they will be given proper Melee Verbs and not act like a Visitor.
                         // Hediff shock = HediffMaker.MakeHediff(HediffDefOf.PsychicShock, pawn, null);
