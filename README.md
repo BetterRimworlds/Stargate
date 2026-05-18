@@ -11,6 +11,15 @@ The Stargate system allows you to transport materials over the great distances b
 Demo Video: https://youtu.be/PR_j4uGLeGw
 
 ## Latest Changes
+**v11.0.0: 2025-07-08**
+* **[2025-07-08 23:50:33 CDT]** Massively refactored the relationship restoration to count for existing gate traveler implants.
+* **[2025-07-08 23:49:22 CDT]** Added support for Rimworld v1.6.
+* **[2025-07-08 23:45:38 CDT]** Fixes for many problems with Rimworld v1.4-v1.5.
+* **[2025-07-08 23:43:42 CDT]** [m] Added debug log.warnings to help the v1.6 port.
+* **[2025-07-08 18:55:23 CDT]** Removed some XML interferring with other mods.
+* **[2025-07-08 18:11:12 CDT]** Majorly improved ./build.sh to handle XML changes as well.
+* **[2025-07-08 18:05:17 CDT]** Reorganized the source code per the Better Rimworlds standard layout.
+
 **v10.5.0: 2025-06-21**
 * **[2025-06-21 04:15:34 CDT]** [m] Fixed a regression where the game would freeze if a buffer contained no pawns and only things.
 * **[2025-06-19 05:53:52 CDT]** Radically refactored stargate relationships.
@@ -42,25 +51,6 @@ Demo Video: https://youtu.be/PR_j4uGLeGw
 * **[2024-05-20 05:12:37 CDT]** Added enhanced logging to try to solve powering up bugs.
 * **[2024-05-20 00:30:02 CDT]** Added more compat for transferring Humans between Rimworld v1.4 and v1.5 to v1.2 and v1.3.
 * **[2024-05-09 00:10:46 CDT]** Fixed Rimworld v1.2 compatibility.
-
-**v9.1.0: 2024-05-07**
-* **[2024-05-07 01:14:20 CDT]** [major] Effectively cured Stargate Psychosis (!!!).
-* **[2024-05-07 00:18:59 CDT]** [major] Found the cure for Animal Stargate Psychosis!
-* **[2024-05-06 23:56:35 CDT]** Fixed a major edgecase when the Stargate tried to charge with no batteries pn the power grid.
-* **[2024-05-06 23:55:17 CDT]** Fixed some bugs with the stored mass not resetting when appropriate.
-* **[2024-05-06 23:54:33 CDT]** Shuffled the offworld gate psionic curses to their own class.
-
-**v9.0.0: 2024-03-21**
-* **[2024-03-21 18:44:28 CDT]** **[Major]** Upgraded to Rimworld v1.5.
-* **[2024-03-21 18:41:38 CDT]** Fixed a bug where local teleports didn't work correctly with an offworld team.
-* **[2024-03-21 18:36:47 CDT]** Brought in the new Power-needs code from DeMaterializer.
-* **[2024-03-21 16:39:41 CDT]** **[Major]** Made the Stargate UI gizmos dynamic based on the state of the stargate network.
-* **[2024-03-21 04:46:32 CDT]** Shifted to the BetterRimworld CI/CD system.
-* **[2024-03-20 21:08:57 CDT]** Added sounds to the Stargate.
-* **[2024-03-20 03:42:52 CDT]** Disable power toggle on the Stargate, as it doesn't make sense.
-* **[2024-03-20 03:37:47 CDT]** Fixed a bug where colonists couldn't be recalled after a local teleport.
-* **[2024-03-12 05:57:00 CDT]** Make the Stargate require more and more power, 2 kW for every 1 kg in the Stargate buffer over 1,000 kg.
-* **[2024-02-17 11:08:29 CST]** Added to Steam Workshop.
 
 You can also read the full [CHANGELOG.md](CHANGELOG.md).
 

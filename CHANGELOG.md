@@ -1,3 +1,12 @@
+**v11.0.0: 2025-07-08**
+* **[2025-07-08 23:50:33 CDT]** Massively refactored the relationship restoration to count for existing gate traveler implants.
+* **[2025-07-08 23:49:22 CDT]** Added support for Rimworld v1.6.
+* **[2025-07-08 23:45:38 CDT]** Fixes for many problems with Rimworld v1.4-v1.5.
+* **[2025-07-08 23:43:42 CDT]** [m] Added debug log.warnings to help the v1.6 port.
+* **[2025-07-08 18:55:23 CDT]** Removed some XML interferring with other mods.
+* **[2025-07-08 18:11:12 CDT]** Majorly improved ./build.sh to handle XML changes as well.
+* **[2025-07-08 18:05:17 CDT]** Reorganized the source code per the Better Rimworlds standard layout.
+
 **v10.5.0: 2025-06-21**
 * **[2025-06-21 04:15:34 CDT]** [m] Fixed a regression where the game would freeze if a buffer contained no pawns and only things.
 * **[2025-06-19 05:53:52 CDT]** Radically refactored stargate relationships.
