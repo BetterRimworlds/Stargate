@@ -1,3 +1,19 @@
+**v10.5.0: 2025-06-21**
+* **[2025-06-21 04:15:34 CDT]** [m] Fixed a regression where the game would freeze if a buffer contained no pawns and only things.
+* **[2025-06-19 05:53:52 CDT]** Radically refactored stargate relationships.
+* **[2025-06-17 11:46:26 CDT]** Moved a lot of the receiving matter logic to the Stargate Buffer.
+* **[2025-06-17 11:43:17 CDT]** Don't require power at all if stored mass is less than 1,000 kg.
+* **[2025-06-17 11:31:02 CDT]** Improvements to the build system. Targetting .NET 4.72.
+* **[2025-06-13 05:54:10 CDT]** The Stargate no longer casts a shadow.
+* **[2025-05-26 06:44:59 CDT]** Now the Gate Traveler brain implant is ignored by Body Purists.
+* **[2025-03-15 21:26:59 CST]** Improved the stability and performance of the Stargate system.
+* **[2025-03-15 21:08:04 CST]** Converted the legacy project file to the SDK-style format.
+* **[2025-03-15 18:53:25 CST]** Completely rewrote FindingThings to modern C# v10 standards and conciseness.
+* **[2025-03-15 13:28:56 CST]** Migrated to .NET v9.0 and the Better Rimworlds build system.
+* **[2025-03-05 22:03:43 CST]** Migrated to .NET v8.0 and C# v10.
+* **[2025-02-15 14:33:11 CST]** [m] Added a link to the demo video.
+
+
 **v10.0.0: 2025-02-13**
 * **[2025-02-13 17:26:19 CST]** Rebuild relationships when a pawn comes through the Stargate.
 * **[2025-02-12 10:30:18 CST]** Remove any ghost WorldPawns for all transmitted pawns. origin/relationships-redux.2, origin/relationships-redux, relationships-redux.2, relationships-redux
