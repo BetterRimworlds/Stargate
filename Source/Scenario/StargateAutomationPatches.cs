@@ -365,7 +365,8 @@ internal sealed class StargateDailyPlanetConditions
         if (roll < 0.90f) return OverallPopulation.LittleBitMore;  // Established civilization
         if (roll < 0.97f) return OverallPopulation.High;           // Significant population center
         return                   OverallPopulation.VeryHigh;       // Exceptional — Langara-tier
-    }}
+    }
+}
 
 internal static class StargateScenarioUtility
 {

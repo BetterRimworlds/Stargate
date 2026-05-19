@@ -87,19 +87,6 @@ internal partial class ScenPart_StargateFacility : ScenPart
 #endif
 
             // Step 4: Show the Scenario Message Box after the map is fully loaded
-            // and the Stargate facility exists, but before the Stargate recall.
-            //
-            // CRITICAL:
-            // This message used to happen during Page_SelectStartingSite.PreOpen,
-            // which is too early. At that point the map does not exist yet.
-            //
-            // The intended timing is:
-            //   map generated
-            //   facility built
-            //   fog/home/equipment finalized
-            //   message shown
-            //   player clicks OK
-            //   StargateRecall fires
             ShowScenarioMessage(map);
         });
     }
