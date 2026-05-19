@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- ==== Patches/SkyAccessPatches.xml ==== -->
+<Patch>
+
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>Defs/IncidentDef[defName="CargoPodCrash"]</xpath>
+    <value>
+      <li Class="BetterRimworlds.Stargate.RequiresSkyAccess"/>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>Defs/IncidentDef[defName="RefugeePodCrash"]</xpath>
+    <value>
+      <li Class="BetterRimworlds.Stargate.RequiresSkyAccess"/>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>Defs/IncidentDef[defName="ShipChunkDrop"]</xpath>
+    <value>
+      <li Class="BetterRimworlds.Stargate.RequiresSkyAccess"/>
+    </value>
+  </Operation>
+
+</Patch>

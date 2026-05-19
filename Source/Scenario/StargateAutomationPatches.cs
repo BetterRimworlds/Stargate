@@ -182,7 +182,8 @@ public static class Patch_Page_SelectStartingSite_PreOpen
         }
 
         int selectedTile = SelectRandomStargateDestinationTile();
-        selectedTile = 114297;
+        // Hardcode startTile
+        // selectedTile = 23175;
 
         Find.GameInitData.startingTile = selectedTile;
 
@@ -370,6 +371,6 @@ internal static class StargateScenarioUtility
 {
     internal static bool IsStargateBaseScenario()
     {
-        return Find.Scenario != null && Find.Scenario.name == "Stargate Base";
+        return Find.Scenario != null && Find.Scenario.name == "Daily Stargate Outpost";
     }
 }

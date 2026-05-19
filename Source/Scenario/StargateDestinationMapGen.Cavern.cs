@@ -101,6 +101,9 @@ public static partial class StargateDestinationMapGen
         // Runs after the general scatter so it overrides plain rock that the
         // scatter pass missed — every cavern reliably has something worth mining.
         PlaceCavernWallVeins(map, cavernCells);
+
+        // Mark this map as sealed from the sky so airdrop incidents are blocked.
+        map.GetComponent<MapComponent_SealedFromSky>().isSealed = true;
     }
 
     private static void CarveCavern(Map map, IntVec3 seed, int budget, List<IntVec3> outCells)
