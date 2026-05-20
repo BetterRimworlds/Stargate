@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+    <ScenarioDef>
+        <defName>StargateBase</defName>
+        <label>Daily Stargate Outpost</label>
+        <description>You start in an ancient facility containing a functional Stargate...</description>
+        <scenario>
+            <summary>Start with a pre-built Stargate facility.</summary>
+            <playerFaction>
+                <def>PlayerFaction</def>
+                <factionDef>PlayerColony</factionDef>
+            </playerFaction>
+            <parts>
+                <!-- Config pages -->
+                <!--
+                <li Class="ScenPart_ConfigPage_ConfigureStartingPawns">
+                    <def>ConfigPage_ConfigureStartingPawns</def>
+                    <pawnCount>3</pawnCount>
+                    <pawnChoiceCount>8</pawnChoiceCount>
+                </li>
+                -->
+                <!-- The custom map generator part -->
+                <li Class="BetterRimworlds.Stargate.ScenPart_StargateFacility">
+                    <def>StargateFacility</def>
+                </li>
+                <li Class="ScenPart_StartingThing_Defined">
+                    <def>StartingThing_Defined</def>
+                    <thingDef>MealSurvivalPack</thingDef>
+                    <count>10</count>
+                </li>
+            </parts>
+        </scenario>
+    </ScenarioDef>
+    <ScenPartDef>
+        <defName>StargateFacility</defName>
+        <label>stargate facility</label>
+        <description>Generates a pre-built facility containing a Stargate at map center.</description>
+        <scenPartClass>BetterRimworlds.Stargate.ScenPart_StargateFacility</scenPartClass>
+        <category>MapGeneration</category>
+        <summaryPriority>500</summaryPriority>
+    </ScenPartDef>
+</Defs>
