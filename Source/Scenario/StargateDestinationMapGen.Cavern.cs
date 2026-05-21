@@ -11,7 +11,7 @@ namespace BetterRimworlds.Stargate;
 
 public static partial class StargateDestinationMapGen
 {
-    // Lowered threshold: 0.80 means only the top ~20% of noise values become caverns.
+    // Lowered threshold: 0.55 means only the top ~45% of noise values become caverns.
     private const float CavernThreshold = 0.55f;
     private const float CavernFrequency = 0.06f;
 
@@ -114,7 +114,9 @@ public static partial class StargateDestinationMapGen
 
         // We will calculate the distance from the stargate to boost nearby noise
         IntVec3 stargateCenter = preserveRect.CenterCell;
-        float boostRadius = 18f; // Tiles from stargate to apply the noise boost
+        const float boostRadius    = 18f;                       // Tiles from stargate to apply the noise boost
+        const float boostRadiusSq  = boostRadius * boostRadius; // Compare squared distances to skip the sqrt
+        const float invBoostRadius = 1f / boostRadius;          // Precomputed reciprocal avoids a per-cell divide
 
         foreach (IntVec3 cell in map.AllCells)
         {
@@ -127,11 +129,14 @@ public static partial class StargateDestinationMapGen
             );
 
             // Proximity Boost: Force noise higher near the stargate so it connects out
-            float distance = cell.DistanceTo(stargateCenter);
-            if (distance < boostRadius)
+            // Squared-distance cull: only cells inside the boost circle pay for the sqrt
+            int dx = cell.x - stargateCenter.x;
+            int dz = cell.z - stargateCenter.z;
+            int distSq = dx * dx + dz * dz;
+            if (distSq < boostRadiusSq)
             {
                 // Smoothly boost noise from +0.2 right next to the stargate, fading to +0 at the edge
-                float boost = Mathf.Lerp(0.2f, 0f, distance / boostRadius);
+                float boost = 0.2f * (1f - Mathf.Sqrt(distSq) * invBoostRadius);
                 noise += boost;
             }
 
