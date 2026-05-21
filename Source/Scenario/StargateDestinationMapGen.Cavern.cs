@@ -15,6 +15,9 @@ public static partial class StargateDestinationMapGen
     private const float CavernThreshold = 0.55f;
     private const float CavernFrequency = 0.06f;
 
+    // Rock type palette for mountain and edge generation.
+    private static readonly string[] RockTypes = { "Granite", "Limestone", "Sandstone", "Marble", "Slate" };
+
     private static void GenerateImpassableSurroundings(Map map)
     {
         IntVec3 center = map.Center;
@@ -50,31 +53,39 @@ public static partial class StargateDestinationMapGen
         map.GetComponent<MapComponent_SealedFromSky>().isSealed = true;
     }
 
+    /// Destroys all destroyable things in a cell, except pawns.
+    /// Iterates backward for safe removal during enumeration.
+    private static void DestroyThingsInCell(Map map, IntVec3 cell)
+    {
+        // Iterating backward through the original list is a more performant way to handle
+        // object destruction during map generation.
+        var things = map.thingGrid.ThingsListAt(cell);
+        for (int i = things.Count - 1; i >= 0; i--)
+        {
+            var thing = things[i];
+            if (thing is Pawn) continue;
+            if (thing.def.destroyable) thing.Destroy(DestroyMode.Vanish);
+        }
+    }
+
     private static void GenerateMountainTerrain(Map map, CellRect preserveRect)
     {
-        string[] rockTypes = { "Granite", "Limestone", "Sandstone", "Marble", "Slate" };
-        ThingDef primaryRock = DefDatabase<ThingDef>.GetNamedSilentFail(rockTypes[Rand.Range(0, rockTypes.Length)]);
-        ThingDef secondaryRock = DefDatabase<ThingDef>.GetNamedSilentFail(rockTypes[Rand.Range(0, rockTypes.Length)]);
+        ThingDef primaryRock = DefDatabase<ThingDef>.GetNamed(RockTypes[Rand.Range(0, RockTypes.Length)]);
+        ThingDef secondaryRock = DefDatabase<ThingDef>.GetNamed(RockTypes[Rand.Range(0, RockTypes.Length)]);
         if (primaryRock == null)
         {
             Log.Warning("BetterRimworlds.Stargate: No rock defs found, skipping mountain fill.");
             return;
         }
 
-        TerrainDef underlayStone = DefDatabase<TerrainDef>.GetNamedSilentFail("Gravel")
-                                   ?? TerrainDefOf.Soil;
+        TerrainDef underlayStone = TerrainDefOf.Gravel;
 
         // Phase 1: fill the map with solid rock + thick stone roof.
         foreach (IntVec3 cell in map.AllCells)
         {
             if (preserveRect.Contains(cell)) continue;
 
-            List<Thing> things = map.thingGrid.ThingsListAt(cell).ToList();
-            foreach (Thing thing in things)
-            {
-                if (thing is Pawn) continue;
-                if (thing.def.destroyable) thing.Destroy(DestroyMode.Vanish);
-            }
+            DestroyThingsInCell(map, cell);
 
             map.terrainGrid.SetTerrain(cell, underlayStone);
 
@@ -90,12 +101,7 @@ public static partial class StargateDestinationMapGen
         {
             if (!cell.InBounds(map)) continue;
 
-            List<Thing> things = map.thingGrid.ThingsListAt(cell).ToList();
-            foreach (Thing thing in things)
-            {
-                if (thing is Pawn) continue;
-                if (thing.def.destroyable) thing.Destroy();
-            }
+            DestroyThingsInCell(map, cell);
 
             map.roofGrid.SetRoof(cell, null);
         }
@@ -147,27 +153,20 @@ public static partial class StargateDestinationMapGen
 
     private static void EnforceSolidRockEdge(Map map, int edgeBand)
     {
-        string[] rockTypes = { "Granite", "Limestone", "Sandstone", "Marble", "Slate" };
-        ThingDef edgeRock = DefDatabase<ThingDef>.GetNamedSilentFail(rockTypes[Rand.Range(0, rockTypes.Length)]);
+        ThingDef edgeRock = DefDatabase<ThingDef>.GetNamed(RockTypes[Rand.Range(0, RockTypes.Length)]);
         if (edgeRock == null)
         {
             Log.Warning("BetterRimworlds.Stargate: No rock defs found, skipping edge rock band.");
             return;
         }
 
-        TerrainDef underlayStone = DefDatabase<TerrainDef>.GetNamedSilentFail("Gravel")
-                                   ?? TerrainDefOf.Soil;
+        TerrainDef underlayStone = TerrainDefOf.Soil;
 
         foreach (IntVec3 cell in map.AllCells)
         {
             if (!IsInEdgeBand(cell, map, edgeBand)) continue;
 
-            List<Thing> things = map.thingGrid.ThingsListAt(cell).ToList();
-            foreach (Thing thing in things)
-            {
-                if (thing is Pawn) continue;
-                if (thing.def.destroyable) thing.Destroy(DestroyMode.Vanish);
-            }
+            DestroyThingsInCell(map, cell);
 
             map.terrainGrid.SetTerrain(cell, underlayStone);
             GenSpawn.Spawn(ThingMaker.MakeThing(edgeRock), cell, map, WipeMode.Vanish);
@@ -183,9 +182,7 @@ public static partial class StargateDestinationMapGen
                || cell.z >= map.Size.z - edgeBand;
     }
 
-    /// <summary>
     /// Carves a small cavern right next to the stargate room to guarantee connectivity.
-    /// </summary>
     private static void GuaranteeStargateCavern(Map map, CellRect preserveRect, List<IntVec3> cavernCells)
     {
         // Pick a random cardinal direction to place the starter cavern
@@ -198,17 +195,20 @@ public static partial class StargateDestinationMapGen
         CellRect starterCavern = new CellRect(cavernCenter.x - 2, cavernCenter.z - 2, 5, 5);
         starterCavern.ClipInsideMap(map);
 
-        TerrainDef cavernFloor = DefDatabase<TerrainDef>.GetNamedSilentFail("Gravel")
-                                 ?? TerrainDefOf.Soil;
+        // Look up the underlying rock type for smarter terrain selection
+        IntVec3 sampleCell = starterCavern.CenterCell;
+        Thing rock = map.thingGrid.ThingsListAt(sampleCell)
+            .FirstOrDefault(t => t.def.building != null && t.def.building.isNaturalRock);
+        TerrainDef cavernFloor = GetCavernFloorTerrain(rock?.def);
 
         foreach (IntVec3 cell in starterCavern.Cells)
         {
-            Thing rock = map.thingGrid.ThingsListAt(cell)
+            Thing rockToDestroy = map.thingGrid.ThingsListAt(cell)
                 .FirstOrDefault(t => t.def.building != null && t.def.building.isNaturalRock);
 
-            if (rock != null)
+            if (rockToDestroy != null)
             {
-                rock.Destroy(DestroyMode.Vanish);
+                rockToDestroy.Destroy(DestroyMode.Vanish);
             }
 
             map.terrainGrid.SetTerrain(cell, cavernFloor);
@@ -234,8 +234,9 @@ public static partial class StargateDestinationMapGen
 
         if (palette.Count == 0) return;
 
-        TerrainDef cavernFloor = DefDatabase<TerrainDef>.GetNamedSilentFail("Gravel")
-                                 ?? TerrainDefOf.Soil;
+        // Look up the primary rock type for smarter terrain selection
+        ThingDef primaryRock = DefDatabase<ThingDef>.GetNamed(RockTypes[Rand.Range(0, RockTypes.Length)]);
+        TerrainDef cavernFloor = GetCavernFloorTerrain(primaryRock);
 
         foreach (IntVec3 cell in cavernCells)
         {
@@ -269,12 +270,8 @@ public static partial class StargateDestinationMapGen
 
     private static void ScatterOre(Map map, string defName, int countPer10kCells)
     {
-        ThingDef oreDef = DefDatabase<ThingDef>.GetNamedSilentFail(defName);
-        if (oreDef == null)
-        {
-            Log.Warning($"BetterRimworlds.Stargate: Ore def '{defName}' not found, skipping.");
-            return;
-        }
+        ThingDef oreDef = TryGetOre(defName);
+        if (oreDef == null) return;
 
         var scatter = new GenStep_ScatterLumpsMineable();
         scatter.forcedDefToScatter   = oreDef;
@@ -301,7 +298,7 @@ public static partial class StargateDestinationMapGen
         var palette = new List<(ThingDef def, float weight)>();
         foreach (var (name, weight) in oreOptions)
         {
-            ThingDef d = DefDatabase<ThingDef>.GetNamedSilentFail(name);
+            ThingDef d = TryGetOre(name);
             if (d != null) palette.Add((d, weight));
         }
         if (palette.Count == 0) return;
@@ -345,5 +342,29 @@ public static partial class StargateDestinationMapGen
         }
 
         return palette[palette.Count - 1].def;
+    }
+
+    /// Returns a contextually appropriate cavern floor terrain.
+    /// If the underlying rock is Sandstone, has a 20% chance of sandy terrain.
+    /// Otherwise randomly picks between Soil and Gravel.
+    private static TerrainDef GetCavernFloorTerrain(ThingDef underlyingRock)
+    {
+        // Sandstone  get a chance for sandy terrain
+        if (underlyingRock != null
+            && underlyingRock.defName.Contains("Sandstone")
+            && Rand.Chance(0.2f))
+        {
+            TerrainDef sand = DefDatabase<TerrainDef>.GetNamed("Sand");
+            if (sand != null) return sand;
+        }
+
+        // Mix of Soil and Gravel, randomly
+        return Rand.Chance(0.5f) ? TerrainDefOf.Soil : TerrainDefOf.Gravel;
+    }
+
+    /// Attempts to retrieve a ThingDef by name, returning null if not found.
+    private static ThingDef TryGetOre(string defName)
+    {
+        return DefDatabase<ThingDef>.GetNamed(defName);
     }
 }
