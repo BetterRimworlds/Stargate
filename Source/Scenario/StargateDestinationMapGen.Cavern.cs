@@ -5,11 +5,24 @@ using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
+using BetterRimworlds.Utilities;
 
 namespace BetterRimworlds.Stargate;
 
 public static partial class StargateDestinationMapGen
 {
+    private sealed class CavernDestinationGenerator : IDestinationGenerator
+    {
+        public void GenerateSurroundings(Map map)
+        {
+            GenerateImpassableSurroundings(map);
+        }
+
+        public void AddConditionalThings(Map map, CellRect roomRect, IntVec3 center)
+        {
+        }
+    }
+
     // Lowered threshold: 0.80 means only the top ~20% of noise values become caverns.
     private const float CavernThreshold = 0.55f;
     private const float CavernFrequency = 0.06f;
@@ -33,17 +46,14 @@ public static partial class StargateDestinationMapGen
         // 2. Clear the preserved area for the stargate room
         ClearPreservedArea(map, preserveRect);
 
-        // 3. Generate the secret room
-        CellRect secretRoomRect = GenerateSecretBuriedRoom(map, preserveRect);
-
-        // 4. Carve out the caverns (now with proximity boost & guaranteed starter cavern)
+        // 3. Carve out the caverns (now with proximity boost & guaranteed starter cavern)
         List<IntVec3> cavernCells = new List<IntVec3>();
-        GeneratePerlinCaverns(map, preserveRect, secretRoomRect, cavernCells);
+        GeneratePerlinCaverns(map, preserveRect, cavernCells);
 
-        // 5. Guarantee a cavern touching or within 4 tiles of the stargate room
+        // 4. Guarantee a cavern touching or within 4 tiles of the stargate room
         GuaranteeStargateCavern(map, preserveRect, cavernCells);
 
-        // 6. Populate the caverns
+        // 5. Populate the caverns
         EnforceSolidRockEdge(map, 5);
         PlantCavernFlora(map, cavernCells);
         ScatterRichOreDeposits(map);
@@ -86,7 +96,7 @@ public static partial class StargateDestinationMapGen
 
     private static void ClearPreservedArea(Map map, CellRect preserveRect)
     {
-        TerrainDef underlayStone = DefDatabase<TerrainDef>.GetNamedSilentFail("Gravel") 
+        TerrainDef underlayStone = DefDatabase<TerrainDef>.GetNamedSilentFail("Gravel")
                                    ?? TerrainDefOf.Soil;
 
         foreach (IntVec3 cell in preserveRect.Cells)
@@ -105,7 +115,7 @@ public static partial class StargateDestinationMapGen
         }
     }
 
-    private static void GeneratePerlinCaverns(Map map, CellRect preserveRect, CellRect secretRoomRect, List<IntVec3> outCells)
+    private static void GeneratePerlinCaverns(Map map, CellRect preserveRect, List<IntVec3> outCells)
     {
         float offsetX = Rand.Range(0f, 10000f);
         float offsetZ = Rand.Range(0f, 10000f);
@@ -117,11 +127,10 @@ public static partial class StargateDestinationMapGen
         foreach (IntVec3 cell in map.AllCells)
         {
             if (preserveRect.Contains(cell)) continue;
-            if (secretRoomRect.ExpandedBy(1).Contains(cell)) continue;
             if (IsInEdgeBand(cell, map, 5)) continue;
 
             float noise = Mathf.PerlinNoise(
-                (cell.x + offsetX) * CavernFrequency, 
+                (cell.x + offsetX) * CavernFrequency,
                 (cell.z + offsetZ) * CavernFrequency
             );
 
@@ -195,7 +204,7 @@ public static partial class StargateDestinationMapGen
     {
         // Pick a random cardinal direction to place the starter cavern
         IntVec3 dir = GenAdj.CardinalDirections[Rand.Range(0, 4)];
-        
+
         // Position the starter cavern adjacent to the preserve rect
         IntVec3 cavernCenter = preserveRect.CenterCell + (dir * (RoomSize / 2 + 6));
 
@@ -224,105 +233,6 @@ public static partial class StargateDestinationMapGen
                 cavernCells.Add(cell);
             }
         }
-    }
-
-    private static CellRect GenerateSecretBuriedRoom(Map map, CellRect baseRect)
-    {
-        string[] rockTypes = {
-            "Granite", "Limestone", "Sandstone", "Marble", "Slate"
-        };
-        ThingDef wallRockDef = DefDatabase<ThingDef>.GetNamedSilentFail(rockTypes[Rand.Range(0, rockTypes.Length)]);
-        if (wallRockDef == null)
-        {
-            Log.Warning("BetterRimworlds.Stargate: No rock defs found, skipping secret room wall gen.");
-            return new CellRect();
-        }
-
-        int roomWidth = 10;
-        int roomHeight = 5;
-        bool placeNorth = Rand.Chance(0.5f);
-
-        int startX = baseRect.CenterCell.x - (roomWidth / 2);
-        int startZ;
-
-        if (placeNorth)
-        {
-            startZ = baseRect.maxZ + 3; 
-        }
-        else
-        {
-            startZ = baseRect.minZ - 3 - roomHeight;
-        }
-
-        CellRect secretRoomRect = new CellRect(startX, startZ, roomWidth, roomHeight);
-        secretRoomRect.ClipInsideMap(map);
-
-        foreach (IntVec3 cell in secretRoomRect.Cells)
-        {
-            List<Thing> things = map.thingGrid.ThingsListAt(cell).ToList();
-            foreach (Thing thing in things)
-            {
-                if (thing is Pawn) continue;
-                if (thing.def.destroyable) thing.Destroy();
-            }
-
-            map.terrainGrid.SetTerrain(cell, TerrainDefOf.Concrete);
-            map.roofGrid.SetRoof(cell, RoofDefOf.RoofRockThick);
-        }
-
-        foreach (IntVec3 cell in secretRoomRect.ExpandedBy(1).Cells)
-        {
-            if (secretRoomRect.Contains(cell)) continue;
-            if (!cell.InBounds(map)) continue;
-            
-            Thing rock = map.thingGrid.ThingsListAt(cell)
-                .FirstOrDefault(t => t.def.building != null && t.def.building.isNaturalRock);
-            
-            if (rock != null) rock.Destroy(DestroyMode.Vanish);
-
-            Thing wall = ThingMaker.MakeThing(wallRockDef);
-            GenSpawn.Spawn(wall, cell, map, WipeMode.Vanish);
-        }
-
-        IntVec3 tablePos = secretRoomRect.CenterCell;
-        ThingDef researchDef = DefDatabase<ThingDef>.GetNamedSilentFail("HiTechResearchBench");
-        if (researchDef != null)
-        {
-            Thing table = ThingMaker.MakeThing(researchDef);
-            GenSpawn.Spawn(table, tablePos, map, WipeMode.Vanish);
-        }
-
-        ThingDef advComponent = DefDatabase<ThingDef>.GetNamedSilentFail("ComponentAdvanced");
-        ThingDef component    = DefDatabase<ThingDef>.GetNamedSilentFail("ComponentIndustrial");
-        ThingDef meals        = DefDatabase<ThingDef>.GetNamedSilentFail("MealSurvivalPack");
-
-        foreach (IntVec3 cell in secretRoomRect.Cells)
-        {
-            if (cell == tablePos) continue;
-
-            float roll = Rand.Value;
-
-            if (roll < 0.25f && advComponent != null)
-            {
-                Thing loot = ThingMaker.MakeThing(advComponent);
-                loot.stackCount = Rand.Range(5, 15);
-                GenSpawn.Spawn(loot, cell, map, WipeMode.Vanish);
-            }
-            else if (roll < 0.60f && component != null)
-            {
-                Thing loot = ThingMaker.MakeThing(component);
-                loot.stackCount = Rand.Range(15, 30);
-                GenSpawn.Spawn(loot, cell, map, WipeMode.Vanish);
-            }
-            else if (roll < 0.85f && meals != null)
-            {
-                Thing loot = ThingMaker.MakeThing(meals);
-                loot.stackCount = Rand.Range(20, 50);
-                GenSpawn.Spawn(loot, cell, map, WipeMode.Vanish);
-            }
-        }
-
-        return secretRoomRect;
     }
 
     private static void PlantCavernFlora(Map map, List<IntVec3> cavernCells)
@@ -357,18 +267,18 @@ public static partial class StargateDestinationMapGen
             GenSpawn.Spawn(plant, cell, map, WipeMode.Vanish);
         }
     }
-    
+
     private static void ScatterRichOreDeposits(Map map)
     {
         // countPer10kCells is roughly 2-4x vanilla density.
         // Vanilla steel is ~10, gold ~2-3.
-        ScatterOre(map, "MineableSteel",      10);
-        ScatterOre(map, "MineableSilver",     16);
-        ScatterOre(map, "MineableGold",       10);
-        ScatterOre(map, "MineableUranium",     8);
-        ScatterOre(map, "MineablePlasteel",    15);
-        ScatterOre(map, "MineableJade",        4);
-        ScatterOre(map, "MineableComponentIndustrialScattered", 8);
+        ScatterOre(map, "MineableSteel",               10);
+        ScatterOre(map, "MineableSilver",              16);
+        ScatterOre(map, "MineableGold",                10);
+        ScatterOre(map, "MineableUranium",              8);
+        ScatterOre(map, "MineablePlasteel",            15);
+        ScatterOre(map, "MineableJade",                 4);
+        ScatterOre(map, "MineableComponentsIndustrial", 8);
     }
 
     private static void ScatterOre(Map map, string defName, int countPer10kCells)
@@ -385,7 +295,7 @@ public static partial class StargateDestinationMapGen
         scatter.countPer10kCellsRange = new FloatRange(countPer10kCells, countPer10kCells);
         scatter.Generate(map, new GenStepParams());
     }
-    
+
     private static void PlaceCavernWallVeins(Map map, List<IntVec3> cavernCells)
     {
         // Weighted palette: common metals more likely, rare materials sparse.
@@ -447,6 +357,7 @@ public static partial class StargateDestinationMapGen
             acc += weight;
             if (roll <= acc) return def;
         }
+
         return palette[palette.Count - 1].def;
     }
 }
