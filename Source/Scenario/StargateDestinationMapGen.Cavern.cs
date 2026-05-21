@@ -187,42 +187,44 @@ public static partial class StargateDestinationMapGen
                || cell.z >= map.Size.z - edgeBand;
     }
 
-    /// Carves a small cavern right next to the stargate room to guarantee connectivity.
+    /// Carves a starter cavern that opens directly at the stargate room's door,
+    /// plus a connector corridor through the solid rock so connectivity is
+    /// deterministic instead of depending on Perlin noise opening the gap.
     private static void GuaranteeStargateCavern(Map map, CellRect preserveRect, List<IntVec3> cavernCells)
     {
-        // Pick a random cardinal direction to place the starter cavern
-        IntVec3 dir = GenAdj.CardinalDirections[Rand.Range(0, 4)];
+        // Open the cavern mouth at the stargate's door. Carving the 5x5 so its inner edge sits
+        // adjacent to the door makes connectivity geometric, not Perlin-dependent. No corridor needed.
+        Building_Door door = preserveRect.Cells
+            .Where(c => c.InBounds(map))
+            .Select(c => c.GetEdifice(map) as Building_Door)
+            .FirstOrDefault(d => d != null);
 
-        // Position the starter cavern adjacent to the preserve rect
-        IntVec3 cavernCenter = preserveRect.CenterCell + (dir * (RoomSize / 2 + 6));
+        IntVec3 delta = (door?.Position ?? preserveRect.CenterCell) - preserveRect.CenterCell;
+        IntVec3 dir = (Mathf.Abs(delta.x) >= Mathf.Abs(delta.z))
+            ? new IntVec3(delta.x >= 0 ? 1 : -1, 0, 0)
+            : new IntVec3(0, 0, delta.z >= 0 ? 1 : -1);
 
-        // Carve a 5x5 cavern
+        // Mouth = the door cell, or a perimeter cell if the door isn't built yet at this gen stage.
+        IntVec3 mouth = door?.Position ?? preserveRect.CenterCell + dir * (RoomSize / 2 + 2);
+
+        // Inner edge lands one cell outside the mouth -> cardinally adjacent -> guaranteed contact.
+        IntVec3 cavernCenter = mouth + dir * 3;
         CellRect starterCavern = new CellRect(cavernCenter.x - 2, cavernCenter.z - 2, 5, 5);
         starterCavern.ClipInsideMap(map);
 
-        // Look up the underlying rock type for smarter terrain selection
-        IntVec3 sampleCell = starterCavern.CenterCell;
-        Thing rock = map.thingGrid.ThingsListAt(sampleCell)
+        Thing sampleRock = map.thingGrid.ThingsListAt(starterCavern.CenterCell)
             .FirstOrDefault(t => t.def.building != null && t.def.building.isNaturalRock);
-        TerrainDef cavernFloor = GetCavernFloorTerrain(rock?.def);
+        TerrainDef cavernFloor = GetCavernFloorTerrain(sampleRock?.def);
 
         foreach (IntVec3 cell in starterCavern.Cells)
         {
-            Thing rockToDestroy = map.thingGrid.ThingsListAt(cell)
-                .FirstOrDefault(t => t.def.building != null && t.def.building.isNaturalRock);
-
-            if (rockToDestroy != null)
-            {
-                rockToDestroy.Destroy(DestroyMode.Vanish);
-            }
+            map.thingGrid.ThingsListAt(cell)
+                .FirstOrDefault(t => t.def.building != null && t.def.building.isNaturalRock)
+                ?.Destroy(DestroyMode.Vanish);
 
             map.terrainGrid.SetTerrain(cell, cavernFloor);
             map.roofGrid.SetRoof(cell, RoofDefOf.RoofRockThin);
-
-            if (!cavernCells.Contains(cell))
-            {
-                cavernCells.Add(cell);
-            }
+            if (!cavernCells.Contains(cell)) cavernCells.Add(cell);
         }
     }
 
