@@ -29,7 +29,7 @@ public static partial class StargateDestinationMapGen
         );
 
         // 1. Fill the entire map with mountain terrain
-        GenerateMountainTerrain(map);
+        GenerateMountainTerrain(map, preserveRect);
 
         // 2. Clear the preserved area for the stargate room
         ClearPreservedArea(map, preserveRect);
@@ -50,7 +50,7 @@ public static partial class StargateDestinationMapGen
         map.GetComponent<MapComponent_SealedFromSky>().isSealed = true;
     }
 
-    private static void GenerateMountainTerrain(Map map)
+    private static void GenerateMountainTerrain(Map map, CellRect preserveRect)
     {
         string[] rockTypes = { "Granite", "Limestone", "Sandstone", "Marble", "Slate" };
         ThingDef primaryRock = DefDatabase<ThingDef>.GetNamedSilentFail(rockTypes[Rand.Range(0, rockTypes.Length)]);
@@ -67,6 +67,8 @@ public static partial class StargateDestinationMapGen
         // Phase 1: fill the map with solid rock + thick stone roof.
         foreach (IntVec3 cell in map.AllCells)
         {
+            if (preserveRect.Contains(cell)) continue;
+
             List<Thing> things = map.thingGrid.ThingsListAt(cell).ToList();
             foreach (Thing thing in things)
             {
@@ -84,9 +86,6 @@ public static partial class StargateDestinationMapGen
 
     private static void ClearPreservedArea(Map map, CellRect preserveRect)
     {
-        TerrainDef underlayStone = DefDatabase<TerrainDef>.GetNamedSilentFail("Gravel")
-                                   ?? TerrainDefOf.Soil;
-
         foreach (IntVec3 cell in preserveRect.Cells)
         {
             if (!cell.InBounds(map)) continue;
@@ -98,7 +97,6 @@ public static partial class StargateDestinationMapGen
                 if (thing.def.destroyable) thing.Destroy();
             }
 
-            map.terrainGrid.SetTerrain(cell, underlayStone);
             map.roofGrid.SetRoof(cell, null);
         }
     }
