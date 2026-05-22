@@ -6,59 +6,61 @@ namespace BetterRimworlds.Stargate;
 
 public static partial class StargateDestinationMapGen
 {
-   // Must match ScenPart_StargateFacility constants exactly.
-   private const int RoomSize = 15;
+    // Must match ScenPart_StargateFacility constants exactly.
+    private const int RoomSize = 15;
 
-   public static void Apply(Map map, string tileDescription)
-   {
-       // Always lay rich soil under the inner room footprint.
-       //
-       // Ocean:      removing concrete floors reveals farmable soil — Atlantis gardens.
-       // Impassable: underground growing under artificial light.
-       //
-       // This must run BEFORE GenerateRoomStructure, because SetTerrain stores the
-       // current terrain as underterrain when a floor type is placed on top.
-       // The sequence is:  SetTerrain(SoilRich) → SetTerrain(Concrete)
-       // Removing the concrete later restores the SoilRich underterrain.
-       SetFacilityUnderlayTerrain(map);
+    public static void Apply(Map map, string tileDescription)
+    {
+        // STEP 1: Build the facility first.
+        // Always lay rich soil under the inner room footprint.
+        //
+        // Ocean:      removing concrete floors reveals farmable soil — Atlantis gardens.
+        // Impassable: underground growing under artificial light.
+        //
+        // This must run BEFORE GenerateRoomStructure, because SetTerrain stores the
+        // current terrain as underterrain when a floor type is placed on top.
+        // The sequence is:  SetTerrain(SoilRich) -> SetTerrain(Concrete)
+        // Removing the concrete later restores the SoilRich underterrain.
+        SetFacilityUnderlayTerrain(map);
 
-       switch (tileDescription)
-       {
-           case "Ocean":
-               GenerateOceanSurroundings(map);
-               break;
+        // STEP 2, 3, 4: Generate surroundings based on tile type.
+        switch (tileDescription)
+        {
+            case "Ocean":
+                GenerateOceanSurroundings(map);
+                break;
 
-           case "Impassable":
-               GenerateImpassableSurroundings(map);
-               break;
-       }
-   }
+            case "Impassable":
+                GenerateImpassableSurroundings(map);
+                break;
+        }
+    }
 
-   // -------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
 
-   private static void SetFacilityUnderlayTerrain(Map map)
-   {
-       IntVec3 center = map.Center;
-       int halfSize   = RoomSize / 2;
+    private static void SetFacilityUnderlayTerrain(Map map)
+    {
+        IntVec3 center = map.Center;
+        int halfSize   = RoomSize / 2;
 
-       CellRect roomRect = new CellRect(
-           center.x - halfSize,
-           center.z - halfSize,
-           RoomSize,
-           RoomSize
-       );
+        CellRect roomRect = new CellRect(
+            center.x - halfSize,
+            center.z - halfSize,
+            RoomSize,
+            RoomSize
+        );
 
-       TerrainDef richSoil;
-       #if RIMWORLD12
-       richSoil = DefDatabase<TerrainDef>.GetNamed("SoilRich");
-       #else
-       richSoil = TerrainDefOf.SoilRich;
-       #endif
+        TerrainDef richSoil;
+        #if RIMWORLD12
+        richSoil = DefDatabase<TerrainDef>.GetNamed("SoilRich");
+        #else
+        richSoil = TerrainDefOf.SoilRich;
+        #endif
 
-       foreach (IntVec3 cell in roomRect.Cells)
-       {
-           if (!cell.InBounds(map)) continue;
-           map.terrainGrid.SetTerrain(cell, richSoil);
-       }
-   }
+        foreach (IntVec3 cell in roomRect.Cells)
+        {
+            if (!cell.InBounds(map)) continue;
+            map.terrainGrid.SetTerrain(cell, richSoil);
+        }
+    }
 }
