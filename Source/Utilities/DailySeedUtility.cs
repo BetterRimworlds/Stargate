@@ -1,5 +1,6 @@
 // ==== Source/Utilities/DailySeedUtility.cs ====
 using System;
+using System.Globalization;
 using Verse;
 
 namespace BetterRimworlds.Utilities;
@@ -48,7 +49,9 @@ internal static class DailySeedUtility
    /// This string is suitable for RimWorld's world seed field.
    internal static string GetDailySeed()
    {
-       return DateTime.UtcNow.ToString("yyyy-MM-dd");
+       // Unbelievably to me, without the CultureInfo.InvariantCulture, this produces different responses for
+       // the USA, Colombia, Europe, and Dubai..
+       return DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
    }
 
    /// Produces a deterministic sub-seed for one specific planet-generation purpose.
