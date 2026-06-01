@@ -9,7 +9,7 @@ fi
 
 # Directory to monitor for changes
 dir="./Source"
-MOD=$(basename $PWD)
+MOD="Stargate"
 
 # Define the path to your solution file
 solutionPath="Source/${MOD}.sln"
