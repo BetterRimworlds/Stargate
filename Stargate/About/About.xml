@@ -55,4 +55,21 @@ Forked from Jaxxa's ED-Stargate (but only ~100 lines remain of the original code
 • **[2024-05-06]** Shuffled the offworld gate psionic curses to their own class.
 • **[2024-05-06]** Fixed some bugs with the stored mass not resetting when appropriate.
     </description>
+    <modDependencies>
+        <li>
+            <packageId>brrainz.harmony</packageId>
+            <displayName>Harmony</displayName>
+            <downloadUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=2009463077</downloadUrl>
+        </li>
+        <li>
+            <packageId>HopeSeekr.BetterRimworlds.ZPM</packageId>
+            <displayName>BetterRimworlds ZPM</displayName>
+            <downloadUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=2519838003</downloadUrl>
+        </li>
+        <li>
+            <packageId>HopeSeekr.BetterRimworlds.LCryoRegenesis</packageId>
+            <displayName>BetterRimworlds CryoRegenesis</displayName>
+            <downloadUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=2193849288</downloadUrl>
+        </li>
+    </modDependencies>
 </ModMetaData>
