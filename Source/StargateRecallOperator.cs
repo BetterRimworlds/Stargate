@@ -383,12 +383,7 @@ namespace BetterRimworlds.Stargate
 
         private void ResetHumanlikeMemories(Pawn pawn)
         {
-            // pawn.guest = new Pawn_GuestTracker(pawn);
-            #if RIMWORLD12
-            pawn.guilt = new Pawn_GuiltTracker();
-            #else
-            pawn.guilt = new Pawn_GuiltTracker(pawn);
-            #endif
+            pawn.guest = new Pawn_GuestTracker(pawn);
             pawn.abilities = new Pawn_AbilityTracker(pawn);
             pawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(pawn);
         }
