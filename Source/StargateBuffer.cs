@@ -144,6 +144,10 @@ namespace BetterRimworlds.Stargate
 
         public void TransmitContents()
         {
+            // Flush runtime implant research into its scribed representation immediately
+            // before buffer XML write.
+            this.PreparePawnsForStargateSerialization();
+
             Enhanced_Development.Stargate.Saving.SaveThings.save(this.InnerListForReading, this.StargateBufferFilePath);
 
             for (int a = this.InnerListForReading.Count - 1; a >= 0; --a)
@@ -339,6 +343,37 @@ namespace BetterRimworlds.Stargate
             }
 
             implant?.RecordStargateBufferEntry();
+        }
+
+        private void PreparePawnsForStargateSerialization()
+        {
+            foreach (Thing thing in this.InnerListForReading)
+            {
+                if (thing is not Pawn pawn)
+                {
+                    continue;
+                }
+
+                if (pawn.RaceProps?.Humanlike != true)
+                {
+                    continue;
+                }
+
+                GateTravelerImplant implant = pawn.health?.hediffSet?.hediffs
+                    .OfType<GateTravelerImplant>()
+                    .FirstOrDefault();
+
+                if (implant == null)
+                {
+                    continue;
+                }
+
+                Log.Message(
+                    $"[Stargate] Serializing research for {pawn.LabelShortCap}: " +
+                    $"{implant.Research?.Count ?? 0} project(s), " +
+                    $"{implant.GetTotalResearchMemoryPoints():0.#} points."
+                );
+            }
         }
 
         public static bool ClearExistingWorldPawn(Pawn pawn)

@@ -32,7 +32,7 @@ namespace BetterRimworlds.Stargate
     /// The ledger is updated at two lifecycle boundaries:
     ///   1. Entry into the Stargate buffer  (RecordStargateBufferEntry)
     ///   2. Exit from the Stargate buffer   (RecordStargateBufferExit)
-    public class GateTravelerImplant : Hediff_Implant
+    public partial class GateTravelerImplant : Hediff_Implant
     {
         public List<StargateRelation> relationships = new List<StargateRelation>();
 
@@ -77,6 +77,12 @@ namespace BetterRimworlds.Stargate
             Scribe_Values.Look(ref this.cryoRegenesisRemovedAgeTicks, "cryoRegenesisRemovedAgeTicks", 0L);
             Scribe_Values.Look(ref this.lastKnownBiologicalAgeTicks, "lastKnownBiologicalAgeTicks", -1L);
             Scribe_Values.Look(ref this.lastKnownChronologicalAgeTicks, "lastKnownChronologicalAgeTicks", -1L);
+
+            // Always expose research memory. Hediff.pawn is null during LoadingVars
+            // (only assigned in ResolvingCrossRefs), so gating on RaceProps here
+            // would skip the Scribe calls on load and drop the data. Empty lists
+            // are fine for animals that only carry the implant from transit.
+            this.ExposeResearchData();
         }
 
         public override void PostMake()

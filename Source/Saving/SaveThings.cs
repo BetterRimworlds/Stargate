@@ -77,10 +77,8 @@ namespace Enhanced_Development.Stargate.Saving
          */
         public static Tuple<int> load(ref List<Thing> thingsToLoad, string fileLocation)
         {
-            Log.Message("ScribeINIT, loding from:" + fileLocation);
+            Log.Message("ScribeINIT, loading from:" + fileLocation);
             Scribe.loader.InitLoading(fileLocation);
-
-            //Scribe.EnterNode("Stargate");
 
             Log.Message("DeepProfiler.Start()");
             DeepProfiler.Start("Load non-compressed things");
@@ -93,20 +91,12 @@ namespace Enhanced_Development.Stargate.Saving
 
             DeepProfiler.End();
 
-            Scribe.mode = LoadSaveMode.Inactive;
-
-            Log.Message("Exit Node");
-            //Scribe.ExitNode();
-
-
-            Log.Message("ResolveAllCrossReferences");
-            //CrossRefHandler
-            var c = new CrossRefHandler();
-            c.ResolveAllCrossReferences();
-
-            Log.Message("DoAllPostLoadInits");
-            var p = new PostLoadIniter();
-            p.DoAllPostLoadInits();
+            // CRITICAL: use the loader's own crossRefs + post-load initer.
+            // Creating empty CrossRefHandler/PostLoadIniter instances (the old path)
+            // skipped GateTravelerImplant research rebuild and other PostLoadInit work,
+            // so carried research never reappeared after wormhole arrival.
+            Log.Message("FinalizeLoading (cross-refs + post-load inits)");
+            Scribe.loader.FinalizeLoading();
 
             return new Tuple<int>(originalTimelineTicks);
         }
