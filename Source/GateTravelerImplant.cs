@@ -32,7 +32,7 @@ namespace BetterRimworlds.Stargate
     /// The ledger is updated at two lifecycle boundaries:
     ///   1. Entry into the Stargate buffer  (RecordStargateBufferEntry)
     ///   2. Exit from the Stargate buffer   (RecordStargateBufferExit)
-    public class GateTravelerImplant : Hediff_Implant
+    public partial class GateTravelerImplant : Hediff_Implant
     {
         public List<StargateRelation> relationships = new List<StargateRelation>();
 
