@@ -36,7 +36,7 @@
         <label>stargate facility</label>
         <description>Generates a pre-built facility containing a Stargate at map center.</description>
         <scenPartClass>BetterRimworlds.Stargate.ScenPart_StargateFacility</scenPartClass>
-        <category>MapGeneration</category>
+        <!--<category>MapGeneration</category>-->
         <summaryPriority>500</summaryPriority>
     </ScenPartDef>
 </Defs>
