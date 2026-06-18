@@ -3,7 +3,7 @@
 <Patch>
 
   <Operation Class="PatchOperationAddModExtension">
-    <xpath>Defs/IncidentDef[defName="CargoPodCrash"]</xpath>
+    <xpath>Defs/IncidentDef[defName="ResourcePodCrash"]</xpath>
     <value>
       <li Class="BetterRimworlds.Stargate.RequiresSkyAccess"/>
     </value>
