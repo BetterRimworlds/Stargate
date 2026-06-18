@@ -10,6 +10,18 @@
                 <def>PlayerFaction</def>
                 <factionDef>PlayerColony</factionDef>
             </playerFaction>
+            <surfaceLayer>
+                <def>SurfaceLayerFixed</def>
+                <tag>Surface</tag>
+                <layer>Surface</layer>
+                <settingsDef>Surface</settingsDef>
+                <hide>true</hide>
+                <connections>
+                    <Orbit MayRequire="Ludeon.RimWorld.Odyssey">
+                        <zoomMode>ZoomOut</zoomMode>
+                    </Orbit>
+                </connections>
+            </surfaceLayer>
             <parts>
                 <!-- Config pages -->
                 <!--
@@ -36,7 +48,7 @@
         <label>stargate facility</label>
         <description>Generates a pre-built facility containing a Stargate at map center.</description>
         <scenPartClass>BetterRimworlds.Stargate.ScenPart_StargateFacility</scenPartClass>
-        <category>MapGeneration</category>
+        <!--<category>MapGeneration</category>-->
         <summaryPriority>500</summaryPriority>
     </ScenPartDef>
 </Defs>

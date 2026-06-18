@@ -183,7 +183,8 @@ public static class Patch_Page_SelectStartingSite_PreOpen
 
         int selectedTile = SelectRandomStargateDestinationTile();
         // Hardcode startTile
-        // selectedTile = 23175;
+        selectedTile = 11613; // IMPASSABLE
+        // selectedTile = 272612; // OCEAN
 
         Find.GameInitData.startingTile = selectedTile;
 
@@ -275,7 +276,11 @@ public static class Patch_Page_ConfigureStartingPawns_PostOpen
         //
         // Clearing this list here makes the scenario part unable to place the Guardian.
 
-        // CRITICAL:
+        // This scenario intentionally has no normal starting colonists. Vanilla DoNext()
+        // blocks that with capability warnings, but PrepForMapGen() still requires a
+        // non-negative startingPawnCount or it indexes startingAndOptionalPawns at -1.
+        Find.GameInitData.startingPawnCount = Find.GameInitData.startingAndOptionalPawns?.Count ?? 0;
+
         // Because this automation bypasses vanilla Page_SelectStartingSite.DoNext, we
         // must recreate the player faction base world object before InitGameStart().
         StargateAutomationPatches.EnsurePlayerFactionBaseAtStartingTile();
@@ -353,7 +358,7 @@ internal sealed class StargateDailyPlanetConditions
     internal OverallTemperature Temperature { get; }
 
     internal OverallPopulation Population { get; }
-    
+
     private static OverallPopulation LoreWeightedPopulation()
     {
         float roll = Rand.Value;
