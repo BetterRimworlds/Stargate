@@ -15,7 +15,7 @@ internal static class SecretLabPlacement
     private const int RefWidth  = 7;
     private const int RefHeight = 10;
 
-    public static void AddSecretLab(Map map, CellRect secretRoomRect, CellRect interior, Rot4 side, bool vertical)
+    public static void AddSecretLab(Map map, CellRect secretRoomRect, CellRect interior, Rot4 side)
     {
         BlueprintSpawner spawner = new BlueprintSpawner(map);
         spawner.ConfigureLayout(interior, side, RefWidth, RefHeight);
