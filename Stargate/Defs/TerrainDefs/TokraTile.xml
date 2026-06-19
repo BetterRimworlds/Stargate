@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    <TerrainDef ParentName="FlagstoneBase">
+        <defName>BR_TokraTile</defName>
+        <label>Tok'ra Tile</label>
+        <description>Ancient Tok'ra flagstone, covered in centuries of dust and grime. It feels... wrong.</description>
+
+        <texturePath>Terrain/TokraTile</texturePath>
+
+        <statBases>
+            <Beauty>-5</Beauty>
+            <Cleanliness>0.1</Cleanliness>
+            <Flammability>0</Flammability>
+        </statBases>
+<!--        <removable>false</removable>-->
+        <layerable>false</layerable>
+        <costList Inherit="False" />
+
+
+        <designationCategory></designationCategory>
+    </TerrainDef>
+</Defs>
