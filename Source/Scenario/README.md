@@ -65,7 +65,7 @@ ScenPart_StargateFacility.GenerateIntoMap()
 | Description | Generator | Theme |
 |-------------|-----------|-------|
 | `"Ocean"` | `GenerateOceanSurroundings()` | Atlantis — shallow water apron, deep ocean beyond |
-| `"Impassable"` | `GenerateImpassableSurroundings()` | Tok'ra — carved mountain base, caverns, glowstools, ore veins |
+| `"Impassable"` | `GenerateImpassableSurroundings()` → `CavernArchitect.GenerateCavernSystem()` | Tok'ra — solid rock, Perlin caverns, glowstools, ore veins |
 | (default) | Vanilla terrain | Surface facility with natural surroundings |
 
 ## Key Implementation Notes
