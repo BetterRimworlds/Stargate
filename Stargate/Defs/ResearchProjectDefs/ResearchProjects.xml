@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
+<!-- ==== Stargate/Defs/ResearchProjectDefs/ResearchProjects.xml ==== -->
 <Defs>
     <ResearchProjectDef>
         <defName>BRW_QuantumStorage</defName>
@@ -57,6 +58,75 @@ This tech enables the Archotech Teleporter tech, if you have that mod.</descript
             <li>ShipBasics</li>
             <li>BRW_QuantumTeleportation</li>
             <li>BRW_QuantumStorage</li>
+        </prerequisites>
+        <tab>Stargate</tab>
+    </ResearchProjectDef>
+    <ResearchProjectDef>
+        <defName>AtlantisRising</defName>
+        <label>Atlantis Rising</label>
+        <description>Recover the first traces of an ancient off-world facility and unlock the path to the deeper Atlantis infrastructure.</description>
+        <baseCost>2222</baseCost>
+        <techLevel>Spacer</techLevel>
+        <researchViewX>5</researchViewX>
+        <researchViewY>3</researchViewY>
+        <modExtensions>
+            <li Class="BetterRimworlds.Stargate.RequiresOceanBase" />
+        </modExtensions>
+        <tab>Stargate</tab>
+    </ResearchProjectDef>
+    <ResearchProjectDef>
+        <defName>HiddenLab</defName>
+        <label>Hidden Lab</label>
+        <description>Expose a concealed laboratory hidden beneath the surface and restore its research capacity.</description>
+        <baseCost>3</baseCost>
+        <techLevel>Spacer</techLevel>
+        <researchViewX>6</researchViewX>
+        <researchViewY>1</researchViewY>
+        <modExtensions>
+            <li Class="BetterRimworlds.Stargate.RequiresOceanBase" />
+        </modExtensions>
+        <prerequisites>
+            <li>AtlantisRising</li>
+        </prerequisites>
+        <tab>Stargate</tab>
+    </ResearchProjectDef>
+    <ResearchProjectDef>
+        <defName>ZPMRoom</defName>
+        <label>ZPM Room</label>
+        <description>Unlock a dedicated Zero Point Module chamber capable of housing advanced power systems.</description>
+        <baseCost>5000</baseCost>
+        <techLevel>Spacer</techLevel>
+        <researchViewX>6</researchViewX>
+        <researchViewY>3</researchViewY>
+        <requiredResearchFacilities>
+            <li>MultiAnalyzer</li>
+        </requiredResearchFacilities>
+        <modExtensions>
+            <li Class="BetterRimworlds.Stargate.RequiresOceanBase" />
+        </modExtensions>
+        <prerequisites>
+            <li>AtlantisRising</li>
+            <li>HiddenLab</li>
+        </prerequisites>
+        <tab>Stargate</tab>
+    </ResearchProjectDef>
+    <ResearchProjectDef>
+        <defName>StarDriveCore</defName>
+        <label>Star Drive Core</label>
+        <description>Master the heart of an interstellar drive core and prepare the facility for deep-space propulsion.</description>
+        <baseCost>10000</baseCost>
+        <techLevel>Spacer</techLevel>
+        <researchViewX>6</researchViewX>
+        <researchViewY>5</researchViewY>
+        <requiredResearchFacilities>
+            <li>MultiAnalyzer</li>
+        </requiredResearchFacilities>
+        <modExtensions>
+            <li Class="BetterRimworlds.Stargate.RequiresOceanBase" />
+        </modExtensions>
+        <prerequisites>
+            <li>AtlantisRising</li>
+            <li>ZPMRoom</li>
         </prerequisites>
         <tab>Stargate</tab>
     </ResearchProjectDef>
