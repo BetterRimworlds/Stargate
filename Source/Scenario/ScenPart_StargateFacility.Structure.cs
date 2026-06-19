@@ -15,7 +15,21 @@ internal partial class ScenPart_StargateFacility
     {
         string[] stoneTypes = { "BlocksGranite", "BlocksLimestone", "BlocksSlate" };
         ThingDef wallMaterial = DefDatabase<ThingDef>.GetNamed(stoneTypes[Rand.Range(0, stoneTypes.Length)]);
+
+        // The Gate Room floor is themed per destination:
+        // Tok'ra cavern bases (impassable mountain tiles) get the Tok'ra
+        // flagstone, Atlantis (ocean tiles) gets the ancient Atlantean floor;
+        // surface facilities keep concrete.
         TerrainDef floorDef = TerrainDefOf.Concrete;
+        string tileDescription = DescribeTile(map.Tile);
+        if (tileDescription == "Impassable")
+        {
+            floorDef = DefDatabase<TerrainDef>.GetNamed("BR_TokraTile");
+        }
+        else if (tileDescription == "Ocean")
+        {
+            floorDef = DefDatabase<TerrainDef>.GetNamed("BR_AtlantisAncientFloor");
+        }
 
         _entranceSide = Rand.Element(Rot4.North, Rot4.South, Rot4.East, Rot4.West);
 
