@@ -1,14 +1,15 @@
+// ==== Source/Building_Stargate.cs ====
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BetterRimworlds.Stargate.Services;
 using Enhanced_Development.Stargate.Saving;
 using Verse;
 using UnityEngine;
 using RimWorld;
 using Verse.AI;
 using Verse.Sound;
+using BetterRimworlds.Stargate.Services;
 
 namespace BetterRimworlds.Stargate
 {
@@ -42,9 +43,6 @@ namespace BetterRimworlds.Stargate
         public bool StargateAddResources = true;
         public bool StargateAddUnits = true;
         public bool StargateRetreave = true;
-
-        private string FileLocationPrimary;
-        private string FileLocationSecondary;
 
         static Graphic graphicActive;
         static Graphic graphicInactive;
@@ -105,29 +103,6 @@ namespace BetterRimworlds.Stargate
             base.SpawnSetup(map, respawningAfterLoad);
 
             this.power = base.GetComp<CompPowerTrader>();
-
-            string stargateDirectory = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate");
-            Log.Warning("Stargate Directory: " + stargateDirectory);
-
-            if (String.IsNullOrEmpty(FileLocationPrimary))
-            {
-                FileLocationPrimary = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate", "Stargate.xml");
-                Log.Warning("Stargate File: " + FileLocationPrimary);
-
-                if (!System.IO.Directory.Exists(stargateDirectory))
-                {
-                    System.IO.Directory.CreateDirectory(stargateDirectory);
-                }
-            }
-
-            if (String.IsNullOrEmpty(FileLocationSecondary))
-            {
-                FileLocationSecondary = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate", "StargateBackup.xml");
-                Log.Warning("Stargate Backup: " + FileLocationSecondary);
-            }
-
-            // Link the Stargate to the Stargate Network inside 4D space.
-            this.stargateBuffer.SetStargateFilePath(FileLocationPrimary);
 
             // Register this gate in the Gate Network.
             Log.Warning($"Registering this Gate ({this.ThingID}) in the Gate Network.");
@@ -262,7 +237,7 @@ namespace BetterRimworlds.Stargate
                     // Log.Error("========= NOT ENOUGH POWER +========");
                     if (this.IsRecalling == false && this.stargateBuffer.GetStoredMass() > 1_000f)
                     {
-                        this.EjectLeastMassive();
+                        this.stargateBuffer.EjectLeastMassive();
                     }
 
                     return;
@@ -323,7 +298,7 @@ namespace BetterRimworlds.Stargate
                 yield return act;
             }
 
-            if (this.HasThingsInBuffer())
+            if (this.stargateBuffer.hasIncomingWormhole())
             {
                 Command_Action act = new Command_Action();
                 //act.action = () => Designator_Deconstruct.DesignateDeconstruct(this);
@@ -339,7 +314,7 @@ namespace BetterRimworlds.Stargate
 
             // Show Recall only when there is local buffer content or a real/pending incoming stream.
             // Scenario-seed teams remain visible via hasIncomingWormhole() until disabled savegame-wide.
-            if (this.HasThingsInBuffer() || this.hasIncomingWormhole())
+            if (this.HasThingsInBuffer() || this.stargateBuffer.hasIncomingWormhole())
             {
                 Command_Action act = new Command_Action();
                 //act.action = () => Designator_Deconstruct.DesignateDeconstruct(this);
@@ -387,11 +362,7 @@ namespace BetterRimworlds.Stargate
                 this.stargateBuffer.TryAdd(foundThing);
 
                 // Tell the MapDrawer that here is something thats changed
-                #if RIMWORLD15 || RIMWORLD16
-                Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlagDefOf.Things, true, false);
-                #else
-                Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
-                #endif
+                this.MarkMapMeshDirty();
             }
         }
 
@@ -436,11 +407,7 @@ namespace BetterRimworlds.Stargate
                 }
 
                 // Tell the MapDrawer that here is something thats changed
-                #if RIMWORLD15 || RIMWORLD16
-                Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlagDefOf.Things, true, false);
-                #else
-                Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
-                #endif
+                this.MarkMapMeshDirty();
             }
         }
 
@@ -461,11 +428,7 @@ namespace BetterRimworlds.Stargate
             this.stargateBuffer.TransmitContents();
 
             // Tell the MapDrawer that here is something thats changed
-            #if RIMWORLD15 || RIMWORLD16
-            Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlagDefOf.Things, true, false);
-            #else
-            Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
-            #endif
+            this.MarkMapMeshDirty();
 
             this.stargateSounds["Stargate Close"].PlayOneShotOnCamera();
 
@@ -479,16 +442,10 @@ namespace BetterRimworlds.Stargate
 
         public List<Thing> Teleport()
         {
-            var itemsToTeleport = new List<Thing>();
-            itemsToTeleport.AddRange(this.stargateBuffer);
-            this.stargateBuffer.Empty();
+            var itemsToTeleport = this.stargateBuffer.Flush();
 
             // Tell the MapDrawer that here is something that's changed.
-            #if RIMWORLD15 || RIMWORLD16
-            Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlagDefOf.Things, true, false);
-            #else
-            Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
-            #endif
+            this.MarkMapMeshDirty();
 
             this.currentCapacitorCharge = 0;
 
@@ -535,11 +492,6 @@ namespace BetterRimworlds.Stargate
             return this.stargateBuffer.receiveIncomingStream();
         }
 
-        private void cleanseHistoricalRecord(Pawn transmittedPawn)
-        {
-            StargatePawnService.ClearExistingWorldPawn(transmittedPawn);
-        }
-
         public virtual bool StargateRecall()
         {
             bool hasTransmittedPawns = false;
@@ -565,11 +517,7 @@ namespace BetterRimworlds.Stargate
             recallOperation.Execute(inboundBuffer, originalTimelineTicks, offworldEvent, out hasTransmittedPawns);
 
             // Tell the MapDrawer that here is something that's changed
-            #if RIMWORLD15 || RIMWORLD16
-            Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlagDefOf.Things, true, false);
-            #else
-            Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
-            #endif
+            this.MarkMapMeshDirty();
 
             if (offworldEvent && hasTransmittedPawns)
             {
@@ -579,14 +527,7 @@ namespace BetterRimworlds.Stargate
 
             if (offworldEvent)
             {
-                try
-                {
-                    this.MoveToBackup();
-                }
-                catch (Exception e)
-                {
-                    Log.Error("Couldn't move the stargate buffer to backup: " + e.Message);
-                }
+                this.stargateBuffer.MoveToBackup();
             }
 
             if (this.HasThingsInBuffer() == false)
@@ -637,34 +578,11 @@ namespace BetterRimworlds.Stargate
                                            + "New Power Req: " + this.power.powerOutputInt + "\n"
                                            + "Stored Mass: " + this.stargateBuffer.GetStoredMass() + " kg"
                 // + "Gain Rate: " + excessPower + "\n"
-                                           // + "Stored Energy: " + this.power.PowerNet.CurrentStoredEnergy()
+                // + "Stored Energy: " + this.power.PowerNet.CurrentStoredEnergy()
                                            ;
         }
 
         #endregion
-
-        private void MoveToBackup()
-        {
-            String newFile;
-            if (System.IO.File.Exists(this.FileLocationSecondary))
-            {
-                int index = 1;
-                newFile = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate", $"StargateBackup-{index}.xml");
-
-                while (System.IO.File.Exists(newFile))
-                {
-                    ++index;
-                    newFile = Path.Combine(Verse.GenFilePaths.SaveDataFolderPath, "Stargate", $"StargateBackup-{index}.xml");
-                }
-
-                System.IO.File.Move(this.FileLocationSecondary, newFile);
-            }
-
-            if (System.IO.File.Exists(this.FileLocationPrimary))
-            {
-                System.IO.File.Move(this.FileLocationPrimary, this.FileLocationSecondary);
-            }
-        }
 
         public bool UpdateRequiredPower(float extraPower)
         {
@@ -676,16 +594,13 @@ namespace BetterRimworlds.Stargate
             return true;
         }
 
-        public void EjectLeastMassive()
+        private void MarkMapMeshDirty()
         {
-            // Drop the lightest items first.
-            this.stargateBuffer.EjectLeastMassive();
-        }
-
-        public bool hasIncomingWormhole()
-        {
-            return String.IsNullOrEmpty(this.FileLocationPrimary) == false &&
-                   System.IO.File.Exists(this.FileLocationPrimary);
+            #if RIMWORLD15 || RIMWORLD16
+            Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlagDefOf.Things, true, false);
+            #else
+            Find.CurrentMap.mapDrawer.MapMeshDirty(Position, MapMeshFlag.Things, true, false);
+            #endif
         }
     }
 }
