@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BetterRimworlds.Stargate.Services;
 using Enhanced_Development.Stargate.Saving;
 using Verse;
 using UnityEngine;
@@ -336,6 +337,8 @@ namespace BetterRimworlds.Stargate
                 yield return act;
             }
 
+            // Show Recall only when there is local buffer content or a real/pending incoming stream.
+            // Scenario-seed teams remain visible via hasIncomingWormhole() until disabled savegame-wide.
             if (this.HasThingsInBuffer() || this.hasIncomingWormhole())
             {
                 Command_Action act = new Command_Action();
@@ -449,7 +452,7 @@ namespace BetterRimworlds.Stargate
                 return;
             }
 
-            if (this.stargateBuffer.isOffworldTeleportEvent())
+            if (this.stargateBuffer.isOffworldTeleportEvent() && this.stargateBuffer.usingScenarioSeedBuffer == false)
             {
                 Messages.Message("Please Recall Offworld Teams First", MessageTypeDefOf.RejectInput);
                 return;
@@ -534,7 +537,7 @@ namespace BetterRimworlds.Stargate
 
         private void cleanseHistoricalRecord(Pawn transmittedPawn)
         {
-            StargateBuffer.ClearExistingWorldPawn(transmittedPawn);
+            StargatePawnService.ClearExistingWorldPawn(transmittedPawn);
         }
 
         public virtual bool StargateRecall()
@@ -571,7 +574,7 @@ namespace BetterRimworlds.Stargate
             if (offworldEvent && hasTransmittedPawns)
             {
                 // Re-add relationships.
-                this.stargateBuffer.RebuildRelationships();
+                StargatePawnService.RebuildRelationships();
             }
 
             if (offworldEvent)
