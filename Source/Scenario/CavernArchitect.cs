@@ -49,13 +49,13 @@ public static class CavernArchitect
     // Ore palette for wall veins
     private static readonly (string defName, float weight)[] OreOptions =
     {
-        ("MineableSteel",                          3.0f),
-        ("MineableSilver",                         2.0f),
-        ("MineableGold",                           1.0f),
-        ("MineablePlasteel",                       1.0f),
-        ("MineableUranium",                        1.0f),
-        ("MineableJade",                           0.8f),
-        ("MineableComponentIndustrialScattered",   0.6f),
+        ("MineableSteel",                  3.0f),
+        ("MineableSilver",                 2.0f),
+        ("MineableGold",                   1.0f),
+        ("MineablePlasteel",               1.0f),
+        ("MineableUranium",                1.0f),
+        ("MineableJade",                   0.8f),
+        ("MineableComponentsIndustrial",   0.8f),
     };
 
     // Rich ore deposit scattering counts (per 10k cells)
@@ -72,7 +72,7 @@ public static class CavernArchitect
 
     /// Generates a complete cave system on the given map.
     /// This is the ONLY public method. It handles the entire generation lifecycle internally.
-    /// 
+    ///
     /// Returns all cavern floor cells for downstream use (spawning, zoning, etc.).
     /// <param name="map"></param>
     /// <param name="preserveRect"></param>
@@ -489,7 +489,7 @@ public static class CavernArchitect
         }
     }
 
-    // Forced terrain standardization from original PlantCavernFlora, 
+    // Forced terrain standardization from original PlantCavernFlora,
     // while respecting water cells scattered previously.
     private static void PlantMushrooms(Map map, List<IntVec3> cavernCells, float density, float soilRatio)
     {
