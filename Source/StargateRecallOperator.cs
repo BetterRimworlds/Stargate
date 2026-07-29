@@ -219,14 +219,6 @@ namespace BetterRimworlds.Stargate
             // There are 60,000 ticks per day.
             ApplyTimelineCorrection(pawn, originalTimelineTicks);
 
-            // The Gate Traveler implant tracks true lived time / true suspended time.
-            // Entry into the Stargate buffer records lived time up to the event horizon.
-            // Exit must NOT add the time spent serialized in the buffer, because the buffer is timeless.
-            //
-            // This reset must happen AFTER BirthAbsTicks is corrected, so the implant's future baseline
-            // matches the pawn's corrected vanilla age values in this destination timeline.
-            RecordGateTravelerExit(pawn);
-
             // Give them a brief psychic shock so that they will be given proper Melee Verbs and not act like a Visitor.
             // Hediff shock = HediffMaker.MakeHediff(HediffDefOf.PsychicShock, pawn, null);
             // pawn.health.AddHediff(shock, null, null);
@@ -401,15 +393,6 @@ namespace BetterRimworlds.Stargate
             );
 
             pawn.ageTracker.BirthAbsTicks = newAbsBirthdate;
-        }
-
-        private void RecordGateTravelerExit(Pawn pawn)
-        {
-            GateTravelerImplant gateTravelerImplant = pawn.health.hediffSet.hediffs
-                .OfType<GateTravelerImplant>()
-                .FirstOrDefault();
-
-            gateTravelerImplant?.RecordStargateBufferExit();
         }
 
         private void RemoveFromDeadPawnsList(Pawn pawn)

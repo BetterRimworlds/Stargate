@@ -2,310 +2,96 @@
 using System.Collections.Generic;
 using Enhanced_Development.Stargate.Saving;
 using RimWorld;
+using UnityEngine;
 using Verse;
 
-namespace BetterRimworlds.Stargate
-{
-    [DefOf]
-    public static class StargateHediffDefOf
-    {
-        public static HediffDef GateTravelerImplant;
+namespace BetterRimworlds.Stargate;
 
-        // Static constructor is required so RimWorld initializes this DefOf.
-        static StargateHediffDefOf()
+[DefOf]
+public static class StargateHediffDefOf
+{
+    public static HediffDef GateTravelerImplant;
+
+    // Static constructor is required so RimWorld initializes this DefOf.
+    static StargateHediffDefOf()
+    {
+        DefOfHelper.EnsureInitializedInCtor(typeof(StargateHediffDefOf));
+    }
+}
+
+/// Additional Gate Traveler systems, such as pawn-carried research memory,
+/// live in partial class files under their own feature directories.
+public partial class GateTravelerImplant : Hediff_Implant
+{
+    public List<StargateRelation> relationships = new List<StargateRelation>();
+
+    public override void ExposeData()
+    {
+        base.ExposeData();
+
+        Scribe_Collections.Look(
+            ref this.relationships,
+            "relationships",
+            LookMode.Deep
+        );
+
+        this.ExposeResearchData();
+
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
-            DefOfHelper.EnsureInitializedInCtor(typeof(StargateHediffDefOf));
+            this.relationships ??= new List<StargateRelation>();
+            this.EnsureResearchMemoryInitialized();
         }
     }
 
-    /// Tracks a pawn's true lived time, suspended time, and relationships
-    /// across Stargate transits and CryoRegenesis de-aging events.
-    ///
-    /// Vanilla biological age is unreliable once CryoRegenesis enters the
-    /// picture, so this implant maintains an independent ledger:
-    ///
-    ///   consciousAliveTicks        – time actually lived while aging
-    ///   trueSuspendedTicks         – time in cryptosleep-style suspension
-    ///   cryoRegenesisRemovedTicks  – biological age removed by CryoRegenesis
-    ///
-    /// The ledger is updated at two lifecycle boundaries:
-    ///   1. Entry into the Stargate buffer  (RecordStargateBufferEntry)
-    ///   2. Exit from the Stargate buffer   (RecordStargateBufferExit)
-    public partial class GateTravelerImplant : Hediff_Implant
+    public override void PostMake()
     {
-        public List<StargateRelation> relationships = new List<StargateRelation>();
+        base.PostMake();
 
-        // True lived-time ledger.
-        // True once the implant has created its initial lived-time snapshot.
-        // Prevents reinitializing the ledger every Stargate transit.
-        public bool aliveYearsInitialized = false;
+        this.relationships ??= new List<StargateRelation>();
+        this.EnsureResearchMemoryInitialized();
 
-        // Total time the pawn has actually lived while biologically aging.
-        // CryoRegenesis does NOT reduce this value.
-        public long consciousAliveTicks = 0;
+        this.RefreshRelationships();
+    }
 
-        // Total time the pawn has spent in true suspended states.
-        // This includes vanilla cryptosleep-style age gaps, but NOT CryoRegenesis de-aging.
-        public long trueSuspendedTicks = 0;
+    public void RefreshRelationshipsForStargateEntry()
+    {
+        this.RefreshRelationships();
+    }
 
-        // Total biological age removed by CryoRegenesis.
-        // This is tracked separately so de-aging is not mistaken for cryptosleep.
-        public long cryoRegenesisRemovedAgeTicks = 0;
+    /// <summary>
+    /// Legacy buffer-entry hook retained for callers still using the old name.
+    /// Age tracking now belongs to CryoRegenesis; this only refreshes relationships.
+    /// </summary>
+    public void RecordStargateBufferEntry()
+    {
+        this.RefreshRelationshipsForStargateEntry();
+    }
 
-        // Last vanilla biological age observed at a Stargate lifecycle boundary.
-        // Used as the baseline for the next Stargate buffer entry.
-        public long lastKnownBiologicalAgeTicks = -1;
+    private void RefreshRelationships()
+    {
+        var snapshot = new List<StargateRelation>();
+        var directRelations = this.pawn?.relations?.DirectRelations;
 
-        // Last vanilla chronological age observed at a Stargate lifecycle boundary.
-        // Used as the baseline for the next Stargate buffer entry.
-        public long lastKnownChronologicalAgeTicks = -1;
-
-        public override void ExposeData()
+        if (directRelations != null)
         {
-            base.ExposeData();
-
-            Scribe_Collections.Look(
-                ref this.relationships,
-                "relationships",
-                LookMode.Deep
-            );
-
-            Scribe_Values.Look(ref this.aliveYearsInitialized, "aliveYearsInitialized", false);
-            Scribe_Values.Look(ref this.consciousAliveTicks, "consciousAliveTicks", 0L);
-            Scribe_Values.Look(ref this.trueSuspendedTicks, "trueSuspendedTicks", 0L);
-            Scribe_Values.Look(ref this.cryoRegenesisRemovedAgeTicks, "cryoRegenesisRemovedAgeTicks", 0L);
-            Scribe_Values.Look(ref this.lastKnownBiologicalAgeTicks, "lastKnownBiologicalAgeTicks", -1L);
-            Scribe_Values.Look(ref this.lastKnownChronologicalAgeTicks, "lastKnownChronologicalAgeTicks", -1L);
-        }
-
-        public override void PostMake()
-        {
-            base.PostMake();
-
-            this.RefreshRelationships();
-        }
-
-        public void RefreshRelationshipsForStargateEntry()
-        {
-            this.RefreshRelationships();
-        }
-
-        public void RecordStargateBufferEntry()
-        {
-            if (this.pawn == null)
+            foreach (DirectPawnRelation rel in directRelations)
             {
-                return;
-            }
-
-            // Relationships can change while a pawn is outside the Stargate
-            // buffer. Capture the current direct relations at every entry so the
-            // persisted snapshot does not retain ended/stale relationships.
-            this.RefreshRelationships();
-
-            long currentBiologicalTicks = this.pawn.ageTracker.AgeBiologicalTicks;
-            long currentChronologicalTicks = this.pawn.ageTracker.AgeChronologicalTicks;
-
-            // First time this pawn ever receives a Gate Traveler age ledger.
-            //
-            // Before CryoRegenesis starts changing biological age, vanilla biological age
-            // is the best estimate of how long the pawn has actually lived.
-            //
-            // Vanilla chronological age minus biological age is the best estimate of
-            // true suspended time before this implant began tracking it.
-            if (!this.aliveYearsInitialized)
-            {
-                this.InitializeAliveYearsLedger(
-                    currentBiologicalTicks,
-                    currentChronologicalTicks,
-                    currentBiologicalTicks
-                );
-
-                return;
-            }
-
-            // The pawn has been materialized in the world since the last baseline.
-            // Biological age normally advances only while the pawn is actually living.
-            //
-            // If CryoRegenesis has lowered biological age, AddCryoRegenesisRemovedAge()
-            // resets this baseline so de-aging is not misread as cryptosleep.
-            long livedTicksSinceLastBaseline =
-                currentBiologicalTicks - this.lastKnownBiologicalAgeTicks;
-
-            if (livedTicksSinceLastBaseline < 0)
-            {
-                livedTicksSinceLastBaseline = 0;
-            }
-
-            if (livedTicksSinceLastBaseline > 0)
-            {
-                this.consciousAliveTicks += livedTicksSinceLastBaseline;
-            }
-
-            // If chronological age advanced more than biological age, the difference
-            // is true suspended time, such as cryptosleep.
-            //
-            // Stargate buffer time is not counted here because the pawn is timeless
-            // while serialized in the event horizon / matter stream.
-            long chronologicalTicksSinceLastBaseline =
-                currentChronologicalTicks - this.lastKnownChronologicalAgeTicks;
-
-            if (chronologicalTicksSinceLastBaseline < 0)
-            {
-                chronologicalTicksSinceLastBaseline = 0;
-            }
-
-            long suspendedTicksSinceLastBaseline =
-                chronologicalTicksSinceLastBaseline - livedTicksSinceLastBaseline;
-
-            if (suspendedTicksSinceLastBaseline > 0)
-            {
-                this.trueSuspendedTicks += suspendedTicksSinceLastBaseline;
-            }
-
-            this.ResetAgeBaselines(currentBiologicalTicks, currentChronologicalTicks);
-        }
-
-        public void RecordStargateBufferExit()
-        {
-            if (this.pawn == null)
-            {
-                return;
-            }
-
-            long currentBiologicalTicks = this.pawn.ageTracker.AgeBiologicalTicks;
-            long currentChronologicalTicks = this.pawn.ageTracker.AgeChronologicalTicks;
-
-            // Called after StargateRecall() has corrected BirthAbsTicks for
-            // origin/destination timeline drift.
-            //
-            // The pawn spent no subjective time inside the Stargate buffer.
-            // Therefore this method only resets the comparison baseline.
-            //
-            // It must not add consciousAliveTicks.
-            // It must not add trueSuspendedTicks.
-            if (!this.aliveYearsInitialized)
-            {
-                this.InitializeAliveYearsLedger(
-                    currentBiologicalTicks,
-                    currentChronologicalTicks,
-                    currentBiologicalTicks
-                );
-
-                return;
-            }
-
-            this.ResetAgeBaselines(currentBiologicalTicks, currentChronologicalTicks);
-        }
-
-        public long GetTrueAliveTicks()
-        {
-            return this.consciousAliveTicks;
-        }
-
-        public long GetTrueSuspendedTicks()
-        {
-            return this.trueSuspendedTicks;
-        }
-
-        public long GetCryoRegenesisRemovedTicks()
-        {
-            return this.cryoRegenesisRemovedAgeTicks;
-        }
-
-        public void AddCryoRegenesisRemovedAge(long removedTicks)
-        {
-            if (removedTicks <= 0)
-            {
-                return;
-            }
-
-            if (this.pawn == null)
-            {
-                return;
-            }
-
-            long currentBiologicalTicks = this.pawn.ageTracker.AgeBiologicalTicks;
-            long currentChronologicalTicks = this.pawn.ageTracker.AgeChronologicalTicks;
-
-            // If CryoRegenesis creates the ledger for the first time, the pawn's
-            // current biological age is already the post-Regenesis value.
-            //
-            // Add removedTicks back once to estimate the pawn's actually-lived time
-            // before de-aging happened.
-            if (!this.aliveYearsInitialized)
-            {
-                long preRegenesisBiologicalTicks = currentBiologicalTicks + removedTicks;
-
-                this.InitializeAliveYearsLedger(
-                    currentBiologicalTicks,
-                    currentChronologicalTicks,
-                    preRegenesisBiologicalTicks
-                );
-            }
-
-            this.cryoRegenesisRemovedAgeTicks += removedTicks;
-
-            // CryoRegenesis intentionally lowers vanilla biological age.
-            //
-            // That is not cryptosleep.
-            // That is not suspended time.
-            // That is not "time not lived."
-            //
-            // After de-aging, the pawn's new biological age becomes the future
-            // comparison baseline. This prevents the next Stargate entry from
-            // interpreting biological de-aging as fake suspended time.
-            this.ResetAgeBaselines(currentBiologicalTicks, currentChronologicalTicks);
-        }
-
-        private void InitializeAliveYearsLedger(
-            long currentBiologicalTicks,
-            long currentChronologicalTicks,
-            long livedTicksEstimate
-        )
-        {
-            this.consciousAliveTicks = livedTicksEstimate;
-            this.trueSuspendedTicks = currentChronologicalTicks - livedTicksEstimate;
-
-            if (this.trueSuspendedTicks < 0)
-            {
-                this.trueSuspendedTicks = 0;
-            }
-
-            this.ResetAgeBaselines(currentBiologicalTicks, currentChronologicalTicks);
-            this.aliveYearsInitialized = true;
-        }
-
-        private void ResetAgeBaselines(long currentBiologicalTicks, long currentChronologicalTicks)
-        {
-            this.lastKnownBiologicalAgeTicks = currentBiologicalTicks;
-            this.lastKnownChronologicalAgeTicks = currentChronologicalTicks;
-        }
-
-        private void RefreshRelationships()
-        {
-            var snapshot = new List<StargateRelation>();
-            var directRelations = this.pawn?.relations?.DirectRelations;
-
-            if (directRelations != null)
-            {
-                foreach (DirectPawnRelation rel in directRelations)
+                if (rel == null || rel.def == null || rel.otherPawn == null)
                 {
-                    if (rel == null || rel.def == null || rel.otherPawn == null)
-                    {
-                        continue;
-                    }
-
-                    snapshot.Add(new StargateRelation(
-                        rel.otherPawn,
-                        rel.def.defName,
-                        rel
-                    ));
+                    continue;
                 }
-            }
 
-            // Publish only a fully built snapshot, so stale or ended relationships
-            // are removed when the pawn re-enters the Stargate buffer.
-            this.relationships = snapshot;
+                snapshot.Add(new StargateRelation(
+                    rel.otherPawn,
+                    rel.def.defName,
+                    rel
+                ));
+            }
         }
+
+        // Publish only a fully built snapshot, so stale or ended relationships
+        // are removed when the pawn re-enters the Stargate buffer.
+        this.relationships = snapshot;
     }
 }
