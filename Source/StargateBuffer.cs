@@ -211,7 +211,6 @@ namespace BetterRimworlds.Stargate
             if (item is Pawn pawn)
             {
                 ++this.maxStacks;
-                StargatePawnService.AttachGateTravelerImplant(pawn);
             }
             else
             {
@@ -225,6 +224,16 @@ namespace BetterRimworlds.Stargate
             if (!base.TryAdd(item, canMergeWithExistingStacks))
             {
                 return false;
+            }
+
+            if (item is Pawn pawnInBuffer)
+            {
+                StargatePawnService.AttachGateTravelerImplant(pawnInBuffer);
+
+                GateTravelerImplant implant = pawnInBuffer.health?.hediffSet
+                    .GetFirstHediffOfDef(StargateHediffDefOf.GateTravelerImplant)
+                    as GateTravelerImplant;
+                implant?.RefreshRelationshipsForStargateEntry();
             }
 
             if (item.Spawned)

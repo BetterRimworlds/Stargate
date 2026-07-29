@@ -1,6 +1,5 @@
 // ==== Source/GateTravelerImplant.cs ====
 using System.Collections.Generic;
-using System.Linq;
 using Enhanced_Development.Stargate.Saving;
 using RimWorld;
 using Verse;
@@ -86,12 +85,22 @@ namespace BetterRimworlds.Stargate
             this.RefreshRelationships();
         }
 
+        public void RefreshRelationshipsForStargateEntry()
+        {
+            this.RefreshRelationships();
+        }
+
         public void RecordStargateBufferEntry()
         {
             if (this.pawn == null)
             {
                 return;
             }
+
+            // Relationships can change while a pawn is outside the Stargate
+            // buffer. Capture the current direct relations at every entry so the
+            // persisted snapshot does not retain ended/stale relationships.
+            this.RefreshRelationships();
 
             long currentBiologicalTicks = this.pawn.ageTracker.AgeBiologicalTicks;
             long currentChronologicalTicks = this.pawn.ageTracker.AgeChronologicalTicks;
@@ -274,38 +283,29 @@ namespace BetterRimworlds.Stargate
 
         private void RefreshRelationships()
         {
-            if (this.pawn?.relations?.DirectRelations == null)
+            var snapshot = new List<StargateRelation>();
+            var directRelations = this.pawn?.relations?.DirectRelations;
+
+            if (directRelations != null)
             {
-                return;
+                foreach (DirectPawnRelation rel in directRelations)
+                {
+                    if (rel == null || rel.def == null || rel.otherPawn == null)
+                    {
+                        continue;
+                    }
+
+                    snapshot.Add(new StargateRelation(
+                        rel.otherPawn,
+                        rel.def.defName,
+                        rel
+                    ));
+                }
             }
 
-            foreach (DirectPawnRelation rel in this.pawn.relations.DirectRelations)
-            {
-                Pawn otherPawn = rel.otherPawn;
-
-                if (otherPawn == null)
-                {
-                    continue;
-                }
-
-                string relationshipName = rel.def.defName;
-
-                bool alreadyStored = this.relationships.Any(existing =>
-                    existing.pawnID == otherPawn.thingIDNumber &&
-                    existing.relationship == relationshipName
-                );
-
-                if (alreadyStored)
-                {
-                    continue;
-                }
-
-                this.relationships.Add(new StargateRelation(
-                    otherPawn,
-                    relationshipName,
-                    rel
-                ));
-            }
+            // Publish only a fully built snapshot, so stale or ended relationships
+            // are removed when the pawn re-enters the Stargate buffer.
+            this.relationships = snapshot;
         }
     }
 }
