@@ -16,6 +16,7 @@ namespace BetterRimworlds.Stargate
         protected string StargateBufferFilePath;
         protected string StargateBackupFilePath;
         private string ScenarioSeedBufferFilePath;
+        protected string ShuttleBufferFilePath;
         private bool pathsInitialized = false;
         // Set when a recall actually loaded the packaged seed; consumed after rematerialization.
         private bool loadedFromScenarioSeedThisStream = false;
@@ -59,6 +60,7 @@ namespace BetterRimworlds.Stargate
             this.StargateBufferFilePath = Path.Combine(baseDirectory, "Stargate.xml");
             this.StargateBackupFilePath = Path.Combine(baseDirectory, "StargateBackup.xml");
             this.ScenarioSeedBufferFilePath = null;
+            this.ShuttleBufferFilePath = Path.Combine(baseDirectory, "Shuttle.xml");
             this.usingScenarioSeedBuffer = false;
 
             if (!Directory.Exists(baseDirectory))
@@ -161,6 +163,9 @@ namespace BetterRimworlds.Stargate
         {
             this.StargateBufferFilePath = stargateBufferFilePath;
             this.ScenarioSeedBufferFilePath = null;
+            this.ShuttleBufferFilePath = Path.Combine(
+                Path.GetDirectoryName(stargateBufferFilePath) ?? string.Empty,
+                "Shuttle.xml");
             this.usingScenarioSeedBuffer = false;
             this.pathsInitialized = true;
         }
@@ -230,9 +235,15 @@ namespace BetterRimworlds.Stargate
             return true;
         }
 
-        public void TransmitContents()
+        public void TransmitContents(bool keepContents = false)
         {
             this.EnsurePathsInitialized();
+
+            if (keepContents)
+            {
+                Enhanced_Development.Stargate.Saving.SaveThings.save(this.InnerListForReading, this.ShuttleBufferFilePath);
+                return;
+            }
 
             Enhanced_Development.Stargate.Saving.SaveThings.save(this.InnerListForReading, this.StargateBufferFilePath);
             // Writing a real player buffer permanently retires packaged SG-1 for this savegame.
