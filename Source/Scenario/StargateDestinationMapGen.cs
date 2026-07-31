@@ -51,7 +51,7 @@ public static partial class StargateDestinationMapGen
         );
 
         TerrainDef richSoil;
-        #if RIMWORLD12
+        #if RIMWORLD12 || RIMWORLD13
         richSoil = DefDatabase<TerrainDef>.GetNamed("SoilRich");
         #else
         richSoil = TerrainDefOf.SoilRich;
