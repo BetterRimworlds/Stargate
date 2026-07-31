@@ -1,0 +1,657 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Stargate>
+  <originalTimelineTicks>640004</originalTimelineTicks>
+  <things>
+    <li Class="Pawn">
+      <def>Human</def>
+      <id>Human10482</id>
+      <pos>(125, 0, 123)</pos>
+      <faction>Faction_10</faction>
+      <questTags IsNull="True" />
+      <kindDef>Colonist</kindDef>
+      <name Class="NameTriple">
+        <first>Theodore</first>
+        <nick>Smith</nick>
+        <last>Smith</last>
+      </name>
+      <mindState>
+        <meleeThreat>null</meleeThreat>
+        <enemyTarget>null</enemyTarget>
+        <knownExploder>null</knownExploder>
+        <lastMannedThing>null</lastMannedThing>
+        <droppedWeapon>null</droppedWeapon>
+        <thinkData>
+          <keys />
+          <values />
+        </thinkData>
+        <lastJobTag>Idle</lastJobTag>
+        <nextApparelOptimizeTick>7982</nextApparelOptimizeTick>
+        <lastEngageTargetTick>-99999</lastEngageTargetTick>
+        <lastAttackTargetTick>-99999</lastAttackTargetTick>
+        <canFleeIndividual>True</canFleeIndividual>
+        <lastMeleeThreatHarmTick>-99999</lastMeleeThreatHarmTick>
+        <nextMoveOrderIsWait>False</nextMoveOrderIsWait>
+        <duty IsNull="True" />
+        <mentalStateHandler>
+          <curState IsNull="True" />
+        </mentalStateHandler>
+        <mentalBreaker />
+        <mentalFitGenerator />
+        <inspirationHandler>
+          <curState IsNull="True" />
+        </inspirationHandler>
+        <priorityWork>
+          <prioritizedCell>(-1000, -1000, -1000)</prioritizedCell>
+        </priorityWork>
+        <lastSelfTendTick>-99999</lastSelfTendTick>
+        <breachingTarget IsNull="True" />
+        <babyAutoBreastfeedMoms>
+          <keys />
+          <values />
+        </babyAutoBreastfeedMoms>
+        <babyCaravanBreastfeed>
+          <keys />
+          <values />
+        </babyCaravanBreastfeed>
+        <resurrectTarget IsNull="True" />
+      </mindState>
+      <jobs>
+        <curJob IsNull="True" />
+        <curDriver IsNull="True" />
+        <jobQueue>
+          <jobs />
+        </jobQueue>
+      </jobs>
+      <stances>
+        <stunner>
+          <showStunMote>True</showStunMote>
+        </stunner>
+        <stagger />
+        <curStance Class="Stance_Mobile" />
+      </stances>
+      <verbTracker>
+        <verbs>
+          <li Class="Verb_MeleeAttackDamage">
+            <loadID>Thing_Human10482_0_Smash</loadID>
+            <canHitNonTargetPawnsNow>True</canHitNonTargetPawnsNow>
+          </li>
+          <li Class="Verb_MeleeAttackDamage">
+            <loadID>Thing_Human10482_1_Smash</loadID>
+            <canHitNonTargetPawnsNow>True</canHitNonTargetPawnsNow>
+          </li>
+          <li Class="Verb_MeleeAttackDamage">
+            <loadID>Thing_Human10482_2_Bite</loadID>
+            <currentTarget>(0, 0, 0)</currentTarget>
+            <currentDestination>(0, 0, 0)</currentDestination>
+            <canHitNonTargetPawnsNow>True</canHitNonTargetPawnsNow>
+          </li>
+          <li Class="Verb_MeleeAttackDamage">
+            <loadID>Thing_Human10482_3_Smash</loadID>
+            <currentTarget>(0, 0, 0)</currentTarget>
+            <currentDestination>(0, 0, 0)</currentDestination>
+            <canHitNonTargetPawnsNow>True</canHitNonTargetPawnsNow>
+          </li>
+        </verbs>
+      </verbTracker>
+      <natives IsNull="True" />
+      <meleeVerbs>
+        <curMeleeVerb>null</curMeleeVerb>
+        <curMeleeVerbUpdateTick>4</curMeleeVerbUpdateTick>
+        <terrainVerbs IsNull="True" />
+      </meleeVerbs>
+      <rotationTracker IsNull="True" />
+      <pather IsNull="True" />
+      <carryTracker>
+        <innerContainer>
+          <maxStacks>1</maxStacks>
+          <innerList />
+        </innerContainer>
+      </carryTracker>
+      <apparel>
+        <wornApparel>
+          <innerList>
+            <li>
+              <def>Apparel_BasicShirt</def>
+              <id>Apparel_BasicShirt10483</id>
+              <health>66</health>
+              <stackCount>1</stackCount>
+              <stuff>Synthread</stuff>
+              <questTags IsNull="True" />
+              <quality>Normal</quality>
+              <sourcePrecept>null</sourcePrecept>
+            </li>
+            <li>
+              <def>Apparel_Pants</def>
+              <id>Apparel_Pants10484</id>
+              <health>82</health>
+              <stackCount>1</stackCount>
+              <stuff>Synthread</stuff>
+              <questTags IsNull="True" />
+              <quality>Normal</quality>
+              <sourcePrecept>null</sourcePrecept>
+            </li>
+          </innerList>
+        </wornApparel>
+        <lockedApparel />
+        <lastApparelWearoutTick>8122000</lastApparelWearoutTick>
+      </apparel>
+      <story>
+        <bodyType>Male</bodyType>
+        <hairDef>Senorita</hairDef>
+        <hairColor>RGBA(0.321, 0.207, 0.114, 1.000)</hairColor>
+        <traits>
+          <allTraits>
+            <li>
+              <def>Undergrounder</def>
+              <sourceGene>null</sourceGene>
+              <suppressedBy>null</suppressedBy>
+            </li>
+            <li>
+              <def>Brawler</def>
+              <sourceGene>null</sourceGene>
+              <suppressedBy>null</suppressedBy>
+            </li>
+          </allTraits>
+        </traits>
+        <birthLastName>Smith</birthLastName>
+        <headType>Male_AveragePointy</headType>
+        <childhood>ShopKid36</childhood>
+        <adulthood>ProstituteIdol28</adulthood>
+      </story>
+      <equipment>
+        <equipment>
+          <innerList />
+        </equipment>
+        <bondedWeapon>null</bondedWeapon>
+      </equipment>
+      <drafter IsNull="True" />
+      <ageTracker>
+        <ageBiologicalTicks>187206687</ageBiologicalTicks>
+        <birthAbsTicks>-3732566683</birthAbsTicks>
+        <growth>1</growth>
+        <nextGrowthCheckTick>241</nextGrowthCheckTick>
+        <ageReversalDemandedAtAgeTicks>188706684</ageReversalDemandedAtAgeTicks>
+      </ageTracker>
+      <healthTracker>
+        <hediffSet>
+          <hediffs>
+            <li Class="BetterRimworlds.Stargate.GateTravelerImplant">
+              <loadID>19</loadID>
+              <def>GateTravelerImplant</def>
+              <ageTicks>3</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>15</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <relationships />
+              <research />
+              <originalHediffLabel>Stargate Traveler Implant</originalHediffLabel>
+              <originalHediffModName>Stargate</originalHediffModName>
+              <originalHediffPackageId>hopeseekr.betterrimworlds.stargate</originalHediffPackageId>
+            </li>
+            <li Class="Hediff_Implant">
+              <loadID>58</loadID>
+              <def>WakeUpRib</def>
+              <ageTicks>1</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>1</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <originalHediffLabel>wake-up rib</originalHediffLabel>
+              <originalHediffModName>WakeUp Implant</originalHediffModName>
+              <originalHediffPackageId>hopeseekr.betterrimworlds.wakeupimplant</originalHediffPackageId>
+            </li>
+          </hediffs>
+        </hediffSet>
+        <surgeryBills>
+          <bills />
+        </surgeryBills>
+        <immunity>
+          <imList />
+        </immunity>
+      </healthTracker>
+      <records>
+        <records>
+          <vals>
+            <li>0</li>
+            <li>0</li>
+            <li>0</li>
+            <li>0</li>
+            <li>1</li>
+            <li>0</li>
+            <li>1</li>
+            <li>0</li>
+            <li>0</li>
+            <li>0</li>
+            <li>2378</li>
+            <li>20</li>
+            <li>11</li>
+            <li>1</li>
+            <li>6</li>
+            <li>0</li>
+            <li>0</li>
+            <li>34</li>
+            <li>38</li>
+            <li>0</li>
+            <li>0</li>
+            <li>0</li>
+            <li>0</li>
+            <li>0</li>
+            <li>33</li>
+            <li>721</li>
+            <li>28</li>
+            <li>79</li>
+            <li>0</li>
+            <li>3051</li>
+            <li>2159</li>
+            <li>1630</li>
+            <li>1472</li>
+            <li>2743</li>
+            <li>25731.11</li>
+            <li>0</li>
+            <li>321.8389</li>
+            <li>0</li>
+            <li>24</li>
+            <li>106</li>
+            <li>0</li>
+            <li>0</li>
+            <li>53</li>
+            <li>1.132978E+07</li>
+            <li>0</li>
+            <li>0</li>
+            <li>1055430</li>
+            <li>49500</li>
+            <li>334890</li>
+            <li>460440</li>
+            <li>949050</li>
+            <li>1.131061E+07</li>
+            <li>32220</li>
+            <li>810</li>
+            <li>294210</li>
+            <li>1021680</li>
+            <li>0</li>
+            <li>2070</li>
+            <li>0</li>
+            <li>0</li>
+            <li>505890</li>
+            <li>45900</li>
+            <li>1803330</li>
+            <li>317250</li>
+            <li>42210</li>
+            <li>1034100</li>
+            <li>859590</li>
+          </vals>
+        </records>
+        <battleActive>null</battleActive>
+        <battleExitTick>1780763</battleExitTick>
+      </records>
+      <inventory>
+        <itemsNotForSale />
+        <unpackedCaravanItems />
+        <innerContainer>
+          <innerList>
+            <li Class="ThingWithComps">
+              <def>MealSimple</def>
+              <id>MealSimple851515</id>
+              <health>50</health>
+              <stackCount>1</stackCount>
+              <questTags IsNull="True" />
+              <poisonPct>0.03018069</poisonPct>
+              <cause>IncompetentCook</cause>
+              <rotProg>33031.69</rotProg>
+              <ingredients>
+                <li>RawCorn</li>
+                <li>RawRice</li>
+              </ingredients>
+            </li>
+          </innerList>
+        </innerContainer>
+      </inventory>
+      <filth IsNull="True" />
+      <roping IsNull="True" />
+      <needs>
+        <needs>
+          <li Class="Need_Mood">
+            <def>Mood</def>
+            <curLevel>0.8267995</curLevel>
+            <thoughts>
+              <memories>
+                <memories />
+              </memories>
+            </thoughts>
+            <recentMemory>
+              <lastLightTick>3</lastLightTick>
+            </recentMemory>
+          </li>
+          <li Class="Need_Food">
+            <def>Food</def>
+            <curLevel>0.7119994</curLevel>
+            <lastNonStarvingTick>3204</lastNonStarvingTick>
+          </li>
+          <li Class="Need_Rest">
+            <def>Rest</def>
+            <curLevel>0.9311653</curLevel>
+          </li>
+          <li Class="Need_Joy">
+            <def>Joy</def>
+            <curLevel>0.855999</curLevel>
+            <tolerances>
+              <vals>
+                <li>0.05605578</li>
+                <li>0.3130206</li>
+                <li>0.06856912</li>
+                <li>0.4732541</li>
+                <li>0</li>
+                <li>0</li>
+                <li>0</li>
+                <li>0</li>
+                <li>0</li>
+              </vals>
+            </tolerances>
+            <bored>
+              <vals>
+                <li>False</li>
+                <li>False</li>
+                <li>False</li>
+                <li>False</li>
+                <li>False</li>
+                <li>False</li>
+                <li>False</li>
+                <li>False</li>
+                <li>False</li>
+              </vals>
+            </bored>
+          </li>
+          <li Class="Need_Beauty">
+            <def>Beauty</def>
+            <curLevel>0.3160276</curLevel>
+          </li>
+          <li Class="Need_Comfort">
+            <def>Comfort</def>
+            <curLevel>0.6160046</curLevel>
+          </li>
+          <li Class="Need_Outdoors">
+            <def>Outdoors</def>
+            <curLevel>1</curLevel>
+          </li>
+          <li Class="Need_Chemical_Any">
+            <def>DrugDesire</def>
+            <curLevel>0.5</curLevel>
+          </li>
+          <li Class="Need_RoomSize">
+            <def>RoomSize</def>
+            <curLevel>1</curLevel>
+          </li>
+          <li Class="Need_Indoors">
+            <def>Indoors</def>
+            <curLevel>1</curLevel>
+          </li>
+        </needs>
+      </needs>
+      <guest>
+        <hostFaction>null</hostFaction>
+        <slaveFaction>null</slaveFaction>
+        <joinStatus>JoinAsColonist</joinStatus>
+        <interactionMode>NoInteraction</interactionMode>
+        <spotToWaitInsteadOfEscaping>(-1000, -1000, -1000)</spotToWaitInsteadOfEscaping>
+        <lastPrisonBreakTicks>-1</lastPrisonBreakTicks>
+        <ideoForConversion>null</ideoForConversion>
+        <lastResistanceInteractionData IsNull="True" />
+        <finalResistanceInteractionData IsNull="True" />
+      </guest>
+      <guilt />
+      <royalty>
+        <titles />
+        <favor>
+          <keys />
+          <values />
+        </favor>
+        <highestTitles>
+          <keys />
+          <values />
+        </highestTitles>
+        <heirs>
+          <keys />
+          <values />
+        </heirs>
+        <permits />
+        <abilities />
+      </royalty>
+      <social>
+        <directRelations />
+        <relativeInvolvedInRescueQuest>null</relativeInvolvedInRescueQuest>
+        <pregnancyApproaches>
+          <keys />
+          <values />
+        </pregnancyApproaches>
+      </social>
+      <psychicEntropy>
+        <currentPsyfocus>0.75</currentPsyfocus>
+        <limitEntropyAmount>True</limitEntropyAmount>
+      </psychicEntropy>
+      <ownership>
+        <ownedBed>null</ownedBed>
+        <assignedMeditationSpot>null</assignedMeditationSpot>
+        <assignedGrave>null</assignedGrave>
+        <assignedThrone>null</assignedThrone>
+        <assignedDeathrestCasket>null</assignedDeathrestCasket>
+      </ownership>
+      <interactions IsNull="True" />
+      <skills>
+        <skills>
+          <li>
+            <def>Shooting</def>
+            <xpSinceLastLevel>564.2273</xpSinceLastLevel>
+          </li>
+          <li>
+            <def>Melee</def>
+            <level>9</level>
+            <xpSinceLastLevel>36.59766</xpSinceLastLevel>
+            <passion>Minor</passion>
+          </li>
+          <li>
+            <def>Construction</def>
+            <level>19</level>
+            <xpSinceLastLevel>2282.048</xpSinceLastLevel>
+            <passion>Major</passion>
+          </li>
+          <li>
+            <def>Mining</def>
+            <level>10</level>
+            <xpSinceLastLevel>7611.142</xpSinceLastLevel>
+          </li>
+          <li>
+            <def>Cooking</def>
+            <level>3</level>
+            <xpSinceLastLevel>2798.962</xpSinceLastLevel>
+          </li>
+          <li>
+            <def>Plants</def>
+            <level>11</level>
+            <xpSinceLastLevel>11461.41</xpSinceLastLevel>
+            <passion>Minor</passion>
+          </li>
+          <li>
+            <def>Animals</def>
+            <level>5</level>
+            <xpSinceLastLevel>5155.184</xpSinceLastLevel>
+          </li>
+          <li>
+            <def>Crafting</def>
+            <level>4</level>
+            <xpSinceLastLevel>849.3792</xpSinceLastLevel>
+          </li>
+          <li>
+            <def>Artistic</def>
+            <level>1</level>
+            <xpSinceLastLevel>492.6395</xpSinceLastLevel>
+          </li>
+          <li>
+            <def>Medicine</def>
+            <level>3</level>
+            <xpSinceLastLevel>882.259</xpSinceLastLevel>
+          </li>
+          <li>
+            <def>Social</def>
+            <level>9</level>
+            <xpSinceLastLevel>5704.887</xpSinceLastLevel>
+            <passion>Minor</passion>
+          </li>
+          <li>
+            <def>Intellectual</def>
+            <level>18</level>
+            <xpSinceLastLevel>1140.788</xpSinceLastLevel>
+            <passion>Minor</passion>
+          </li>
+        </skills>
+        <lastXpSinceMidnightResetTimestamp>-1</lastXpSinceMidnightResetTimestamp>
+      </skills>
+      <abilities>
+        <abilities />
+      </abilities>
+      <ideo>
+        <ideo>Ideo_8</ideo>
+        <previousIdeos />
+        <certainty>0.9938811</certainty>
+        <joinTick>1</joinTick>
+        <babyIdeoExposure IsNull="True" />
+      </ideo>
+      <workSettings>
+        <priorities>
+          <vals>
+            <li>1</li>
+            <li>3</li>
+            <li>3</li>
+            <li>3</li>
+            <li>1</li>
+            <li>3</li>
+            <li>2</li>
+            <li>3</li>
+            <li>3</li>
+            <li>1</li>
+            <li>1</li>
+            <li>3</li>
+            <li>1</li>
+            <li>3</li>
+            <li>3</li>
+            <li>3</li>
+            <li>4</li>
+            <li>3</li>
+            <li>3</li>
+            <li>3</li>
+          </vals>
+        </priorities>
+      </workSettings>
+      <trader IsNull="True" />
+      <outfits>
+        <curOutfit>Outfit_Anything1</curOutfit>
+        <overrideHandler>
+          <forcedAps />
+        </overrideHandler>
+      </outfits>
+      <drugs>
+        <curAssignedDrugs>DrugPolicy_Social drugs1</curAssignedDrugs>
+        <drugTakeRecords>
+          <li>
+            <drug>PsychiteTea</drug>
+            <lastTakenTicks>4059570</lastTakenTicks>
+            <timesTakenThisDay>3</timesTakenThisDay>
+            <thisDay>67</thisDay>
+          </li>
+        </drugTakeRecords>
+      </drugs>
+      <foodRestriction>
+        <curRestriction>FoodRestriction_Lavish1</curRestriction>
+        <allowedBabyFoodTypes IsNull="True" />
+      </foodRestriction>
+      <timetable>
+        <times>
+          <li>Sleep</li>
+          <li>Sleep</li>
+          <li>Sleep</li>
+          <li>Sleep</li>
+          <li>Sleep</li>
+          <li>Sleep</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Sleep</li>
+          <li>Sleep</li>
+        </times>
+      </timetable>
+      <playerSettings>
+        <joinTick>21872</joinTick>
+        <medCare>Best</medCare>
+        <areaAllowed>null</areaAllowed>
+        <master>null</master>
+        <selfTend>True</selfTend>
+      </playerSettings>
+      <training IsNull="True" />
+      <style>
+        <beardDef>NoBeard</beardDef>
+        <faceTattoo>NoTattoo_Face</faceTattoo>
+        <bodyTattoo>NoTattoo_Body</bodyTattoo>
+      </style>
+      <styleObserver />
+      <connections>
+        <connectedThings />
+      </connections>
+      <inventoryStock>
+        <stockEntries>
+          <keys>
+            <li>Medicine</li>
+          </keys>
+          <values>
+            <li>
+              <thingDef>MedicineIndustrial</thingDef>
+            </li>
+          </values>
+        </stockEntries>
+      </inventoryStock>
+      <treeSightings>
+        <miniTreeSightings />
+        <fullTreeSightings />
+        <superTreeSightings />
+      </treeSightings>
+      <thinker />
+      <mechanitor IsNull="True" />
+      <genes>
+        <xenogenes />
+        <endogenes>
+          <li>
+            <def>Skin_Melanin6</def>
+            <pawn>Thing_Human10482</pawn>
+            <overriddenByGene>null</overriddenByGene>
+            <loadID>24</loadID>
+          </li>
+          <li>
+            <def>Hair_DarkBrown</def>
+            <pawn>Thing_Human10482</pawn>
+            <overriddenByGene>null</overriddenByGene>
+            <loadID>25</loadID>
+          </li>
+        </endogenes>
+      </genes>
+      <learning IsNull="True" />
+    </li>
+  </things>
+</Stargate>
