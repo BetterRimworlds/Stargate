@@ -60,6 +60,8 @@ namespace Enhanced_Development.Stargate.Saving
                 return;
             }
 
+            StargateHediffXmlCompatibility.AnnotateHediffSources(doc);
+
             XmlNodeList xpResetTimestampNodes = root.SelectNodes("//lastXpSinceMidnightResetTimestamp");
             if (xpResetTimestampNodes != null)
             {
@@ -78,37 +80,45 @@ namespace Enhanced_Development.Stargate.Saving
         public static Tuple<int> load(ref List<Thing> thingsToLoad, string fileLocation)
         {
             Log.Message("ScribeINIT, loding from:" + fileLocation);
-            Scribe.loader.InitLoading(fileLocation);
+            string preparedFileLocation = StargateHediffXmlCompatibility.PrepareLoadFile(fileLocation);
+            try
+            {
+                Scribe.loader.InitLoading(preparedFileLocation);
 
-            //Scribe.EnterNode("Stargate");
+                //Scribe.EnterNode("Stargate");
 
-            Log.Message("DeepProfiler.Start()");
-            DeepProfiler.Start("Load non-compressed things");
+                Log.Message("DeepProfiler.Start()");
+                DeepProfiler.Start("Load non-compressed things");
 
-            int originalTimelineTicks = 0;
-            Scribe_Values.Look<int>(ref originalTimelineTicks, "originalTimelineTicks");
+                int originalTimelineTicks = 0;
+                Scribe_Values.Look<int>(ref originalTimelineTicks, "originalTimelineTicks");
 
-            Log.Message("Scribe_Collections.LookList");
-            Scribe_Collections.Look<Thing>(ref thingsToLoad, "things", LookMode.Deep);
+                Log.Message("Scribe_Collections.LookList");
+                Scribe_Collections.Look<Thing>(ref thingsToLoad, "things", LookMode.Deep);
 
-            DeepProfiler.End();
+                DeepProfiler.End();
 
-            Scribe.mode = LoadSaveMode.Inactive;
+                Scribe.mode = LoadSaveMode.Inactive;
 
-            Log.Message("Exit Node");
-            //Scribe.ExitNode();
+                Log.Message("Exit Node");
+                //Scribe.ExitNode();
 
 
-            Log.Message("ResolveAllCrossReferences");
-            //CrossRefHandler
-            var c = new CrossRefHandler();
-            c.ResolveAllCrossReferences();
+                Log.Message("ResolveAllCrossReferences");
+                //CrossRefHandler
+                var c = new CrossRefHandler();
+                c.ResolveAllCrossReferences();
 
-            Log.Message("DoAllPostLoadInits");
-            var p = new PostLoadIniter();
-            p.DoAllPostLoadInits();
+                Log.Message("DoAllPostLoadInits");
+                var p = new PostLoadIniter();
+                p.DoAllPostLoadInits();
 
-            return new Tuple<int>(originalTimelineTicks);
+                return new Tuple<int>(originalTimelineTicks);
+            }
+            finally
+            {
+                StargateHediffXmlCompatibility.DeletePreparedLoadFile(fileLocation, preparedFileLocation);
+            }
         }
     }
 }
