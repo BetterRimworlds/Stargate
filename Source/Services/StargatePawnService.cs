@@ -146,7 +146,7 @@ namespace BetterRimworlds.Stargate.Services
                 implant = pawn.health.AddHediff(gateTravelerImplant, brain) as GateTravelerImplant;
             }
 
-            implant?.RecordStargateBufferEntry();
+            implant?.RefreshRelationshipsForStargateEntry();
         }
 
         public static bool ClearExistingWorldPawn(Pawn pawn)
