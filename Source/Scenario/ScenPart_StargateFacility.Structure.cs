@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
+using UnityEngine;
 using Verse;
 
 namespace BetterRimworlds.Stargate;
@@ -67,7 +68,7 @@ internal partial class ScenPart_StargateFacility
         // Exactly one door, centered, randomly oriented N/S/E/W by entrance side.
         // Placing the door on the inner wall preserves the 2-thick ancient wall look
         // while preventing the outer wall from blocking it.
-        PlaceDoor(map, innerDoorCell, wallMaterial);
+        Building_Door door = PlaceDoor(map, innerDoorCell, wallMaterial);
     }
 
     private void PlaceStargate(Map map, IntVec3 center)
@@ -178,7 +179,7 @@ internal partial class ScenPart_StargateFacility
                 casket.TryAcceptThing(_guardianPawn, false);
             }
         }
-        
+
     }
 
     private Pawn GetGuardianPawn()
@@ -191,7 +192,7 @@ internal partial class ScenPart_StargateFacility
         return Find.GameInitData.startingAndOptionalPawns.FirstOrDefault();
     }
 
-    private void PlaceDoor(Map map, IntVec3 cell, ThingDef material)
+    private Building_Door PlaceDoor(Map map, IntVec3 cell, ThingDef material)
     {
         // We use ClearCellForBuilding instead of ClearCellForDoorway
         // to ensure it clears the concrete floor too, if you don't want it under the wall.
@@ -200,7 +201,26 @@ internal partial class ScenPart_StargateFacility
         // NOTE:
         // This places a functional door. If you want the sealed-ancient-ruin aesthetic,
         // swap ThingDefOf.Door back to ThingDefOf.Wall here.
-        PlaceClaimed(map, ThingDefOf.Door, cell, material);
+        var door = PlaceClaimed(map, ThingDefOf.Door, cell, material) as Building_Door;
+
+        // // 1. Grab the private/protected fields and methods via reflection
+        // var type = typeof(Building_Door);
+        // var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        //
+        // var holdOpenField = type.GetField("holdOpenInt", flags);
+        // var doorOpenMethod = type.GetMethod("DoorOpen", flags);
+        //
+        // if (holdOpenField != null && doorOpenMethod != null)
+        // {
+        //     // 2. Set holdOpenInt to true so it stays open forever
+        //     holdOpenField.SetValue(door, true);
+        //
+        //     // 3. Invoke DoorOpen(int ticksToClose)
+        //     // We pass 110 as the default argument value seen in your decompiled code
+        //     doorOpenMethod.Invoke(door, new object[] { 1100000000 });
+        // }
+
+        return door;
     }
 
     private void PlaceRoof(Map map, CellRect roomRect)
