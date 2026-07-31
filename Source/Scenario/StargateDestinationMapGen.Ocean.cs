@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using RimWorld;
 using Verse;
 
-namespace BetterRimworlds.Stargate;
+namespace BetterRimworlds.Stargate.Scenario;
 
 public static partial class StargateDestinationMapGen
 {

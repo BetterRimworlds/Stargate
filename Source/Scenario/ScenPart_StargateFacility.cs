@@ -35,7 +35,7 @@ internal partial class ScenPart_StargateFacility : ScenPart
         ClearFacilityFootprint(map, outerWallRect.ExpandedBy(2));
 
         // Handle ocean and impassable tiles.
-        StargateDestinationMapGen.Apply(map, DescribeTile(map.Tile));
+        Scenario.StargateDestinationMapGen.Apply(map, DescribeTile(map.Tile));
 
         GenerateRoomStructure(map, roomRect, outerWallRect);
         PlaceRoof(map, roomRect);

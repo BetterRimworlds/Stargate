@@ -1,11 +1,10 @@
 // ==== Source/Scenario/StargateDestinationMapGen.Cavern.cs ====
-using System.Collections.Generic;
-using System.Linq;
+
 using BetterRimworlds.Utilities;
 using RimWorld;
 using Verse;
 
-namespace BetterRimworlds.Stargate;
+namespace BetterRimworlds.Stargate.Scenario;
 
 public static partial class StargateDestinationMapGen
 {
