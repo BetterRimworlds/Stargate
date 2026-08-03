@@ -57,14 +57,30 @@ namespace BetterRimworlds.Stargate.Services
 
             if (targetName != null)
             {
-                FactionDef targetDef = DefDatabase<FactionDef>.GetNamedSilentFail(targetName);
-                Faction faction = targetDef != null ? Find.FactionManager.FirstFactionOfDef(targetDef) : null;
+                Faction faction = FindFactionByDefName(targetName);
                 if (faction != null)
                     return faction;
                 Log.Warning("Stargate: no existing faction found for prisoner origin " + originName +
                     " (wanted " + targetName + ").");
             }
-            return Faction.OfAncientsHostile;
+
+            // Reattach the same FactionDef on this world when classify did not remap
+            // (e.g. OutlanderCivil, modded human factions that still exist here).
+            if (origin != null)
+            {
+                Faction sameDef = Find.FactionManager.FirstFactionOfDef(origin);
+                if (sameDef != null && !sameDef.IsPlayer)
+                    return sameDef;
+            }
+
+            // Generic human outsider fallback — not Empire/Ancients.
+            Faction outlander = FindOutlanderFallback();
+            if (outlander != null)
+                return outlander;
+
+            Log.Warning("Stargate: no Outlander faction available for unclassified prisoner origin " +
+                originName + "; leaving pawn faction unchanged.");
+            return pawn.Faction;
         }
 
         private static string Classify(string factionDefName)
@@ -75,6 +91,28 @@ namespace BetterRimworlds.Stargate.Services
                 factionDefName.StartsWith("tribal", StringComparison.OrdinalIgnoreCase))
                 return "TribeSavage";
             return null;
+        }
+
+        private static Faction FindFactionByDefName(string defName)
+        {
+            FactionDef def = DefDatabase<FactionDef>.GetNamedSilentFail(defName);
+            return def != null ? Find.FactionManager.FirstFactionOfDef(def) : null;
+        }
+
+        /// Vanilla has OutlanderRough / OutlanderCivil, not a bare "Outlander" def.
+        private static Faction FindOutlanderFallback()
+        {
+            Faction rough = FindFactionByDefName("OutlanderRough");
+            if (rough != null)
+                return rough;
+            Faction civil = FindFactionByDefName("OutlanderCivil");
+            if (civil != null)
+                return civil;
+
+            // Any non-player Outlander-category faction (covers unusual world configs).
+            return Find.FactionManager.AllFactionsListForReading.FirstOrDefault(f =>
+                f != null && !f.IsPlayer && !f.defeated && f.def != null &&
+                f.def.categoryTag == "Outlander");
         }
 
         private static void RestoreHost(Pawn pawn)
