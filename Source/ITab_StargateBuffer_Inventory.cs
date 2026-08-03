@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using Enhanced_Development.Stargate;
 using RimWorld;
 using Verse;
 

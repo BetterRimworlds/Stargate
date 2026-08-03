@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Verse;
 using System.Xml;
-using BetterRimworlds.Stargate;
+using Verse;
 
-namespace Enhanced_Development.Stargate.Saving
+namespace BetterRimworlds.Stargate.Saving
 {
     class SaveThings
     {
@@ -97,6 +96,10 @@ namespace Enhanced_Development.Stargate.Saving
             // so carried research never reappeared after wormhole arrival.
             Log.Message("FinalizeLoading (cross-refs + post-load inits)");
             Scribe.loader.FinalizeLoading();
+
+            // Origin-world hediff loadIDs must not enter the destination world's
+            // UniqueIDsManager sequence. Remap them before rematerialization/save.
+            StargateLoadIdRemapper.RemapImportedThingLoadIds(thingsToLoad);
 
             return new Tuple<int>(originalTimelineTicks);
         }

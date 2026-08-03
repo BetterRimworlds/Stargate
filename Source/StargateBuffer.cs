@@ -1,4 +1,6 @@
 // ==== Source/StargateBuffer.cs ====
+
+using BetterRimworlds.Stargate.Saving;
 using RimWorld;
 using Verse;
 
@@ -148,7 +150,7 @@ namespace BetterRimworlds.Stargate
             // before buffer XML write.
             this.PreparePawnsForStargateSerialization();
 
-            Enhanced_Development.Stargate.Saving.SaveThings.save(this.InnerListForReading, this.StargateBufferFilePath);
+            SaveThings.save(this.InnerListForReading, this.StargateBufferFilePath);
 
             for (int a = this.InnerListForReading.Count - 1; a >= 0; --a)
             {
@@ -417,7 +419,7 @@ namespace BetterRimworlds.Stargate
                 return null;
             }
 
-            var loadResponse = Enhanced_Development.Stargate.Saving.SaveThings.load(ref inboundBuffer, this.StargateBufferFilePath);
+            var loadResponse = SaveThings.load(ref inboundBuffer, this.StargateBufferFilePath);
             originalTimelineTicks = loadResponse.Item1;
 
             foreach (Pawn pawn in inboundBuffer.OfType<Pawn>())
