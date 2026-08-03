@@ -5,6 +5,7 @@ using System.Linq;
 using RimWorld;
 using Verse;
 using Verse.AI;
+using BetterRimworlds.Stargate.Services;
 
 namespace BetterRimworlds.Stargate
 {
@@ -101,7 +102,7 @@ namespace BetterRimworlds.Stargate
                 }
                 catch (Exception e)
                 {
-                    Log.Error("Could not spawn " + currentThing + " because: " + e.Message);
+                    Log.Error("Could not spawn " + currentThing + " because: " + e);
                     inboundBuffer.Remove(currentThing);
                     this.stargateBuffer.TryAdd(currentThing);
 
@@ -232,6 +233,10 @@ namespace BetterRimworlds.Stargate
             // pawn.health.AddHediff(shock, null, null);
             PawnComponentsUtility.AddAndRemoveDynamicComponents(pawn, true);
 
+            // AddAndRemoveDynamicComponents and cross-world load can leave prisoners with a null
+            // HostFaction. Re-apply after components settle so RegisterPawn does not NRE.
+            StargatePrisonerService.EnsurePrisonerHost(pawn);
+
             // Find.CurrentMap.mapPawns.AllPawnsUnspawned.Remove(pawn);
             // Find.WorldPawns.AllPawnsDead.Remove(pawn);
             RemoveFromDeadPawnsList(pawn);
@@ -239,25 +244,7 @@ namespace BetterRimworlds.Stargate
 
         private void SetPawnFaction(Pawn pawn)
         {
-            if (!pawn.def.CanHaveFaction)
-            {
-                return;
-            }
-            // Log.Warning("2");
-
-            if (pawn.guest == null || pawn.guest.IsPrisoner == false)
-            {
-                pawn.SetFactionDirect(Faction.OfPlayer);
-            }
-            else
-            {
-                // Log.Warning("3");
-                #if RIMWORLD12
-                pawn.SetFaction(Faction.Empire);
-                #else
-                pawn.SetFactionDirect(Faction.OfEmpire);
-                #endif
-            }
+            StargatePrisonerService.SetFaction(pawn);
         }
 
         private void FixPawnCrownType(Pawn pawn)
@@ -383,12 +370,6 @@ namespace BetterRimworlds.Stargate
 
         private void ResetHumanlikeMemories(Pawn pawn)
         {
-            // pawn.guest = new Pawn_GuestTracker(pawn);
-            #if RIMWORLD12
-            pawn.guilt = new Pawn_GuiltTracker();
-            #else
-            pawn.guilt = new Pawn_GuiltTracker(pawn);
-            #endif
             pawn.abilities = new Pawn_AbilityTracker(pawn);
             pawn.needs.mood.thoughts.memories = new MemoryThoughtHandler(pawn);
         }
@@ -573,7 +554,9 @@ namespace BetterRimworlds.Stargate
 
             // Quickly draft and undraft the Colonist. This will cause them to become aware of the newly-in-phase weapon they are holding,
             // if any. This is effectively the cure of Stargate Insanity.
-            if (thisPawn.RaceProps.Humanlike)
+            // Prisoners (and other non-player humanlikes) have no drafter after
+            // AddAndRemoveDynamicComponents — do not NRE on them.
+            if (thisPawn.drafter != null)
             {
                 // Log.Warning("22a");
 

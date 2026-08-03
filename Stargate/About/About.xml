@@ -17,6 +17,16 @@
             <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
             <downloadUrl>https://github.com/pardeike/HarmonyRimWorld/releases/latest</downloadUrl>
         </li>
+        <li>
+            <packageId>HopeSeekr.BetterRimworlds.ZPM</packageId>
+            <displayName>BetterRimworlds ZPM</displayName>
+            <downloadUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=2519838003</downloadUrl>
+        </li>
+        <li>
+            <packageId>HopeSeekr.BetterRimworlds.LCryoRegenesis</packageId>
+            <displayName>BetterRimworlds CryoRegenesis</displayName>
+            <downloadUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=2193849288</downloadUrl>
+        </li>
     </modDependencies>
     <author>HopeSeekr</author>
     <url>https://github.com/BetterRimworlds/Stargate</url>
