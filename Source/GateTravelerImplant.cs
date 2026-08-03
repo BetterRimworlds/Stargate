@@ -1,7 +1,6 @@
 // ==== Source/GateTravelerImplant.cs ====
 using System.Collections.Generic;
 using System.Linq;
-using Enhanced_Development.Stargate.Saving;
 using RimWorld;
 using Verse;
 
