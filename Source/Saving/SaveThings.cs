@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Verse;
 using System.Xml;
-using BetterRimworlds.Stargate;
+using Verse;
 
-namespace Enhanced_Development.Stargate.Saving
+namespace BetterRimworlds.Stargate.Saving
 {
     class SaveThings
     {
@@ -77,10 +76,8 @@ namespace Enhanced_Development.Stargate.Saving
          */
         public static Tuple<int> load(ref List<Thing> thingsToLoad, string fileLocation)
         {
-            Log.Message("ScribeINIT, loding from:" + fileLocation);
+            Log.Message("ScribeINIT, loading from:" + fileLocation);
             Scribe.loader.InitLoading(fileLocation);
-
-            //Scribe.EnterNode("Stargate");
 
             Log.Message("DeepProfiler.Start()");
             DeepProfiler.Start("Load non-compressed things");
@@ -93,20 +90,16 @@ namespace Enhanced_Development.Stargate.Saving
 
             DeepProfiler.End();
 
-            Scribe.mode = LoadSaveMode.Inactive;
+            // CRITICAL: use the loader's own crossRefs + post-load initer.
+            // Creating empty CrossRefHandler/PostLoadIniter instances (the old path)
+            // skipped GateTravelerImplant research rebuild and other PostLoadInit work,
+            // so carried research never reappeared after wormhole arrival.
+            Log.Message("FinalizeLoading (cross-refs + post-load inits)");
+            Scribe.loader.FinalizeLoading();
 
-            Log.Message("Exit Node");
-            //Scribe.ExitNode();
-
-
-            Log.Message("ResolveAllCrossReferences");
-            //CrossRefHandler
-            var c = new CrossRefHandler();
-            c.ResolveAllCrossReferences();
-
-            Log.Message("DoAllPostLoadInits");
-            var p = new PostLoadIniter();
-            p.DoAllPostLoadInits();
+            // Origin-world hediff loadIDs must not enter the destination world's
+            // UniqueIDsManager sequence. Remap them before rematerialization/save.
+            StargateLoadIdRemapper.RemapImportedThingLoadIds(thingsToLoad);
 
             return new Tuple<int>(originalTimelineTicks);
         }

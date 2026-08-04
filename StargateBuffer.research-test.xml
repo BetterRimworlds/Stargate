@@ -1,0 +1,1957 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Stargate>
+  <originalTimelineTicks>16844919</originalTimelineTicks>
+  <things>
+    <li Class="Pawn">
+      <def>Human</def>
+      <id>Human265419</id>
+      <pos>(185, 0, 120)</pos>
+      <rot>2</rot>
+      <faction>Faction_10</faction>
+      <questTags IsNull="True" />
+      <kindDef>Colonist</kindDef>
+      <gender>Female</gender>
+      <name Class="NameTriple">
+        <first>Emmeke</first>
+        <nick>Emmeke</nick>
+        <last>Vandervaart</last>
+      </name>
+      <mindState>
+        <meleeThreat>null</meleeThreat>
+        <enemyTarget>null</enemyTarget>
+        <knownExploder>null</knownExploder>
+        <lastMannedThing>null</lastMannedThing>
+        <thinkData>
+          <keys />
+          <values />
+        </thinkData>
+        <lastJobTag>DraftedOrder</lastJobTag>
+        <lastIngestTick>16801099</lastIngestTick>
+        <nextApparelOptimizeTick>16828898</nextApparelOptimizeTick>
+        <lastEngageTargetTick>-99999</lastEngageTargetTick>
+        <lastAttackTargetTick>-99999</lastAttackTargetTick>
+        <canFleeIndividual>True</canFleeIndividual>
+        <lastMeleeThreatHarmTick>-99999</lastMeleeThreatHarmTick>
+        <duty IsNull="True" />
+        <mentalStateHandler>
+          <curState IsNull="True" />
+        </mentalStateHandler>
+        <mentalBreaker />
+        <inspirationHandler>
+          <curState IsNull="True" />
+        </inspirationHandler>
+        <priorityWork>
+          <prioritizedCell>(-1000, -1000, -1000)</prioritizedCell>
+        </priorityWork>
+        <lastSelfTendTick>-99999</lastSelfTendTick>
+      </mindState>
+      <jobs IsNull="True" />
+      <stances IsNull="True" />
+      <verbTracker>
+        <verbs>
+          <li Class="Verb_MeleeAttackDamage">
+            <loadID>Thing_Human265419_0_Smash</loadID>
+            <currentTarget>(0, 0, 0)</currentTarget>
+            <currentDestination>(0, 0, 0)</currentDestination>
+            <canHitNonTargetPawnsNow>True</canHitNonTargetPawnsNow>
+          </li>
+          <li Class="Verb_MeleeAttackDamage">
+            <loadID>Thing_Human265419_1_Smash</loadID>
+            <currentTarget>(0, 0, 0)</currentTarget>
+            <currentDestination>(0, 0, 0)</currentDestination>
+            <canHitNonTargetPawnsNow>True</canHitNonTargetPawnsNow>
+          </li>
+          <li Class="Verb_MeleeAttackDamage">
+            <loadID>Thing_Human265419_2_Bite</loadID>
+            <canHitNonTargetPawnsNow>True</canHitNonTargetPawnsNow>
+          </li>
+          <li Class="Verb_MeleeAttackDamage">
+            <loadID>Thing_Human265419_3_Smash</loadID>
+            <canHitNonTargetPawnsNow>True</canHitNonTargetPawnsNow>
+          </li>
+        </verbs>
+      </verbTracker>
+      <natives IsNull="True" />
+      <meleeVerbs>
+        <curMeleeVerb>null</curMeleeVerb>
+        <curMeleeVerbUpdateTick>16829919</curMeleeVerbUpdateTick>
+        <terrainVerbs>
+          <def>Limestone_Smooth</def>
+          <tracker>
+            <verbs />
+          </tracker>
+        </terrainVerbs>
+        <lastTerrainBasedVerbUseTick>80238535</lastTerrainBasedVerbUseTick>
+      </meleeVerbs>
+      <rotationTracker IsNull="True" />
+      <pather IsNull="True" />
+      <carryTracker>
+        <innerContainer>
+          <maxStacks>1</maxStacks>
+          <innerList />
+        </innerContainer>
+      </carryTracker>
+      <apparel>
+        <wornApparel>
+          <innerList>
+            <li>
+              <def>Apparel_Pants</def>
+              <id>Apparel_Pants203043</id>
+              <pos>(180, 0, 126)</pos>
+              <health>124</health>
+              <stackCount>1</stackCount>
+              <stuff>Hyperweave</stuff>
+              <questTags IsNull="True" />
+              <quality>Masterwork</quality>
+            </li>
+            <li>
+              <def>Apparel_BasicShirt</def>
+              <id>Apparel_BasicShirt1152453</id>
+              <pos>(168, 0, 120)</pos>
+              <health>228</health>
+              <stackCount>1</stackCount>
+              <stuff>Hyperweave</stuff>
+              <questTags IsNull="True" />
+              <quality>Poor</quality>
+            </li>
+            <li>
+              <def>Apparel_ArmorRecon</def>
+              <id>Apparel_ArmorRecon3775207</id>
+              <pos>(209, 0, 160)</pos>
+              <health>136</health>
+              <stackCount>1</stackCount>
+              <questTags IsNull="True" />
+              <color>RGBA(0.900, 0.900, 0.900, 1.000)</color>
+              <colorActive>True</colorActive>
+              <quality>Legendary</quality>
+              <codedPawn>null</codedPawn>
+            </li>
+            <li>
+              <def>Apparel_AdvancedHelmet</def>
+              <id>Apparel_AdvancedHelmet1455785</id>
+              <pos>(78, 0, 133)</pos>
+              <health>118</health>
+              <stackCount>1</stackCount>
+              <stuff>Steel</stuff>
+              <questTags IsNull="True" />
+              <quality>Normal</quality>
+            </li>
+          </innerList>
+        </wornApparel>
+        <lockedApparel />
+        <lastApparelWearoutTick>88295750</lastApparelWearoutTick>
+      </apparel>
+      <story>
+        <childhood>MusicalKid86</childhood>
+        <adulthood>CropFarmer17</adulthood>
+        <bodyType>Female</bodyType>
+        <crownType>Narrow</crownType>
+        <headGraphicPath>Things/Pawn/Humanlike/Heads/Female/Female_Narrow_Normal</headGraphicPath>
+        <hairDef>Flowy</hairDef>
+        <hairColor>RGBA(0.867, 0.734, 0.598, 1.000)</hairColor>
+        <melanin>0.4038942</melanin>
+        <traits>
+          <allTraits>
+            <li>
+              <def>Neurotic</def>
+              <degree>2</degree>
+            </li>
+            <li>
+              <def>Nudist</def>
+            </li>
+            <li>
+              <def>ShootingAccuracy</def>
+              <degree>-1</degree>
+            </li>
+          </allTraits>
+        </traits>
+        <birthLastName>Vandervaart</birthLastName>
+      </story>
+      <equipment>
+        <equipment>
+          <innerList>
+            <li>
+              <def>Stargate_Zat_Gun</def>
+              <id>Stargate_Zat_Gun3387474</id>
+              <pos>(61, 0, 105)</pos>
+              <health>100</health>
+              <stackCount>1</stackCount>
+              <questTags IsNull="True" />
+              <verbTracker>
+                <verbs>
+                  <li Class="Verb_MeleeAttackDamage">
+                    <loadID>Thing_Human265419_0_Smash</loadID>
+                    <currentTarget>(0, 0, 0)</currentTarget>
+                    <currentDestination>(0, 0, 0)</currentDestination>
+                    <canHitNonTargetPawnsNow>True</canHitNonTargetPawnsNow>
+                  </li>
+                  <li Class="Verb_MeleeAttackDamage">
+                    <loadID>Thing_Human265419_1_Smash</loadID>
+                    <currentTarget>(0, 0, 0)</currentTarget>
+                    <currentDestination>(0, 0, 0)</currentDestination>
+                    <canHitNonTargetPawnsNow>True</canHitNonTargetPawnsNow>
+                  </li>
+                  <li Class="Verb_MeleeAttackDamage">
+                    <loadID>Thing_Human265419_2_Bite</loadID>
+                    <currentTarget>(0, 0, 0)</currentTarget>
+                    <currentDestination>(0, 0, 0)</currentDestination>
+                    <canHitNonTargetPawnsNow>True</canHitNonTargetPawnsNow>
+                  </li>
+                  <li Class="Verb_MeleeAttackDamage">
+                    <loadID>Thing_Human265419_3_Smash</loadID>
+                    <currentTarget>(0, 0, 0)</currentTarget>
+                    <currentDestination>(0, 0, 0)</currentDestination>
+                    <canHitNonTargetPawnsNow>True</canHitNonTargetPawnsNow>
+                  </li>
+                  <li Class="Verb_Shoot">
+                    <currentTarget>(0, 0, 0)</currentTarget>
+                    <currentDestination>(0, 0, 0)</currentDestination>
+                    <canHitNonTargetPawnsNow>True</canHitNonTargetPawnsNow>
+                  </li>
+                </verbs>
+              </verbTracker>
+              <title>Wu's Malefactor</title>
+              <taleRef>
+                <seed>2138737334</seed>
+                <tale>null</tale>
+              </taleRef>
+              <quality>Legendary</quality>
+              <codedPawn>null</codedPawn>
+            </li>
+          </innerList>
+        </equipment>
+        <bondedWeapon>null</bondedWeapon>
+      </equipment>
+      <drafter IsNull="True" />
+      <ageTracker>
+        <ageBiologicalTicks>200607562</ageBiologicalTicks>
+        <birthAbsTicks>-2935343597</birthAbsTicks>
+      </ageTracker>
+      <healthTracker>
+        <hediffSet>
+          <hediffs>
+            <li Class="Hediff_Implant">
+              <loadID>12158</loadID>
+              <def>WakeUpRib</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>1</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+            </li>
+            <li Class="Hediff_AddedPart">
+              <loadID>12159</loadID>
+              <def>BionicStomach</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>5</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+            </li>
+            <li Class="Hediff_AddedPart">
+              <loadID>12160</loadID>
+              <def>ArchotechArm</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>22</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <verbTracker>
+                <verbs>
+                  <li Class="Verb_MeleeAttackDamage">
+                    <loadID>Hediff_12160_0_0_Smash</loadID>
+                    <currentTarget>(0, 0, 0)</currentTarget>
+                    <currentDestination>(0, 0, 0)</currentDestination>
+                    <canHitNonTargetPawnsNow>True</canHitNonTargetPawnsNow>
+                  </li>
+                </verbs>
+              </verbTracker>
+            </li>
+            <li Class="Hediff_MissingPart">
+              <loadID>12188</loadID>
+              <def>MissingBodyPart</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>23</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <lastInjury>SurgicalCut</lastInjury>
+              <isFresh>True</isFresh>
+            </li>
+            <li Class="Hediff_MissingPart">
+              <loadID>12189</loadID>
+              <def>MissingBodyPart</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>24</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <lastInjury>SurgicalCut</lastInjury>
+              <isFresh>True</isFresh>
+            </li>
+            <li Class="Hediff_MissingPart">
+              <loadID>12190</loadID>
+              <def>MissingBodyPart</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>25</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <lastInjury>SurgicalCut</lastInjury>
+            </li>
+            <li Class="Hediff_MissingPart">
+              <loadID>12191</loadID>
+              <def>MissingBodyPart</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>26</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <lastInjury>SurgicalCut</lastInjury>
+            </li>
+            <li Class="Hediff_MissingPart">
+              <loadID>12192</loadID>
+              <def>MissingBodyPart</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>27</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <lastInjury>SurgicalCut</lastInjury>
+            </li>
+            <li Class="Hediff_MissingPart">
+              <loadID>12193</loadID>
+              <def>MissingBodyPart</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>28</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <lastInjury>SurgicalCut</lastInjury>
+            </li>
+            <li Class="Hediff_MissingPart">
+              <loadID>12194</loadID>
+              <def>MissingBodyPart</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>29</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <lastInjury>SurgicalCut</lastInjury>
+            </li>
+            <li Class="Hediff_MissingPart">
+              <loadID>12195</loadID>
+              <def>MissingBodyPart</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>30</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <lastInjury>SurgicalCut</lastInjury>
+            </li>
+            <li Class="Hediff_MissingPart">
+              <loadID>12196</loadID>
+              <def>MissingBodyPart</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>31</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <lastInjury>SurgicalCut</lastInjury>
+            </li>
+            <li Class="Hediff_MissingPart">
+              <loadID>12197</loadID>
+              <def>MissingBodyPart</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>32</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <lastInjury>SurgicalCut</lastInjury>
+            </li>
+            <li Class="Hediff_AddedPart">
+              <loadID>12171</loadID>
+              <def>BionicEar</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>18</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+            </li>
+            <li Class="Hediff_AddedPart">
+              <loadID>12172</loadID>
+              <def>ArchotechArm</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>33</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <verbTracker>
+                <verbs>
+                  <li Class="Verb_MeleeAttackDamage">
+                    <loadID>Hediff_12172_0_0_Smash</loadID>
+                    <currentTarget>(0, 0, 0)</currentTarget>
+                    <currentDestination>(0, 0, 0)</currentDestination>
+                    <canHitNonTargetPawnsNow>True</canHitNonTargetPawnsNow>
+                  </li>
+                </verbs>
+              </verbTracker>
+            </li>
+            <li Class="Hediff_MissingPart">
+              <loadID>12198</loadID>
+              <def>MissingBodyPart</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>34</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <lastInjury>SurgicalCut</lastInjury>
+              <isFresh>True</isFresh>
+            </li>
+            <li Class="Hediff_MissingPart">
+              <loadID>12199</loadID>
+              <def>MissingBodyPart</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>35</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <lastInjury>SurgicalCut</lastInjury>
+              <isFresh>True</isFresh>
+            </li>
+            <li Class="Hediff_MissingPart">
+              <loadID>12200</loadID>
+              <def>MissingBodyPart</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>36</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <lastInjury>SurgicalCut</lastInjury>
+            </li>
+            <li Class="Hediff_MissingPart">
+              <loadID>12201</loadID>
+              <def>MissingBodyPart</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>37</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <lastInjury>SurgicalCut</lastInjury>
+            </li>
+            <li Class="Hediff_MissingPart">
+              <loadID>12202</loadID>
+              <def>MissingBodyPart</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>38</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <lastInjury>SurgicalCut</lastInjury>
+            </li>
+            <li Class="Hediff_MissingPart">
+              <loadID>12203</loadID>
+              <def>MissingBodyPart</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>39</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <lastInjury>SurgicalCut</lastInjury>
+            </li>
+            <li Class="Hediff_MissingPart">
+              <loadID>12204</loadID>
+              <def>MissingBodyPart</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>40</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <lastInjury>SurgicalCut</lastInjury>
+            </li>
+            <li Class="Hediff_MissingPart">
+              <loadID>12205</loadID>
+              <def>MissingBodyPart</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>41</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <lastInjury>SurgicalCut</lastInjury>
+            </li>
+            <li Class="Hediff_MissingPart">
+              <loadID>12206</loadID>
+              <def>MissingBodyPart</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>42</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <lastInjury>SurgicalCut</lastInjury>
+            </li>
+            <li Class="Hediff_MissingPart">
+              <loadID>12207</loadID>
+              <def>MissingBodyPart</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>43</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <lastInjury>SurgicalCut</lastInjury>
+            </li>
+            <li Class="Hediff_AddedPart">
+              <loadID>12183</loadID>
+              <def>BionicEar</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>19</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+            </li>
+            <li Class="Hediff_AddedPart">
+              <loadID>12184</loadID>
+              <def>BionicSpine</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>4</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+            </li>
+            <li Class="Hediff_AddedPart">
+              <loadID>12185</loadID>
+              <def>BionicEye</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>16</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+            </li>
+            <li Class="Hediff_AddedPart">
+              <loadID>12186</loadID>
+              <def>BionicHeart</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>6</index>
+              </part>
+              <severity>0.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+            </li>
+            <li Class="BetterRimworlds.Stargate.GateTravelerImplant">
+              <loadID>12187</loadID>
+              <def>GateTravelerImplant</def>
+              <ageTicks>154496</ageTicks>
+              <part>
+                <body>Human</body>
+                <index>15</index>
+              </part>
+              <severity>15.5</severity>
+              <visible>True</visible>
+              <combatLogEntry>null</combatLogEntry>
+              <relationships>
+                <li>
+                  <name IsNull="True" />
+                  <relationship>Spouse</relationship>
+                </li>
+              </relationships>
+              <aliveYearsInitialized>True</aliveYearsInitialized>
+              <consciousAliveTicks>200607562</consciousAliveTicks>
+              <trueSuspendedTicks>2751578534</trueSuspendedTicks>
+              <lastKnownBiologicalAgeTicks>200607562</lastKnownBiologicalAgeTicks>
+              <lastKnownChronologicalAgeTicks>2952188516</lastKnownChronologicalAgeTicks>
+              <research>
+                <keys>
+                  <li>SterileMaterials</li>
+                </keys>
+                <values>
+                  <li>592.3571</li>
+                </values>
+              </research>
+            </li>
+          </hediffs>
+        </hediffSet>
+        <surgeryBills>
+          <bills />
+        </surgeryBills>
+        <immunity>
+          <imList />
+        </immunity>
+      </healthTracker>
+      <records>
+        <records>
+          <vals>
+            <li>405</li>
+            <li>10</li>
+            <li>395</li>
+            <li>0</li>
+            <li>168</li>
+            <li>27</li>
+            <li>141</li>
+            <li>0</li>
+            <li>2044</li>
+            <li>5</li>
+            <li>67660</li>
+            <li>3470</li>
+            <li>532</li>
+            <li>8</li>
+            <li>1199</li>
+            <li>23</li>
+            <li>27</li>
+            <li>332</li>
+            <li>822</li>
+            <li>2</li>
+            <li>7</li>
+            <li>1862</li>
+            <li>9</li>
+            <li>377</li>
+            <li>3819</li>
+            <li>16371</li>
+            <li>77</li>
+            <li>650</li>
+            <li>960</li>
+            <li>64084</li>
+            <li>80250</li>
+            <li>52864</li>
+            <li>14401</li>
+            <li>74180</li>
+            <li>24677.23</li>
+            <li>6</li>
+            <li>7421.694</li>
+            <li>0</li>
+            <li>79</li>
+            <li>730</li>
+            <li>0</li>
+            <li>7</li>
+            <li>88</li>
+            <li>2.440996E+08</li>
+            <li>0</li>
+            <li>0</li>
+            <li>1.969854E+07</li>
+            <li>3455230</li>
+            <li>3298320</li>
+            <li>1.125562E+07</li>
+            <li>1.97041E+07</li>
+            <li>1.368874E+08</li>
+            <li>677250</li>
+            <li>4860</li>
+            <li>1.787902E+07</li>
+            <li>4.675403E+07</li>
+            <li>8530080</li>
+            <li>603290</li>
+            <li>1451050</li>
+            <li>849570</li>
+            <li>3277590</li>
+            <li>2667480</li>
+            <li>2670070</li>
+            <li>1.273996E+07</li>
+            <li>591350</li>
+            <li>6873780</li>
+            <li>1.55738E+07</li>
+          </vals>
+        </records>
+        <storyRelevance>906770</storyRelevance>
+        <battleActive>null</battleActive>
+        <battleExitTick>16177017</battleExitTick>
+      </records>
+      <inventory>
+        <itemsNotForSale />
+        <innerContainer>
+          <innerList>
+            <li Class="ThingWithComps">
+              <def>MealSurvivalPack</def>
+              <id>MealSurvivalPack1179540</id>
+              <health>50</health>
+              <stackCount>1</stackCount>
+              <questTags IsNull="True" />
+              <ingredients>
+                <li>EggDuckUnfertilized</li>
+                <li>Meat_Cat</li>
+                <li>Meat_Elephant</li>
+              </ingredients>
+              <poisonPct>0.01531659</poisonPct>
+              <cause>FilthyKitchen</cause>
+            </li>
+          </innerList>
+        </innerContainer>
+      </inventory>
+      <filth IsNull="True" />
+      <needs>
+        <needs>
+          <li Class="Need_Mood">
+            <def>Mood</def>
+            <curLevel>0.5404</curLevel>
+            <thoughts>
+              <memories>
+                <memories>
+                  <li Class="Thought_MemorySocial">
+                    <def>Slighted</def>
+                    <otherPawn>Thing_Human983096</otherPawn>
+                    <moodPowerFactor>0.9575</moodPowerFactor>
+                    <age>152550</age>
+                    <opinionOffset>-4.7875</opinionOffset>
+                  </li>
+                  <li>
+                    <def>AteInImpressiveDiningRoom</def>
+                    <otherPawn>null</otherPawn>
+                    <age>28800</age>
+                    <stageIndex>8</stageIndex>
+                  </li>
+                  <li Class="Thought_MemorySocialCumulative">
+                    <def>Chitchat</def>
+                    <otherPawn>Thing_Human983060</otherPawn>
+                    <moodPowerFactor>0.9284585</moodPowerFactor>
+                    <age>52800</age>
+                    <opinionOffset>0.2255652</opinionOffset>
+                  </li>
+                  <li Class="Thought_MemorySocialCumulative">
+                    <def>Chitchat</def>
+                    <otherPawn>Thing_Human1455744</otherPawn>
+                    <moodPowerFactor>0.82</moodPowerFactor>
+                    <age>39000</age>
+                    <opinionOffset>0.6236001</opinionOffset>
+                  </li>
+                  <li Class="Thought_MemorySocialCumulative">
+                    <def>Chitchat</def>
+                    <otherPawn>Thing_Human1455715</otherPawn>
+                    <moodPowerFactor>0.82</moodPowerFactor>
+                    <age>30000</age>
+                    <opinionOffset>0.6236001</opinionOffset>
+                  </li>
+                  <li Class="Thought_MemorySocial">
+                    <def>DeepTalk</def>
+                    <otherPawn>Thing_Human422</otherPawn>
+                    <moodPowerFactor>1.35575</moodPowerFactor>
+                    <age>85800</age>
+                    <opinionOffset>20.33625</opinionOffset>
+                  </li>
+                  <li Class="Thought_MemorySocial">
+                    <def>DeepTalk</def>
+                    <otherPawn>Thing_Human89295</otherPawn>
+                    <moodPowerFactor>1.37</moodPowerFactor>
+                    <age>84600</age>
+                    <opinionOffset>20.55</opinionOffset>
+                  </li>
+                  <li Class="Thought_MemorySocialCumulative">
+                    <def>Chitchat</def>
+                    <otherPawn>Thing_Human1455700</otherPawn>
+                    <moodPowerFactor>0.9025</moodPowerFactor>
+                    <age>10650</age>
+                    <opinionOffset>0.1913</opinionOffset>
+                  </li>
+                  <li Class="Thought_MemorySocialCumulative">
+                    <def>Chitchat</def>
+                    <otherPawn>Thing_Human591047</otherPawn>
+                    <moodPowerFactor>1.507</moodPowerFactor>
+                    <age>3150</age>
+                    <opinionOffset>0.9892402</opinionOffset>
+                  </li>
+                  <li Class="Thought_MemorySocialCumulative">
+                    <def>Chitchat</def>
+                    <otherPawn>Thing_Human37595</otherPawn>
+                    <moodPowerFactor>1.1225</moodPowerFactor>
+                    <age>57300</age>
+                    <opinionOffset>0.74085</opinionOffset>
+                  </li>
+                  <li Class="Thought_MemorySocialCumulative">
+                    <def>Chitchat</def>
+                    <otherPawn>Thing_Human438500</otherPawn>
+                    <moodPowerFactor>0.9575</moodPowerFactor>
+                    <age>56400</age>
+                    <opinionOffset>0.63195</opinionOffset>
+                  </li>
+                  <li Class="Thought_MemorySocialCumulative">
+                    <def>Chitchat</def>
+                    <otherPawn>Thing_Human981</otherPawn>
+                    <moodPowerFactor>1.217063</moodPowerFactor>
+                    <age>50700</age>
+                    <opinionOffset>2.409785</opinionOffset>
+                  </li>
+                  <li Class="Thought_MemorySocialCumulative">
+                    <def>Chitchat</def>
+                    <otherPawn>Thing_Human1529329</otherPawn>
+                    <moodPowerFactor>0.875</moodPowerFactor>
+                    <age>37650</age>
+                    <opinionOffset>0.5775</opinionOffset>
+                  </li>
+                  <li Class="Thought_MemorySocialCumulative">
+                    <def>Chitchat</def>
+                    <otherPawn>Thing_Human89295</otherPawn>
+                    <moodPowerFactor>1.37</moodPowerFactor>
+                    <age>31950</age>
+                    <opinionOffset>0.9042</opinionOffset>
+                  </li>
+                  <li Class="Thought_MemorySocialCumulative">
+                    <def>Chitchat</def>
+                    <otherPawn>Thing_Human4505911</otherPawn>
+                    <moodPowerFactor>1.1225</moodPowerFactor>
+                    <age>30900</age>
+                    <opinionOffset>0.74085</opinionOffset>
+                  </li>
+                  <li Class="Thought_MemorySocialCumulative">
+                    <def>Chitchat</def>
+                    <otherPawn>Thing_Human640685</otherPawn>
+                    <moodPowerFactor>0.99275</moodPowerFactor>
+                    <age>30900</age>
+                    <opinionOffset>1.31043</opinionOffset>
+                  </li>
+                  <li Class="Thought_MemorySocialCumulative">
+                    <def>Chitchat</def>
+                    <otherPawn>Thing_Human1275414</otherPawn>
+                    <moodPowerFactor>0.985</moodPowerFactor>
+                    <age>30450</age>
+                    <opinionOffset>0.6501001</opinionOffset>
+                  </li>
+                  <li Class="Thought_MemorySocialCumulative">
+                    <def>Chitchat</def>
+                    <otherPawn>Thing_Human1445214</otherPawn>
+                    <moodPowerFactor>0.99275</moodPowerFactor>
+                    <age>20700</age>
+                    <opinionOffset>0.655215</opinionOffset>
+                  </li>
+                  <li Class="Thought_MemorySocialCumulative">
+                    <def>Chitchat</def>
+                    <otherPawn>Thing_Human250529</otherPawn>
+                    <moodPowerFactor>0.9575</moodPowerFactor>
+                    <age>18900</age>
+                    <opinionOffset>0.63195</opinionOffset>
+                  </li>
+                  <li Class="Thought_MemorySocial">
+                    <def>DeepTalk</def>
+                    <otherPawn>Thing_Human250529</otherPawn>
+                    <moodPowerFactor>0.9575</moodPowerFactor>
+                    <age>18750</age>
+                    <opinionOffset>14.3625</opinionOffset>
+                  </li>
+                  <li>
+                    <def>JoyActivityInImpressiveRecRoom</def>
+                    <otherPawn>null</otherPawn>
+                    <age>17550</age>
+                    <stageIndex>8</stageIndex>
+                  </li>
+                  <li Class="Thought_MemorySocialCumulative">
+                    <def>Chitchat</def>
+                    <otherPawn>Thing_Human1455685</otherPawn>
+                    <moodPowerFactor>0.8475</moodPowerFactor>
+                    <age>15750</age>
+                    <opinionOffset>0.55935</opinionOffset>
+                  </li>
+                  <li Class="Thought_MemorySocialCumulative">
+                    <def>Chitchat</def>
+                    <otherPawn>Thing_Human983096</otherPawn>
+                    <moodPowerFactor>0.9575</moodPowerFactor>
+                    <age>9900</age>
+                    <opinionOffset>0.63195</opinionOffset>
+                  </li>
+                  <li Class="Thought_MemorySocialCumulative">
+                    <def>Chitchat</def>
+                    <otherPawn>Thing_Human270988</otherPawn>
+                    <moodPowerFactor>0.93</moodPowerFactor>
+                    <age>2850</age>
+                    <opinionOffset>0.6138</opinionOffset>
+                  </li>
+                </memories>
+              </memories>
+            </thoughts>
+            <recentMemory>
+              <lastLightTick>16829481</lastLightTick>
+              <lastOutdoorTick>16828731</lastOutdoorTick>
+            </recentMemory>
+          </li>
+          <li Class="Need_Food">
+            <def>Food</def>
+            <curLevel>0.2359985</curLevel>
+            <lastNonStarvingTick>16829781</lastNonStarvingTick>
+          </li>
+          <li Class="Need_Rest">
+            <def>Rest</def>
+            <curLevel>0.8339229</curLevel>
+          </li>
+          <li Class="Need_Joy">
+            <def>Joy</def>
+            <curLevel>0.8259229</curLevel>
+            <tolerances>
+              <vals>
+                <li>0.3621671</li>
+                <li>0.4191917</li>
+                <li>0.4960053</li>
+                <li>0.5135542</li>
+                <li>0</li>
+                <li>0.1647964</li>
+                <li>0</li>
+                <li>0</li>
+              </vals>
+            </tolerances>
+            <bored>
+              <vals>
+                <li>True</li>
+                <li>False</li>
+                <li>True</li>
+                <li>True</li>
+                <li>False</li>
+                <li>False</li>
+                <li>False</li>
+                <li>False</li>
+              </vals>
+            </bored>
+          </li>
+          <li Class="Need_Beauty">
+            <def>Beauty</def>
+            <curLevel>0.5640221</curLevel>
+          </li>
+          <li Class="Need_Comfort">
+            <def>Comfort</def>
+            <curLevel>0.2951998</curLevel>
+          </li>
+          <li Class="Need_Outdoors">
+            <def>Outdoors</def>
+            <curLevel>0.993425</curLevel>
+          </li>
+          <li Class="Need_Chemical_Any">
+            <def>DrugDesire</def>
+            <curLevel>0.5</curLevel>
+          </li>
+          <li Class="Need_RoomSize">
+            <def>RoomSize</def>
+            <curLevel>0.99</curLevel>
+          </li>
+        </needs>
+      </needs>
+      <guest>
+        <hostFaction>null</hostFaction>
+        <interactionMode>NoInteraction</interactionMode>
+        <spotToWaitInsteadOfEscaping>(-1000, -1000, -1000)</spotToWaitInsteadOfEscaping>
+        <lastPrisonBreakTicks>-1</lastPrisonBreakTicks>
+      </guest>
+      <guilt>
+        <lastGuiltyTick>16000949</lastGuiltyTick>
+      </guilt>
+      <royalty>
+        <titles />
+        <favor>
+          <keys />
+          <values />
+        </favor>
+        <highestTitles>
+          <keys />
+          <values />
+        </highestTitles>
+        <heirs>
+          <keys />
+          <values />
+        </heirs>
+        <permitPoints>
+          <keys />
+          <values />
+        </permitPoints>
+        <permits />
+      </royalty>
+      <social>
+        <directRelations>
+          <li>
+            <def>Spouse</def>
+            <otherPawn>Thing_Human0</otherPawn>
+            <startTicks>16675423</startTicks>
+          </li>
+        </directRelations>
+        <relativeInvolvedInRescueQuest>null</relativeInvolvedInRescueQuest>
+      </social>
+      <psychicEntropy>
+        <limitEntropyAmount>True</limitEntropyAmount>
+      </psychicEntropy>
+      <ownership>
+        <ownedBed>null</ownedBed>
+        <assignedMeditationSpot>null</assignedMeditationSpot>
+        <assignedGrave>null</assignedGrave>
+        <assignedThrone>null</assignedThrone>
+      </ownership>
+      <interactions IsNull="True" />
+      <skills>
+        <skills>
+          <li>
+            <def>Shooting</def>
+            <level>10</level>
+            <xpSinceLastLevel>10425.79</xpSinceLastLevel>
+            <xpSinceMidnight>4.198933</xpSinceMidnight>
+          </li>
+          <li>
+            <def>Melee</def>
+            <level>20</level>
+            <xpSinceLastLevel>22834.49</xpSinceLastLevel>
+            <passion>Minor</passion>
+          </li>
+          <li>
+            <def>Construction</def>
+            <level>19</level>
+            <xpSinceLastLevel>6629.765</xpSinceLastLevel>
+          </li>
+          <li>
+            <def>Mining</def>
+            <level>13</level>
+            <xpSinceLastLevel>6822.74</xpSinceLastLevel>
+          </li>
+          <li>
+            <def>Cooking</def>
+            <level>16</level>
+            <xpSinceLastLevel>12165.99</xpSinceLastLevel>
+          </li>
+          <li>
+            <def>Plants</def>
+            <level>20</level>
+            <xpSinceLastLevel>29999</xpSinceLastLevel>
+            <passion>Minor</passion>
+          </li>
+          <li>
+            <def>Animals</def>
+            <level>20</level>
+            <xpSinceLastLevel>29999</xpSinceLastLevel>
+            <passion>Major</passion>
+          </li>
+          <li>
+            <def>Crafting</def>
+            <level>14</level>
+            <xpSinceLastLevel>5416.02</xpSinceLastLevel>
+          </li>
+          <li>
+            <def>Artistic</def>
+            <level>13</level>
+            <xpSinceLastLevel>3150.671</xpSinceLastLevel>
+            <passion>Minor</passion>
+          </li>
+          <li>
+            <def>Medicine</def>
+            <level>11</level>
+            <xpSinceLastLevel>5148.195</xpSinceLastLevel>
+          </li>
+          <li>
+            <def>Social</def>
+            <level>13</level>
+            <xpSinceLastLevel>15323.76</xpSinceLastLevel>
+            <xpSinceMidnight>9.799999</xpSinceMidnight>
+          </li>
+          <li>
+            <def>Intellectual</def>
+            <level>12</level>
+            <xpSinceLastLevel>7772.472</xpSinceLastLevel>
+          </li>
+        </skills>
+        <lastXpSinceMidnightResetTimestamp>-1</lastXpSinceMidnightResetTimestamp>
+      </skills>
+      <abilities>
+        <abilities />
+      </abilities>
+      <workSettings>
+        <priorities>
+          <vals>
+            <li>1</li>
+            <li>1</li>
+            <li>1</li>
+            <li>1</li>
+            <li>1</li>
+            <li>2</li>
+            <li>2</li>
+            <li>0</li>
+            <li>2</li>
+            <li>2</li>
+            <li>2</li>
+            <li>2</li>
+            <li>2</li>
+            <li>2</li>
+            <li>2</li>
+            <li>2</li>
+            <li>0</li>
+            <li>2</li>
+            <li>2</li>
+            <li>1</li>
+            <li>0</li>
+            <li>1</li>
+            <li>3</li>
+          </vals>
+        </priorities>
+      </workSettings>
+      <trader IsNull="True" />
+      <outfits>
+        <curOutfit>Outfit_Anything1</curOutfit>
+        <overrideHandler>
+          <forcedAps />
+        </overrideHandler>
+      </outfits>
+      <drugs>
+        <curAssignedDrugs>DrugPolicy_Social drugs1</curAssignedDrugs>
+        <drugTakeRecords>
+          <li>
+            <drug>WakeUp</drug>
+            <lastTakenTicks>29171587</lastTakenTicks>
+            <timesTakenThisDay>1</timesTakenThisDay>
+            <thisDay>486</thisDay>
+          </li>
+          <li>
+            <drug>Luciferium</drug>
+            <lastTakenTicks>43737305</lastTakenTicks>
+            <timesTakenThisDay>1</timesTakenThisDay>
+            <thisDay>728</thisDay>
+          </li>
+          <li>
+            <drug>Beer</drug>
+            <lastTakenTicks>5261423</lastTakenTicks>
+            <timesTakenThisDay>1</timesTakenThisDay>
+            <thisDay>87</thisDay>
+          </li>
+          <li>
+            <drug>PsychiteTea</drug>
+            <lastTakenTicks>65233758</lastTakenTicks>
+            <timesTakenThisDay>1</timesTakenThisDay>
+            <thisDay>1087</thisDay>
+          </li>
+          <li>
+            <drug>SmokeleafJoint</drug>
+            <lastTakenTicks>8070086</lastTakenTicks>
+            <timesTakenThisDay>1</timesTakenThisDay>
+            <thisDay>134</thisDay>
+          </li>
+          <li>
+            <drug>GoJuice</drug>
+            <lastTakenTicks>25300865</lastTakenTicks>
+            <timesTakenThisDay>2</timesTakenThisDay>
+            <thisDay>421</thisDay>
+          </li>
+          <li>
+            <drug>Ambrosia</drug>
+            <lastTakenTicks>26885679</lastTakenTicks>
+            <timesTakenThisDay>1</timesTakenThisDay>
+            <thisDay>448</thisDay>
+          </li>
+          <li>
+            <drug>Yayo</drug>
+            <lastTakenTicks>88276773</lastTakenTicks>
+            <timesTakenThisDay>1</timesTakenThisDay>
+            <thisDay>1471</thisDay>
+          </li>
+          <li>
+            <drug>Flake</drug>
+            <lastTakenTicks>2744344</lastTakenTicks>
+            <timesTakenThisDay>1</timesTakenThisDay>
+            <thisDay>45</thisDay>
+          </li>
+        </drugTakeRecords>
+      </drugs>
+      <foodRestriction>
+        <curRestriction>FoodRestriction_Lavish1</curRestriction>
+      </foodRestriction>
+      <timetable>
+        <times>
+          <li>Sleep</li>
+          <li>Sleep</li>
+          <li>Sleep</li>
+          <li>Sleep</li>
+          <li>Sleep</li>
+          <li>Sleep</li>
+          <li>Anything</li>
+          <li>Joy</li>
+          <li>Joy</li>
+          <li>Joy</li>
+          <li>Joy</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Anything</li>
+          <li>Sleep</li>
+          <li>Sleep</li>
+        </times>
+      </timetable>
+      <playerSettings>
+        <joinTick>3227413</joinTick>
+        <medCare>Best</medCare>
+        <areaAllowed>null</areaAllowed>
+        <master>null</master>
+        <hostilityResponse>Attack</hostilityResponse>
+        <selfTend>True</selfTend>
+        <displayOrder>-144</displayOrder>
+      </playerSettings>
+      <training IsNull="True" />
+    </li>
+    <li Class="ThingWithComps">
+      <def>Luciferium</def>
+      <id>Luciferium554368</id>
+      <pos>(185, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+    </li>
+    <li Class="ThingWithComps">
+      <def>Luciferium</def>
+      <id>Luciferium1170565</id>
+      <pos>(187, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+    </li>
+    <li Class="ThingWithComps">
+      <def>Luciferium</def>
+      <id>Luciferium1170594</id>
+      <pos>(188, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+    </li>
+    <li Class="ThingWithComps">
+      <def>Luciferium</def>
+      <id>Luciferium1557391</id>
+      <pos>(184, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>26</stackCount>
+      <questTags IsNull="True" />
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1173830</id>
+      <pos>(185, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Ibex</li>
+        <li>EggDuckUnfertilized</li>
+        <li>Meat_Megasloth</li>
+      </ingredients>
+      <poisonPct>0.003927166</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1173946</id>
+      <pos>(185, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Elephant</li>
+        <li>Meat_Panther</li>
+        <li>EggDuckUnfertilized</li>
+      </ingredients>
+      <poisonPct>0.01913777</poisonPct>
+      <cause>IncompetentCook</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1174016</id>
+      <pos>(187, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Megasloth</li>
+        <li>Meat_Elephant</li>
+        <li>Meat_Panther</li>
+      </ingredients>
+      <poisonPct>0.007390467</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1174054</id>
+      <pos>(184, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>RawRice</li>
+        <li>Meat_Panther</li>
+        <li>Meat_Cat</li>
+      </ingredients>
+      <poisonPct>0.01874567</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1174277</id>
+      <pos>(186, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Panther</li>
+        <li>Meat_Chinchilla</li>
+        <li>RawRice</li>
+      </ingredients>
+      <poisonPct>0.01705262</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1174317</id>
+      <pos>(187, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Cat</li>
+        <li>Meat_Alpaca</li>
+        <li>RawRice</li>
+      </ingredients>
+      <poisonPct>0.02954002</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1174178</id>
+      <pos>(187, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>RawRice</li>
+        <li>EggDuckUnfertilized</li>
+        <li>Meat_Boomalope</li>
+      </ingredients>
+      <poisonPct>0.02662165</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack5326873</id>
+      <pos>(188, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Chinchilla</li>
+        <li>Meat_Cat</li>
+        <li>RawRice</li>
+      </ingredients>
+      <poisonPct>0.01785325</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack811862</id>
+      <pos>(186, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Cat</li>
+        <li>Meat_Elephant</li>
+        <li>Meat_Chinchilla</li>
+      </ingredients>
+      <poisonPct>0.02140631</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1174149</id>
+      <pos>(187, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Ibex</li>
+        <li>RawCorn</li>
+        <li>Meat_Cat</li>
+      </ingredients>
+      <poisonPct>0.01392115</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1174859</id>
+      <pos>(186, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Panther</li>
+        <li>Meat_Cow</li>
+        <li>Meat_Elephant</li>
+      </ingredients>
+      <poisonPct>0.01433967</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1174988</id>
+      <pos>(184, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Cow</li>
+        <li>Meat_Cat</li>
+        <li>Meat_Chinchilla</li>
+      </ingredients>
+      <poisonPct>0.02805577</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack5514767</id>
+      <pos>(186, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Panther</li>
+        <li>RawCorn</li>
+        <li>Meat_Chinchilla</li>
+      </ingredients>
+      <poisonPct>0.0126096</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack5514790</id>
+      <pos>(188, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>EggDuckUnfertilized</li>
+        <li>Meat_Ibex</li>
+        <li>RawCorn</li>
+      </ingredients>
+      <poisonPct>0.01264048</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1175324</id>
+      <pos>(186, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>RawRice</li>
+        <li>Meat_Elephant</li>
+        <li>Meat_Ibex</li>
+      </ingredients>
+      <poisonPct>0.0163469</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1175447</id>
+      <pos>(184, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Cat</li>
+        <li>Meat_Caribou</li>
+        <li>Meat_Panther</li>
+      </ingredients>
+      <poisonPct>0.01903572</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1175655</id>
+      <pos>(185, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Panther</li>
+        <li>Meat_Boomalope</li>
+        <li>Meat_Chinchilla</li>
+      </ingredients>
+      <poisonPct>0.01283289</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1175683</id>
+      <pos>(187, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Ibex</li>
+        <li>Meat_Cat</li>
+        <li>RawRice</li>
+      </ingredients>
+      <poisonPct>0.02216033</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1175889</id>
+      <pos>(185, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Cat</li>
+        <li>Meat_Elephant</li>
+        <li>RawCorn</li>
+      </ingredients>
+      <poisonPct>0.01621401</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1175999</id>
+      <pos>(184, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Panther</li>
+        <li>RawRice</li>
+        <li>Meat_Cow</li>
+      </ingredients>
+      <poisonPct>0.01830273</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack811064</id>
+      <pos>(186, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Elephant</li>
+        <li>RawRice</li>
+        <li>Meat_Boomalope</li>
+      </ingredients>
+      <poisonPct>0.01853472</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1174162</id>
+      <pos>(187, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Boomalope</li>
+        <li>Meat_Alpaca</li>
+        <li>Meat_Panther</li>
+      </ingredients>
+      <poisonPct>0.02991395</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1176579</id>
+      <pos>(188, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Boomalope</li>
+        <li>Meat_Elephant</li>
+        <li>Meat_Megasloth</li>
+      </ingredients>
+      <poisonPct>0.01528535</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1176723</id>
+      <pos>(187, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Cat</li>
+        <li>Meat_Panther</li>
+        <li>Meat_Alpaca</li>
+      </ingredients>
+      <poisonPct>0.02124602</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1176897</id>
+      <pos>(188, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Elephant</li>
+        <li>Meat_Boomalope</li>
+        <li>RawCorn</li>
+      </ingredients>
+      <poisonPct>0.02946516</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack969868</id>
+      <pos>(188, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>RawRice</li>
+        <li>Meat_Elephant</li>
+        <li>Meat_Ibex</li>
+      </ingredients>
+      <poisonPct>0.01456518</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1174172</id>
+      <pos>(185, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Ibex</li>
+        <li>Meat_Elephant</li>
+        <li>Meat_Panther</li>
+      </ingredients>
+      <poisonPct>0.01409219</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1177906</id>
+      <pos>(185, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>RawRice</li>
+        <li>Meat_Ibex</li>
+        <li>Meat_Panther</li>
+      </ingredients>
+      <poisonPct>0.01473537</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1178222</id>
+      <pos>(185, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>RawRice</li>
+        <li>Meat_Boomalope</li>
+        <li>RawCorn</li>
+      </ingredients>
+      <poisonPct>0.01419895</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1178488</id>
+      <pos>(187, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Elephant</li>
+        <li>Meat_Cat</li>
+        <li>Meat_Ibex</li>
+      </ingredients>
+      <poisonPct>0.0113793</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1178717</id>
+      <pos>(184, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>RawRice</li>
+        <li>EggDuckUnfertilized</li>
+        <li>Milk</li>
+      </ingredients>
+      <poisonPct>0.008142067</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1178956</id>
+      <pos>(185, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Chinchilla</li>
+        <li>RawRice</li>
+        <li>Meat_Elephant</li>
+      </ingredients>
+      <poisonPct>0.01052627</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1179136</id>
+      <pos>(186, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Megasloth</li>
+        <li>Meat_Ibex</li>
+        <li>Milk</li>
+      </ingredients>
+      <poisonPct>0.01512619</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1179304</id>
+      <pos>(185, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Squirrel</li>
+        <li>Meat_Cat</li>
+        <li>Milk</li>
+      </ingredients>
+      <poisonPct>0.01482106</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1174641</id>
+      <pos>(186, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Squirrel</li>
+        <li>EggDuckUnfertilized</li>
+        <li>Meat_Ibex</li>
+      </ingredients>
+      <poisonPct>0.01503997</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1179893</id>
+      <pos>(185, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Milk</li>
+        <li>RawRice</li>
+        <li>EggDuckUnfertilized</li>
+      </ingredients>
+      <poisonPct>0.01838306</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1180166</id>
+      <pos>(186, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>RawCorn</li>
+        <li>EggDuckUnfertilized</li>
+        <li>Meat_Elephant</li>
+      </ingredients>
+      <poisonPct>0.01072277</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack815672</id>
+      <pos>(184, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Ibex</li>
+        <li>Meat_Megasloth</li>
+        <li>Meat_Elephant</li>
+      </ingredients>
+      <poisonPct>0.0104773</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1180673</id>
+      <pos>(186, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Ibex</li>
+        <li>Milk</li>
+        <li>EggDuckUnfertilized</li>
+      </ingredients>
+      <poisonPct>0.01222765</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1180926</id>
+      <pos>(185, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Megasloth</li>
+        <li>Meat_Boomalope</li>
+        <li>EggDuckUnfertilized</li>
+      </ingredients>
+      <poisonPct>0.01541846</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1181220</id>
+      <pos>(184, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Megasloth</li>
+        <li>Meat_Ibex</li>
+        <li>Meat_Cow</li>
+      </ingredients>
+      <poisonPct>0.01143815</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1181167</id>
+      <pos>(187, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>RawRice</li>
+        <li>Meat_Ibex</li>
+        <li>Meat_Megasloth</li>
+      </ingredients>
+      <poisonPct>0.01216387</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack5515186</id>
+      <pos>(186, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>150</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>EggDuckUnfertilized</li>
+        <li>Meat_Elephant</li>
+        <li>Meat_Megasloth</li>
+      </ingredients>
+      <poisonPct>0.01476935</poisonPct>
+      <cause>FilthyKitchen</cause>
+    </li>
+    <li Class="ThingWithComps">
+      <def>MealSurvivalPack</def>
+      <id>MealSurvivalPack1181792</id>
+      <pos>(188, 0, 116)</pos>
+      <health>50</health>
+      <stackCount>119</stackCount>
+      <questTags IsNull="True" />
+      <ingredients>
+        <li>Meat_Megasloth</li>
+        <li>Meat_Ibex</li>
+        <li>Meat_Panther</li>
+      </ingredients>
+      <poisonPct>0.01523308</poisonPct>
+      <cause>IncompetentCook</cause>
+    </li>
+  </things>
+</Stargate>
