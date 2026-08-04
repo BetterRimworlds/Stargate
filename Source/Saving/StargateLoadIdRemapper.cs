@@ -68,9 +68,16 @@ public static class StargateLoadIdRemapper
                 continue;
             }
 
+            // Some added-part hediffs, such as ArchotechArm, own a VerbTracker.
+            // Their verbs persist IDs derived from the hediff ID (for example,
+            // Hediff_12160_0_0_Smash), so keep those IDs in sync when the
+            // hediff is moved into the destination world's ID space.
+            string previousUniqueId = hediff.GetUniqueLoadID();
             int previousId = hediff.loadID;
             hediff.loadID = Find.UniqueIDsManager.GetNextHediffID();
             remappedCount++;
+
+            remappedCount += RemapOwnedVerbLoadIds(hediff, previousUniqueId);
 
             if (Prefs.DevMode && previousId >= 0)
             {
@@ -79,6 +86,42 @@ public static class StargateLoadIdRemapper
                     $"({hediff.def?.defName} on {pawn.LabelShortCap})."
                 );
             }
+        }
+
+        return remappedCount;
+    }
+
+    /// Keeps hediff-owned verb loadIDs in sync after the hediff's own loadID
+    /// changes. Verb IDs are persisted as prefixes of the hediff unique ID
+    /// (for example Hediff_12160_0_0_Smash), so both import remapping and
+    /// duplicate-save recovery must rewrite them before cross-ref registration.
+    public static int RemapOwnedVerbLoadIds(
+        Hediff hediff,
+        string previousUniqueId)
+    {
+        if (hediff?.verbTracker?.AllVerbs == null || previousUniqueId.NullOrEmpty())
+        {
+            return 0;
+        }
+
+        string newUniqueId = hediff.GetUniqueLoadID();
+        int remappedCount = 0;
+
+        foreach (Verb verb in hediff.verbTracker.AllVerbs)
+        {
+            if (verb == null || verb.loadID.NullOrEmpty())
+            {
+                continue;
+            }
+
+            if (!verb.loadID.StartsWith(previousUniqueId))
+            {
+                continue;
+            }
+
+            string suffix = verb.loadID.Substring(previousUniqueId.Length);
+            verb.loadID = newUniqueId + suffix;
+            remappedCount++;
         }
 
         return remappedCount;
