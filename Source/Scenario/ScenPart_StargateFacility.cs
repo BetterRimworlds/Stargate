@@ -12,6 +12,20 @@ internal partial class ScenPart_StargateFacility : ScenPart
 
     public override void GenerateIntoMap(Map map)
     {
+        // The starting map is generated while it is the ONLY map in the game.
+        // Every other map (quests, new settlements, enemy raids, caravan sites,
+        // pocket maps, etc.) is generated after the home map already exists in
+        // Find.Maps, so Find.Maps.Count will be >= 2 at that point.
+        //
+        // This avoids Find.GameInitData.startingTile entirely — that field's
+        // fill order relative to GenerateIntoMap isn't guaranteed, which is why
+        // the previous check either never matched (see Bug 2) or matched on
+        // every map (see Bug 1) depending on timing.
+        if (Find.Maps.Count != 1 || Find.Maps[0] != map)
+        {
+            return;
+        }
+
         IntVec3 center = map.Center;
         int halfSize = RoomSize / 2;
 
