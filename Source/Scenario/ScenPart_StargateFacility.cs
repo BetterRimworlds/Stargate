@@ -107,39 +107,29 @@ internal partial class ScenPart_StargateFacility : ScenPart
 
     private void ShowScenarioMessage(Map map)
     {
-        string msg = BuildScenarioMessage(map);
-
-        Find.WindowStack.Add(new Dialog_MessageBox(
-            msg,
-            "OK",
-            () =>
-            {
-                // TriggerStargateRecall(map);
-            }
-        ));
+        Find.WindowStack.Add(new Dialog_MessageBox(BuildScenarioMessage(map), "OK"));
     }
 
     private string BuildScenarioMessage(Map map)
     {
-        int selectedTile = map.Tile;
-        var tileInfo = map.TileInfo;
-        if (tileInfo.WaterCovered)
-        {
-        }
-
         var c = StargateAutomationPatches.LastPlanetConditions;
+        int selectedTile = map.Tile;
+
+        // Null-safe formatting for the daily conditions block.
+        string Value<T>(T v) => v?.ToString() ?? "N/A";
 
         return
             "DAILY STARGATE PLANET CONDITIONS\n\n" +
             "This is today's shared pseudo-multiplayer planet. All players on the same " +
             "UTC date receive the same planet and planet-level conditions.\n\n" +
-            "Seed:        " + (c != null ? c.SeedString : "N/A") + "\n" +
-            "Coverage:    " + (c != null ? c.PlanetCoverage.ToString() : "N/A") + "\n" +
-            "Rainfall:    " + (c != null ? c.Rainfall.ToString() : "N/A") + "\n" +
-            "Temperature: " + (c != null ? c.Temperature.ToString() : "N/A") + "\n" +
-            "Population:  " + (c != null ? c.Population.ToString() : "N/A") + "\n\n" +
+            "Seed:        " + Value(c?.SeedString) + "\n" +
+            "Coverage:    " + Value(c?.PlanetCoverage) + "\n" +
+            "Rainfall:    " + Value(c?.Rainfall) + "\n" +
+            "Temperature: " + Value(c?.Temperature) + "\n" +
+            "Population:  " + Value(c?.Population) + "\n\n" +
             "===========================================\n\n" +
-            "RANDOM STARGATE DESTINATION SELECTED\n\n" +
+            "STARGATE DESTINATION SELECTED\n\n" +
+            "Scenario:           " + DescribeScenarioKind(StargateAutomationPatches.SelectedScenarioKind) + "\n" +
             "Daily planet seed:  " + StargateSeedUtility.GetDailySeed() + "\n" +
             "Selected tile:      " + selectedTile + "\n" +
             "Tile kind:          " + DescribeTile(selectedTile) + "\n\n" +
@@ -147,24 +137,17 @@ internal partial class ScenPart_StargateFacility : ScenPart
             "Ocean → Atlantis  |  Impassable → Tok'ra  |  Normal → Surface facility";
     }
 
-    // Locates the Stargate building instance on the provided map and triggers its recall sequence.
-    private void TriggerStargateRecall(Map map)
+    private static string DescribeScenarioKind(StargateScenarioKind kind)
     {
-        ThingDef stargateDef = ThingDef.Named("Stargate");
-
-        Thing spawnedGate = map.listerThings.ThingsOfDef(stargateDef).FirstOrDefault();
-
-        if (spawnedGate is Building_Stargate stargate)
+        switch (kind)
         {
-            stargate.StargateRecall();
-        }
-        else if (spawnedGate != null)
-        {
-            Log.Warning("BetterRimworlds.Stargate: Found a Stargate Thing, but could not cast it to the 'Stargate' class.");
-        }
-        else
-        {
-            Log.Warning("BetterRimworlds.Stargate: Stargate ThingDef exists, but no Stargate was found on the map to trigger recall.");
+            case StargateScenarioKind.AtlantisRising:
+                return "Atlantis Rising";
+            case StargateScenarioKind.AbandonedTokraBase:
+                return "Abandoned Tok'ra Base";
+            case StargateScenarioKind.RandomTile:
+            default:
+                return "Random Tile";
         }
     }
 

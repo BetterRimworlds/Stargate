@@ -11,7 +11,13 @@
                 <factionDef>PlayerColony</factionDef>
             </playerFaction>
             <parts>
-                <!-- Config pages -->
+                <!--
+                Destination chooser (Random / Atlantis / Tok'ra) is inserted
+                BEFORE Page_CreateWorldParams by Harmony
+                (Patch_Scenario_GetFirstConfigPage). Vanilla ScenPart_ConfigPage
+                always appends after SelectStartingSite — too late, after
+                "Generating World…" — so it is intentionally not listed here.
+                -->
                 <!--
                 <li Class="ScenPart_ConfigPage_ConfigureStartingPawns">
                     <def>ConfigPage_ConfigureStartingPawns</def>

@@ -1,5 +1,6 @@
 // ==== Source/Scenario/StargateAutomationPatches.cs ====
 using System;
+using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
@@ -13,100 +14,120 @@ public static class StargateAutomationPatches
 {
     internal static StargateDailyPlanetConditions LastPlanetConditions;
 
+    /// Destination kind chosen on Page_SelectStargateScenario before world
+    /// generation (Random Tile until confirmed).
+    internal static StargateScenarioKind SelectedScenarioKind = StargateScenarioKind.RandomTile;
+
+    /// When false, daily planet params are still applied, but the new-game
+    /// pages are left in vanilla control (no auto-advance / site skip).
+    internal static bool EnableNewGameAutomation = true;
+
+    internal static bool CanAutomateNewGame() =>
+        EnableNewGameAutomation && StargateScenarioUtility.IsStargateBaseScenario();
+
     static StargateAutomationPatches()
     {
         var harmony = new Harmony("com.betterrimworlds.stargate.automation");
         harmony.PatchAll();
         Log.Message("BetterRimworlds.Stargate: Harmony automation patches applied.");
     }
+}
 
-    // CRITICAL:
-    // Skipping Page_SelectStartingSite means we also skip vanilla side effects.
-    //
-    // Setting Find.GameInitData.startingTile is not enough. RimWorld expects a player
-    // faction base / settlement world object to exist before the starting map is
-    // generated. Without it, PageUtility.InitGameStart can fail with:
-    //
-    //   "Could not generate starting map because there is no any player faction base."
-    //
-    // This recreates the required vanilla state for the automated Stargate start.
-    internal static void EnsurePlayerFactionBaseAtStartingTile()
+// 0. Insert the destination chooser BEFORE world generation.
+// Vanilla GetFirstConfigPage appends ScenPart_ConfigPage pages after
+// SelectStartingSite (i.e. after "Generating World…"), which is too late.
+// We want: Storyteller → chooser → CreateWorldParams → …
+[HarmonyPatch(typeof(Scenario), nameof(Scenario.GetFirstConfigPage))]
+public static class Patch_Scenario_GetFirstConfigPage
+{
+    public static void Postfix(Scenario __instance, ref Page __result)
     {
-        if (!StargateScenarioUtility.IsStargateBaseScenario())
+        if (__result == null || !StargateScenarioUtility.ScenarioHasStargateFacility(__instance))
         {
             return;
         }
 
-        if (Find.GameInitData == null)
+        // Drop any chooser a ScenPart_ConfigPage in the scenario XML might add,
+        // so the player is not asked twice.
+        RemovePagesOfType(ref __result, typeof(Page_SelectStargateScenario));
+
+        if (!InsertPageBeforeType(ref __result, new Page_SelectStargateScenario(), typeof(Page_CreateWorldParams)))
         {
-            Log.Error("BetterRimworlds.Stargate: Cannot ensure player faction base because GameInitData is null.");
-            return;
+            Log.Error(
+                "BetterRimworlds.Stargate: Could not insert Page_SelectStargateScenario " +
+                "before Page_CreateWorldParams — CreateWorldParams missing from page chain."
+            );
         }
+    }
 
-        int tile = Find.GameInitData.startingTile;
-        if (tile < 0)
+    // Unlinks every page of the given type from the doubly-linked page chain.
+    private static void RemovePagesOfType(ref Page first, Type pageType)
+    {
+        Page page = first;
+        Page prev = null;
+
+        while (page != null)
         {
-            Log.Error("BetterRimworlds.Stargate: Cannot ensure player faction base because startingTile is invalid: " + tile);
-            return;
-        }
+            Page next = page.next;
 
-        if (Find.WorldObjects == null)
-        {
-            Log.Error("BetterRimworlds.Stargate: Cannot ensure player faction base because Find.WorldObjects is null.");
-            return;
-        }
-
-        // Avoid creating duplicates if vanilla, another mod, or a future refactor has
-        // already created the player settlement.
-        var worldObjects = Find.WorldObjects.AllWorldObjects;
-        for (int i = 0; i < worldObjects.Count; i++)
-        {
-            WorldObject worldObject = worldObjects[i];
-
-            if (worldObject == null)
+            if (pageType.IsInstanceOfType(page))
             {
-                continue;
+                if (prev != null) prev.next = next;
+                else first = next;
+                if (next != null) next.prev = prev;
+
+                // Detach the removed page from the chain.
+                page.prev = null;
+                page.next = null;
+                page.nextAct = null;
+            }
+            else
+            {
+                prev = page;
             }
 
-            if (worldObject.Faction == Faction.OfPlayer && worldObject is Settlement)
-            {
-                if (worldObject.Tile != tile)
-                {
-                    worldObject.Tile = tile;
-                }
+            page = next;
+        }
+    }
 
-                return;
+    // Inserts toInsert immediately before the first page of beforeType.
+    // Returns false if that type is absent.
+    private static bool InsertPageBeforeType(ref Page first, Page toInsert, Type beforeType)
+    {
+        Page page = first;
+        Page prev = null;
+
+        while (page != null)
+        {
+            if (beforeType.IsInstanceOfType(page))
+            {
+                toInsert.prev = prev;
+                toInsert.next = page;
+                page.prev = toInsert;
+                if (prev != null) prev.next = toInsert;
+                else first = toInsert;
+                return true;
             }
+
+            prev = page;
+            page = page.next;
         }
 
-        Settlement settlement = (Settlement)WorldObjectMaker.MakeWorldObject(WorldObjectDefOf.Settlement);
-        settlement.Tile = tile;
-        settlement.SetFaction(Faction.OfPlayer);
-
-        Find.WorldObjects.Add(settlement);
-
-        Log.Message("BetterRimworlds.Stargate: Created player faction base at Stargate destination tile " + tile + ".");
+        return false;
     }
 }
 
 // 1. Auto-configure world parameters and click Next automatically.
 //
-// This is where the daily pseudo-multiplayer planet is created.
-//
-// Important:
-//   - The daily seed controls the planet.
-//   - The daily seed controls planet-level conditions.
-//   - The daily seed does NOT control the Stargate starting tile.
-//
-// In other words:
-//
-//   Same UTC day  => same planet.
-//   New game      => random Stargate destination on that planet.
+// The daily seed controls the planet and its conditions, but NOT the Stargate
+// starting tile. Same UTC day => same planet; new game => tile within the
+// chosen kind, picked after the planet exists.
 [HarmonyPatch(typeof(Page_CreateWorldParams), "PostOpen")]
 public static class Patch_Page_CreateWorldParams_PostOpen
 {
     public static void Postfix(Page_CreateWorldParams __instance)
     {
+        // Conditions are applied even when automation is off; only auto-advance is gated below.
         if (!StargateScenarioUtility.IsStargateBaseScenario())
         {
             return;
@@ -121,6 +142,12 @@ public static class Patch_Page_CreateWorldParams_PostOpen
         SetPrivateField(__instance, "population", conditions.Population);
 
         StargateAutomationPatches.LastPlanetConditions = conditions;
+
+        if (!StargateAutomationPatches.EnableNewGameAutomation)
+        {
+            Log.Message("BetterRimworlds.Stargate: Automation disabled — leaving Page_CreateWorldParams open.");
+            return;
+        }
 
         MethodInfo canDoNext = AccessTools.Method(typeof(Page_CreateWorldParams), "CanDoNext");
         MethodInfo doNext = AccessTools.Method(typeof(Page_CreateWorldParams), "DoNext");
@@ -151,51 +178,84 @@ public static class Patch_Page_CreateWorldParams_PostOpen
     }
 }
 
-// 2. Skip the site selection screen entirely.
+// 2. Skip the vanilla site-selection map; pick the tile now that the world exists.
 //
-// Important:
-// The planet is deterministic.
-// The Stargate destination is intentionally NOT deterministic.
+// CRITICAL: hook PostOpen, not PreOpen. WindowStack.Add runs PreOpen before the
+// window is in the stack, so Close() during PreOpen is a no-op and the page
+// still ends up focused. By PostOpen the window is in the stack and Close()
+// removes it.
 //
-// That means:
-//   - Same UTC date = same planet.
-//   - Each new game = random Stargate destination on that planet.
+// Tile selection uses the kind chosen before world gen:
+//   Random Tile => any valid tile | Atlantis => ocean tile | Tok'ra => impassable tile
 //
-// Ocean and impassable tiles are valid because this scenario has special gameplay:
-//   - Ocean       => Atlantis-style underwater base.
-//   - Impassable  => Tok'ra-style mountain base.
-//
-// CRITICAL:
-// Do NOT show the Scenario Message Box here.
-//
-// This page happens before the map exists. The scenario message is an in-game intro
-// beat and must happen after the map, Stargate facility, fog, equipment, and home area
-// are fully generated, but before StargateRecall().
-[HarmonyPatch(typeof(Page_SelectStartingSite), "PreOpen")]
-public static class Patch_Page_SelectStartingSite_PreOpen
+// Do NOT show the scenario intro dialog here — that fires after map gen.
+[HarmonyPatch(typeof(Page_SelectStartingSite), "PostOpen")]
+public static class Patch_Page_SelectStartingSite_PostOpen
 {
     public static bool Prefix(Page_SelectStartingSite __instance)
     {
-        if (!StargateScenarioUtility.IsStargateBaseScenario())
+        if (!StargateAutomationPatches.CanAutomateNewGame())
         {
             return true;
         }
 
-        int selectedTile = SelectRandomStargateDestinationTile();
-        // Hardcode startTile
-        // selectedTile = 11613; // IMPASSABLE
-        // selectedTile = 272612; // OCEAN
-
+        StargateScenarioKind kind = StargateAutomationPatches.SelectedScenarioKind;
+        int selectedTile = StargateDestinationSelector.SelectDestinationTile(kind);
         Find.GameInitData.startingTile = selectedTile;
 
+        // PrepForMapGen indexes startingAndOptionalPawns by startingPawnCount.
+        Find.GameInitData.startingPawnCount =
+            Find.GameInitData.startingAndOptionalPawns?.Count ?? 0;
+
+        Log.Message(
+            "BetterRimworlds.Stargate: Scenario kind " + kind +
+            " selected starting tile " + selectedTile + "."
+        );
+
+        // Capture the stitched chain before Close clears window state.
+        Page next = __instance.next;
+        Action nextAct = __instance.nextAct;
+
+        // PostOpen: the window is in the stack, so Close removes it.
         __instance.Close(false);
 
-        Find.WindowStack.Add(new Page_ConfigureStartingPawns());
+        if (next != null)
+        {
+            Find.WindowStack.Add(next);
+        }
+        else if (nextAct != null)
+        {
+            // No further config pages — start the game (nextAct = InitGameStart).
+            nextAct();
+        }
+        else
+        {
+            Log.Error("BetterRimworlds.Stargate: SelectStartingSite has no next page or nextAct.");
+        }
 
+        // Skip vanilla PostOpen (ChooseRandomStartingTile / planet camera tutorials).
         return false;
     }
+}
 
-    private static int SelectRandomStargateDestinationTile()
+/// Picks a starting tile for a Stargate scenario kind. Uses normal RNG (not the
+/// daily seed) so each new game can land on a different destination on the same daily planet.
+internal static class StargateDestinationSelector
+{
+    internal static int SelectDestinationTile(StargateScenarioKind kind)
+    {
+        switch (kind)
+        {
+            case StargateScenarioKind.AtlantisRising:
+                return SelectMatchingStargateDestinationTile(IsOceanTile, "ocean (Atlantis Rising)");
+            case StargateScenarioKind.AbandonedTokraBase:
+                return SelectMatchingStargateDestinationTile(IsImpassableTile, "impassable (Abandoned Tok'ra Base)");
+            default:
+                return SelectMatchingStargateDestinationTile(tile => true, "random");
+        }
+    }
+
+    private static int SelectMatchingStargateDestinationTile(Func<Tile, bool> predicate, string kindLabel)
     {
         int tilesCount = Find.WorldGrid.TilesCount;
 
@@ -205,29 +265,38 @@ public static class Patch_Page_SelectStartingSite_PreOpen
             return 0;
         }
 
-        // This is intentionally normal RNG, not daily-seeded RNG.
-        //
-        // DO NOT wrap this in StargateSeedUtility.WithDailySubSeed(...).
-        // DO NOT wrap this in Rand.PushState(dailySeed).
-        //
-        // The whole point is:
-        //   same daily planet,
-        //   random Stargate destination.
-        for (int attempt = 0; attempt < 1000; attempt++)
+        // Deliberately NOT daily-seeded: same daily planet, random destination within the chosen kind.
+        for (int attempt = 0; attempt < 2000; attempt++)
         {
             int tileId = Rand.Range(0, tilesCount);
 
-            if (TileExists(tileId))
+            if (TileMatches(tileId, predicate))
             {
                 return tileId;
             }
         }
 
-        // Extremely defensive fallback.
+        // Defensive fallbacks: linear scan for a matching tile, then any tile at all.
+        for (int tileId = 0; tileId < tilesCount; tileId++)
+        {
+            if (TileMatches(tileId, predicate))
+            {
+                Log.Warning(
+                    "BetterRimworlds.Stargate: Random sampling failed for " + kindLabel +
+                    "; using linear-scan tile " + tileId + "."
+                );
+                return tileId;
+            }
+        }
+
         for (int tileId = 0; tileId < tilesCount; tileId++)
         {
             if (TileExists(tileId))
             {
+                Log.Error(
+                    "BetterRimworlds.Stargate: No " + kindLabel +
+                    " tile found. Falling back to tile " + tileId + "."
+                );
                 return tileId;
             }
         }
@@ -236,16 +305,15 @@ public static class Patch_Page_SelectStartingSite_PreOpen
         return 0;
     }
 
-    private static bool TileExists(int tileId)
-    {
-        if (tileId < 0 || tileId >= Find.WorldGrid.TilesCount)
-        {
-            return false;
-        }
+    private static bool IsOceanTile(Tile tile) => tile != null && tile.WaterCovered;
 
-        Tile tile = GetTile(tileId);
-        return tile != null;
-    }
+    private static bool IsImpassableTile(Tile tile) => tile != null && tile.hilliness == Hilliness.Impassable;
+
+    private static bool TileMatches(int tileId, Func<Tile, bool> predicate) =>
+        TileExists(tileId) && predicate(GetTile(tileId));
+
+    private static bool TileExists(int tileId) =>
+        tileId >= 0 && tileId < Find.WorldGrid.TilesCount && GetTile(tileId) != null;
 
     private static Tile GetTile(int tileId)
     {
@@ -257,34 +325,25 @@ public static class Patch_Page_SelectStartingSite_PreOpen
     }
 }
 
-// 3. Skip colonist selection and start game immediately.
+// 3. Safety net: if ConfigureStartingPawns is re-enabled in the scenario XML,
+// skip colonist selection and start the game immediately.
 [HarmonyPatch(typeof(Page_ConfigureStartingPawns), "PostOpen")]
 public static class Patch_Page_ConfigureStartingPawns_PostOpen
 {
     public static void Postfix(Page_ConfigureStartingPawns __instance)
     {
-        if (!StargateScenarioUtility.IsStargateBaseScenario())
+        if (!StargateAutomationPatches.CanAutomateNewGame())
         {
             return;
         }
 
-        // CRITICAL:
-        // Do not clear startingAndOptionalPawns here.
-        //
-        // The Stargate facility ScenPart uses the generated pawn list during map
-        // generation. The first pawn is placed into the Guardian's casket.
-        //
-        // Clearing this list here makes the scenario part unable to place the Guardian.
+        // Do not clear startingAndOptionalPawns — the facility ScenPart uses
+        // the first pawn for the Guardian's cryptosleep casket.
+        Find.GameInitData.startingPawnCount =
+            Find.GameInitData.startingAndOptionalPawns?.Count ?? 0;
 
-        // This scenario intentionally has no normal starting colonists. Vanilla DoNext()
-        // blocks that with capability warnings, but PrepForMapGen() still requires a
-        // non-negative startingPawnCount or it indexes startingAndOptionalPawns at -1.
-        Find.GameInitData.startingPawnCount = Find.GameInitData.startingAndOptionalPawns?.Count ?? 0;
-
-        // Because this automation bypasses vanilla Page_SelectStartingSite.DoNext, we
-        // must recreate the player faction base world object before InitGameStart().
-        StargateAutomationPatches.EnsurePlayerFactionBaseAtStartingTile();
-
+        // Settlement is created by ScenPart_PlayerFaction.PreMapGenerate inside
+        // InitGameStart — do not pre-create it here (duplicate world objects).
         PageUtility.InitGameStart();
     }
 }
@@ -363,20 +422,23 @@ internal sealed class StargateDailyPlanetConditions
     {
         float roll = Rand.Value;
 
-        if (roll < 0.20f) return OverallPopulation.AlmostNone;     // Abandoned ruins, tiny outpost
-        if (roll < 0.45f) return OverallPopulation.Little;         // Primitive villages, mining camps
-        if (roll < 0.65f) return OverallPopulation.LittleBitLess;  // Sparse subject world, frontier colony
-        if (roll < 0.80f) return OverallPopulation.Normal;         // Modest Goa'uld subject world
-        if (roll < 0.90f) return OverallPopulation.LittleBitMore;  // Established civilization
-        if (roll < 0.97f) return OverallPopulation.High;           // Significant population center
-        return                   OverallPopulation.VeryHigh;       // Exceptional — Langara-tier
+        if (roll < 0.20f) return OverallPopulation.AlmostNone;
+        if (roll < 0.45f) return OverallPopulation.Little;
+        if (roll < 0.65f) return OverallPopulation.LittleBitLess;
+        if (roll < 0.80f) return OverallPopulation.Normal;
+        if (roll < 0.90f) return OverallPopulation.LittleBitMore;
+        if (roll < 0.97f) return OverallPopulation.High;
+        return                   OverallPopulation.VeryHigh;
     }
 }
 
 internal static class StargateScenarioUtility
 {
-    internal static bool IsStargateBaseScenario()
-    {
-        return Find.Scenario != null && Find.Scenario.name == "Daily Stargate Outpost";
-    }
+    /// Identifies a Stargate scenario by its parts, not its translatable display
+    /// name. The scenario-parameter variant is used while stitching the page
+    /// chain, when Find.Scenario may not be the right object to trust alone.
+    internal static bool ScenarioHasStargateFacility(Scenario scenario) =>
+        scenario != null && scenario.AllParts.Any(p => p is ScenPart_StargateFacility);
+
+    internal static bool IsStargateBaseScenario() => ScenarioHasStargateFacility(Find.Scenario);
 }
