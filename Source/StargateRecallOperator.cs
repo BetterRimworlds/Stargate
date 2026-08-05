@@ -335,36 +335,74 @@ namespace BetterRimworlds.Stargate
 
         private void ResetPawnCombatState(Pawn pawn)
         {
-            if (pawn.equipment != null && pawn.equipment.HasAnything() && pawn.equipment.Primary != null)
+            if (pawn == null)
             {
-                // Log.Warning("10");
+                return;
+            }
 
-                // pawn.equipment.Primary.InitializeComps();
-                if (pawn.equipment.PrimaryEq != null && pawn.equipment.PrimaryEq.verbTracker != null)
+            // Pawn body verbs: directOwner is the pawn itself.
+            RebindVerbTracker(pawn.verbTracker, pawn, rebindDirectOwner: true);
+            RebindEquipmentVerbs(pawn);
+
+#if RIMWORLD12
+            // Pre-Biotech 1.2: weaponless colonists could rematerialize without usable
+            // melee verbs and stall after buffer load. Re-init melee state only when
+            // unarmed; do not recreate weapon VerbTrackers (that path corrupted 1.6).
+            bool hasPrimary =
+                pawn.equipment != null &&
+                pawn.equipment.HasAnything() &&
+                pawn.equipment.Primary != null;
+            if (!hasPrimary)
+            {
+                pawn.meleeVerbs = new Pawn_MeleeVerbs(pawn);
+                if (pawn.verbTracker?.AllVerbs != null)
                 {
-                    // Log.Warning("11");
-
-                    pawn.equipment.PrimaryEq.verbTracker = new VerbTracker(pawn);
-                    pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
+                    pawn.verbTracker.AllVerbs.Add(new Verb_MeleeAttackDamage());
                 }
             }
-            else
-            {
-                // Log.Warning("12");
-
-                pawn.meleeVerbs = new Pawn_MeleeVerbs(pawn);
-                pawn.verbTracker.AllVerbs.Add(new Verb_MeleeAttackDamage());
-            }
+#endif
         }
 
         private void ResetPawnEquipmentVerbs(Pawn pawn)
         {
-            if (pawn.equipment != null && pawn.equipment.PrimaryEq != null)
-            {
-                // Log.Warning("14");
+            RebindEquipmentVerbs(pawn);
+        }
 
-                pawn.equipment.PrimaryEq.verbTracker = new VerbTracker(pawn);
-                pawn.equipment.PrimaryEq.verbTracker.AllVerbs.Add(new Verb_Shoot());
+        /// Equipment verbs keep CompEquippable as IVerbOwner; only the caster must
+        /// point at the rematerialized pawn (CompEquippable.ConstantCaster is null).
+        private void RebindEquipmentVerbs(Pawn pawn)
+        {
+            if (pawn?.equipment?.PrimaryEq?.verbTracker == null)
+            {
+                return;
+            }
+
+            RebindVerbTracker(pawn.equipment.PrimaryEq.verbTracker, pawn, rebindDirectOwner: false);
+        }
+
+        private void RebindVerbTracker(VerbTracker verbTracker, Pawn pawn, bool rebindDirectOwner)
+        {
+            if (verbTracker == null)
+            {
+                return;
+            }
+
+            if (rebindDirectOwner)
+            {
+                verbTracker.directOwner = pawn;
+            }
+
+            if (verbTracker.AllVerbs == null)
+            {
+                return;
+            }
+
+            foreach (Verb verb in verbTracker.AllVerbs)
+            {
+                if (verb != null)
+                {
+                    verb.caster = pawn;
+                }
             }
         }
 
