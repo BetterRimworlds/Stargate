@@ -1,5 +1,4 @@
 // ==== Source/Utilities/DailySeedUtility.cs ====
-using System;
 using System.Globalization;
 using Verse;
 
@@ -49,9 +48,9 @@ internal static class DailySeedUtility
    /// This string is suitable for RimWorld's world seed field.
    internal static string GetDailySeed()
    {
-       // Unbelievably to me, without the CultureInfo.InvariantCulture, this produces different responses for
-       // the USA, Colombia, Europe, and Dubai..
-       return DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+        // Unbelievably to me, without the CultureInfo.InvariantCulture, this produces different responses for
+        // the USA, Colombia, Europe, and Dubai..
+        return DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
    }
 
    /// Produces a deterministic sub-seed for one specific planet-generation purpose.
@@ -157,5 +156,18 @@ internal static class DailySeedUtility
        {
            Rand.PopState();
        }
+   }
+
+   /// Deterministic seed for tile-specific generation.
+   ///
+   /// Combines daily seed with tile ID and purpose for isolated random streams.
+   /// Same tile + date always produces the same seed; different tiles or dates differ.
+   ///
+   /// Example: "2026-05-21|tile-8472|cavern-system"
+   ///
+   /// Use this for reproducible features AFTER random tile selection.
+   internal static int GetTileSubSeed(int tileID, string purpose)
+   {
+       return StableHash($"{GetDailySeed()}|tile-{tileID}|{purpose}");
    }
 }

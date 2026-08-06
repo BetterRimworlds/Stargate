@@ -76,26 +76,44 @@ namespace BetterRimworlds.Stargate.Saving
          */
         public static Tuple<int> load(ref List<Thing> thingsToLoad, string fileLocation)
         {
-            Log.Message("ScribeINIT, loading from:" + fileLocation);
-            Scribe.loader.InitLoading(fileLocation);
-
-            Log.Message("DeepProfiler.Start()");
-            DeepProfiler.Start("Load non-compressed things");
-
             int originalTimelineTicks = 0;
-            Scribe_Values.Look<int>(ref originalTimelineTicks, "originalTimelineTicks");
+            // Mid-colony deep load runs while ProgramState is Playing. On RimWorld 1.4+
+            // (Biotech life stages, still present in 1.6), PostLoadInit clears the age
+            // cache and RecalculateLifeStageIndex then fires Notify_LifeStageStarted with
+            // a null previous stage. LifeStageWorker_HumanlikeAdult only skips its live
+            // transition logic when state is not Playing; under Playing it can NRE or
+            // rewrite body type/backstory as if the pawn just aged up. MapInitializing
+            // matches normal map load and is safe on 1.2 as well (enum has always existed;
+            // 1.2 has no humanlike life-stage workers, so this is a no-op there).
+            ProgramState previousProgramState = Current.ProgramState;
+            try
+            {
+                Current.ProgramState = ProgramState.MapInitializing;
 
-            Log.Message("Scribe_Collections.LookList");
-            Scribe_Collections.Look<Thing>(ref thingsToLoad, "things", LookMode.Deep);
+                Log.Message("ScribeINIT, loading from:" + fileLocation);
+                Scribe.loader.InitLoading(fileLocation);
 
-            DeepProfiler.End();
+                Log.Message("DeepProfiler.Start()");
+                DeepProfiler.Start("Load non-compressed things");
 
-            // CRITICAL: use the loader's own crossRefs + post-load initer.
-            // Creating empty CrossRefHandler/PostLoadIniter instances (the old path)
-            // skipped GateTravelerImplant research rebuild and other PostLoadInit work,
-            // so carried research never reappeared after wormhole arrival.
-            Log.Message("FinalizeLoading (cross-refs + post-load inits)");
-            Scribe.loader.FinalizeLoading();
+                Scribe_Values.Look<int>(ref originalTimelineTicks, "originalTimelineTicks");
+
+                Log.Message("Scribe_Collections.LookList");
+                Scribe_Collections.Look<Thing>(ref thingsToLoad, "things", LookMode.Deep);
+
+                DeepProfiler.End();
+
+                // CRITICAL: use the loader's own crossRefs + post-load initer.
+                // Creating empty CrossRefHandler/PostLoadIniter instances (the old path)
+                // skipped GateTravelerImplant research rebuild and other PostLoadInit work,
+                // so carried research never reappeared after wormhole arrival.
+                Log.Message("FinalizeLoading (cross-refs + post-load inits)");
+                Scribe.loader.FinalizeLoading();
+            }
+            finally
+            {
+                Current.ProgramState = previousProgramState;
+            }
 
             // Origin-world hediff loadIDs must not enter the destination world's
             // UniqueIDsManager sequence. Remap them before rematerialization/save.
