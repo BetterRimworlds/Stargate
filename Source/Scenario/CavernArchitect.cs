@@ -149,6 +149,10 @@ public static class CavernArchitect
             // 12. Enforce solid rock edge border
             EnforceRockEdge(map, edgeBand, exclusions);
 
+            // Bridging and expansion can add edge-band cells that were just
+            // restored to solid rock. Do not return them as cavern floor.
+            cavernCells.RemoveAll(cell => IsInEdgeBand(cell, map, edgeBand));
+
             // 13. Seal the map from the sky
             map.GetComponent<MapComponent_SealedFromSky>().isSealed = true;
         }
