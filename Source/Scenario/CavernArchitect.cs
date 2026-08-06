@@ -454,6 +454,17 @@ public static class CavernArchitect
                 int seedIndex = Rand.Range(0, Math.Min(sortedCells.Count / 3 + 1, sortedCells.Count));
                 IntVec3 seedCell = sortedCells[seedIndex];
 
+                // Re-roll if an earlier cluster already claimed this seed; a seed
+                // inside waterCells would grow an empty cluster and waste an iteration.
+                int attempts = 0;
+                while (waterCells.Contains(seedCell) && attempts < sortedCells.Count)
+                {
+                    seedIndex = Rand.Range(0, Math.Min(sortedCells.Count / 3 + 1, sortedCells.Count));
+                    seedCell = sortedCells[seedIndex];
+                    attempts++;
+                }
+                if (waterCells.Contains(seedCell)) break;
+
                 int clusterSize = Rand.Range(WaterClusterSizeMin, WaterClusterSizeMax + 1);
                 GrowWaterCluster(map, seedCell, clusterSize, cavernSet, waterCells);
             }
