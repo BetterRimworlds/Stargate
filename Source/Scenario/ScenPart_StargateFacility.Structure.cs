@@ -31,8 +31,6 @@ internal partial class ScenPart_StargateFacility
             floorDef = DefDatabase<TerrainDef>.GetNamed("BR_AtlantisAncientFloor");
         }
 
-        _entranceSide = Rand.Element(Rot4.North, Rot4.South, Rot4.East, Rot4.West);
-
         IntVec3 innerDoorCell = GetCenteredEdgeCell(innerRect, _entranceSide);
         IntVec3 outerDoorCell = GetCenteredEdgeCell(outerRect, _entranceSide);
         IntVec3 outsideApproachCell = outerDoorCell + _entranceSide.FacingCell;

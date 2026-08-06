@@ -91,7 +91,8 @@ public static class CavernArchitect
         float mushroomDensity = 0.65f,
         IntVec3? focalPoint = null,
         CellRect? focalRoom = null,
-        IEnumerable<CellRect> exclusionRects = null)
+        IEnumerable<CellRect> exclusionRects = null,
+        Rot4? entranceSide = null)
     {
         List<CellRect> exclusions = exclusionRects?.ToList() ?? new List<CellRect>();
         exclusions.Insert(0, preserveRect);
@@ -117,7 +118,7 @@ public static class CavernArchitect
             // 4. Guarantee a cavern opening at the focal room door (using original Stargate logic)
             if (focalRoom.HasValue)
             {
-                GuaranteeCavernConnection(map, focalRoom.Value, cavernCells, soilRatio, exclusions);
+                GuaranteeCavernConnection(map, focalRoom.Value, cavernCells, soilRatio, exclusions, entranceSide);
             }
 
             // 5. Post-process: bridge narrow gaps for connectivity
@@ -255,24 +256,38 @@ public static class CavernArchitect
         CellRect focalRoom,
         List<IntVec3> cavernCells,
         float soilRatio,
-        IEnumerable<CellRect> exclusions)
+        IEnumerable<CellRect> exclusions,
+        Rot4? entranceSide)
     {
         int roomSize = focalRoom.Width;
 
-        Building_Door door = focalRoom.Cells
-            .Where(c => c.InBounds(map))
-            .Select(c => c.GetEdifice(map) as Building_Door)
-            .FirstOrDefault(d => d != null);
+        // The facility door is placed by GenerateRoomStructure() AFTER the
+        // cavern generator runs, so it cannot be looked up here. Use the
+        // entrance side chosen by the caller so the guaranteed opening lands
+        // outside the real doorway instead of always defaulting east.
+        IntVec3 dir;
+        if (entranceSide.HasValue)
+        {
+            dir = entranceSide.Value.FacingCell;
+        }
+        else
+        {
+            Building_Door door = focalRoom.Cells
+                .Where(c => c.InBounds(map))
+                .Select(c => c.GetEdifice(map) as Building_Door)
+                .FirstOrDefault(d => d != null);
 
-        IntVec3 delta = (door?.Position ?? focalRoom.CenterCell) - focalRoom.CenterCell;
-        IntVec3 dir = (Mathf.Abs(delta.x) >= Mathf.Abs(delta.z))
-            ? new IntVec3(delta.x >= 0 ? 1 : -1, 0, 0)
-            : new IntVec3(0, 0, delta.z >= 0 ? 1 : -1);
+            IntVec3 delta = (door?.Position ?? focalRoom.CenterCell) - focalRoom.CenterCell;
+            dir = (Mathf.Abs(delta.x) >= Mathf.Abs(delta.z))
+                ? new IntVec3(delta.x >= 0 ? 1 : -1, 0, 0)
+                : new IntVec3(0, 0, delta.z >= 0 ? 1 : -1);
+        }
 
-        IntVec3 mouth = door?.Position ?? focalRoom.CenterCell + dir * (roomSize / 2 + 2);
-
-        IntVec3 cavernCenter = mouth + dir * 3;
-        CellRect starterCavern = new CellRect(cavernCenter.x - 2, cavernCenter.z - 2, 5, 5);
+        // Center the starter cavern one cell past the preserved footprint so
+        // the doorway approach cell opens straight into carved floor instead
+        // of leaving a gap of solid rock.
+        IntVec3 mouth = focalRoom.CenterCell + dir * (roomSize / 2 + 1);
+        CellRect starterCavern = new CellRect(mouth.x - 2, mouth.z - 2, 5, 5);
         starterCavern.ClipInsideMap(map);
 
         foreach (IntVec3 cell in starterCavern.Cells)

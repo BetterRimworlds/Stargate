@@ -48,8 +48,14 @@ internal partial class ScenPart_StargateFacility : ScenPart
         // is placed, otherwise doors can be sealed behind stone walls.
         ClearFacilityFootprint(map, outerWallRect.ExpandedBy(2));
 
+        // Choose the entrance side up front so the cavern generator can carve
+        // the guaranteed opening right outside the real doorway. The door is
+        // only placed later in GenerateRoomStructure(), so the side must be
+        // decided here and threaded through both steps.
+        _entranceSide = Rand.Element(Rot4.North, Rot4.South, Rot4.East, Rot4.West);
+
         // Handle ocean and impassable tiles.
-        StargateDestinationMapGen.Apply(map, DescribeTile(map.Tile));
+        StargateDestinationMapGen.Apply(map, DescribeTile(map.Tile), _entranceSide);
 
         GenerateRoomStructure(map, roomRect, outerWallRect);
         PlaceRoof(map, roomRect);
