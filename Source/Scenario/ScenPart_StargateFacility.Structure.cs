@@ -11,25 +11,21 @@ internal partial class ScenPart_StargateFacility
     private Pawn _guardianPawn;
     private Rot4 _entranceSide;
 
+    private TerrainDef GetGateRoomFloorDef(Map map)
+    {
+        // Variant partials own destination detection and themed definitions;
+        // this shared layout only provides the neutral fallback.
+        return GetTokraFloorDef(map)
+            ?? GetAtlantisFloorDef(map)
+            ?? TerrainDefOf.Concrete;
+    }
+
     private void GenerateRoomStructure(Map map, CellRect innerRect, CellRect outerRect)
     {
         string[] stoneTypes = { "BlocksGranite", "BlocksLimestone", "BlocksSlate" };
         ThingDef wallMaterial = DefDatabase<ThingDef>.GetNamed(stoneTypes[Rand.Range(0, stoneTypes.Length)]);
 
-        // The Gate Room floor is themed per destination:
-        // Tok'ra cavern bases (impassable mountain tiles) get the Tok'ra
-        // flagstone, Atlantis (ocean tiles) gets the ancient Atlantean floor;
-        // surface facilities keep concrete.
-        TerrainDef floorDef = TerrainDefOf.Concrete;
-        string tileDescription = DescribeTile(map.Tile);
-        if (tileDescription == "Impassable")
-        {
-            floorDef = DefDatabase<TerrainDef>.GetNamed("BR_TokraTile");
-        }
-        else if (tileDescription == "Ocean")
-        {
-            floorDef = DefDatabase<TerrainDef>.GetNamed("BR_AtlantisAncientFloor");
-        }
+        TerrainDef floorDef = GetGateRoomFloorDef(map);
 
         IntVec3 innerDoorCell = GetCenteredEdgeCell(innerRect, _entranceSide);
         IntVec3 outerDoorCell = GetCenteredEdgeCell(outerRect, _entranceSide);
@@ -141,22 +137,31 @@ internal partial class ScenPart_StargateFacility
             }
         }
 
-        // 2. Archotech ZPM at 75% charge, if mod present.
-        ThingDef zpmDef = DefDatabase<ThingDef>.GetNamedSilentFail("ArchotechZPM");
-        if (zpmDef != null)
+        // 2. Secondary power source. Destination-specific substitutions live
+        // in their variant partials; ordinary facilities keep the ZPM below.
+        if (PlaceAtlantisSecondaryPower(map, roomRect))
         {
-            IntVec3 zpmPos = new IntVec3(roomRect.minX + 2, 0, roomRect.maxZ - 2);
-            if (zpmPos.InBounds(map))
+            // Atlantis has no starting ZPM.
+        }
+        else
+        {
+            // Archotech ZPM at 75% charge, if mod present.
+            ThingDef zpmDef = DefDatabase<ThingDef>.GetNamedSilentFail("ArchotechZPM");
+            if (zpmDef != null)
             {
-                ClearCellForBuilding(map, zpmPos);
-
-                Thing zpm = PlaceClaimed(map, zpmDef, zpmPos);
-                if (zpm != null)
+                IntVec3 zpmPos = new IntVec3(roomRect.minX + 2, 0, roomRect.maxZ - 2);
+                if (zpmPos.InBounds(map))
                 {
-                    CompPowerBattery batteryComp = zpm.TryGetComp<CompPowerBattery>();
-                    if (batteryComp != null)
+                    ClearCellForBuilding(map, zpmPos);
+
+                    Thing zpm = PlaceClaimed(map, zpmDef, zpmPos);
+                    if (zpm != null)
                     {
-                        batteryComp.SetStoredEnergyPct(0.75f);
+                        CompPowerBattery batteryComp = zpm.TryGetComp<CompPowerBattery>();
+                        if (batteryComp != null)
+                        {
+                            batteryComp.SetStoredEnergyPct(0.75f);
+                        }
                     }
                 }
             }

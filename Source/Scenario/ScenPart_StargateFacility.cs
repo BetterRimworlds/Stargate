@@ -63,6 +63,11 @@ internal partial class ScenPart_StargateFacility : ScenPart
         PlaceStargate(map, center);
         PlaceSupportEquipment(map, center, roomRect);
         PlaceDiningArea(map, roomRect, center);
+        // Destination-themed extras (Atlantis ocean / Tok'ra impassable) after
+        // shared furniture so BlueprintSpawner sees occupied cells, but before
+        // debris so random slag cannot block the southern research bench.
+        PlaceAtlantisFacilityExtras(map, center, roomRect);
+        PlaceTokraFacilityExtras(map, center, roomRect);
         AddFacilityDetails(map, roomRect, center);
         ClaimHomeArea(map, roomRect);
         SpawnColonists(map, center);
