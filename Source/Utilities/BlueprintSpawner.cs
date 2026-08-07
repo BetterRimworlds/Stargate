@@ -117,8 +117,19 @@ public class BlueprintSpawner
             if (!cell.InBounds(map)) continue;
             if (ContainsThingOfDef(cell, conduitDef)) continue;
 
-            // Don't wipe unrelated things that already occupy the cell.
-            if (cell.GetThingList(map).Count > 0) continue;
+            // Conduits can share cells with walls. Only skip when spawning would
+            // destroy an existing building or item; filth/plants may still be
+            // wiped by GenSpawn as normal.
+            if (GenSpawn.WouldWipeAnythingWith(
+                    cell,
+                    Rot4.North,
+                    conduitDef,
+                    map,
+                    t => t.def.category == ThingCategory.Building
+                         || t.def.category == ThingCategory.Item))
+            {
+                continue;
+            }
 
             GenSpawn.Spawn(ThingMaker.MakeThing(conduitDef), cell, map, WipeMode.Vanish);
         }
