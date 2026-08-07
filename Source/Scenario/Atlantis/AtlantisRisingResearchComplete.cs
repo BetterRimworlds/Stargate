@@ -13,8 +13,17 @@ internal static class AtlantisRisingResearchComplete
     private const string AtlantisRisingDefName = "AtlantisRising";
     private const int GateRoomSize = 15;
     private const float RichSoilRadius = 15.5f;
-    private const int DiningPlatformWidth = 17;
-    private const int DiningPlatformHeight = 10;
+    // The dining spire is 22x15, double-sided like the Gate Room's 2-thick
+    // ancient walls (inner wall ring + outer wall ring), so the walled
+    // footprint comes out 24x17.
+    private const int DiningPlatformWidth = 20;
+    private const int DiningPlatformHeight = 15;
+    // The dining platform sits six rows further out than the original layout.
+    // In this codebase's Atlantis orientation the minZ side is treated as
+    // "south" (see EnsureSouthAccess and the "south wall" bench logic), so this
+    // is the "six rows further south" move; the walkway grows to match.
+    private const int DiningPlatformSouthExtraRows = 6;
+    private const int DiningPlatformWalkwayGap = 2; // original 2-row walkway gap.
     private const int TableTargetCount = 4;
 
     public static void Postfix(ResearchProjectDef __0)
@@ -55,7 +64,8 @@ internal static class AtlantisRisingResearchComplete
         Find.LetterStack.ReceiveLetter(
             "Atlantis Rising",
             "The Atlantis platform has risen around the Stargate. Rich soil now surrounds the base, " +
-            $"and a southern dining platform has been prepared with {placedTables} of {TableTargetCount} tables placed.",
+            "and a southern dining spire now rises beyond the walkway, walled in limestone and roofed, " +
+            $"with power conduits, lamps, and {placedTables} of {TableTargetCount} tables placed.",
             LetterDefOf.PositiveEvent
         );
     }
@@ -86,7 +96,20 @@ internal static class AtlantisRisingResearchComplete
         ClaimHomeArea(map, platformRect);
         ClaimHomeArea(map, walkwayRect);
 
-        placedTables = PlaceDiningFurniture(map, platformRect);
+        // The dining spire: a double-walled perimeter (Gate Room style) with
+        // in-wall power-conduit rings, a door on the walkway side, and two
+        // lamps on the side walls.
+        BuildDiningRoomShell(map, platformRect, gateRoomRect.CenterCell.x, walkwayRect);
+        PlaceDiningRoomLamps(map, platformRect);
+
+        // Roof the spire (inner + outer wall rings) and the covered bridge, so
+        // the walkway from the Gate Room to the spire is fully enclosed. The
+        // interior is at most 6 cells from a wall, so the roof needs no columns.
+        BlueprintSpawner spawner = new BlueprintSpawner(map);
+        spawner.PlaceRoof(platformRect, outerBand: 1);
+        spawner.PlaceRoof(walkwayRect, outerBand: 0);
+
+        placedTables = PlaceDiningFurniture(map, platformRect, gateRoomRect.CenterCell.x);
         return true;
     }
 
@@ -112,7 +135,10 @@ internal static class AtlantisRisingResearchComplete
     private static CellRect GetDiningPlatformRect(CellRect gateRoomRect)
     {
         int minX = gateRoomRect.CenterCell.x - (DiningPlatformWidth / 2);
-        int minZ = gateRoomRect.minZ - DiningPlatformHeight - 2;
+        int minZ = gateRoomRect.minZ
+                   - DiningPlatformHeight
+                   - DiningPlatformWalkwayGap
+                   - DiningPlatformSouthExtraRows;
         return new CellRect(minX, minZ, DiningPlatformWidth, DiningPlatformHeight);
     }
 
@@ -129,6 +155,167 @@ internal static class AtlantisRisingResearchComplete
         }
 
         return new CellRect(minX, minZ, width, height);
+    }
+
+    private static void BuildDiningRoomShell(Map map, CellRect platformRect, int doorX, CellRect walkwayRect)
+    {
+        ThingDef wallDef = ThingDefOf.Wall;
+        ThingDef doorDef = ThingDefOf.Door;
+        ThingDef plasteelDef = ThingDefOf.Plasteel;
+        // The spire and bridge walls are limestone, per the Atlantis design.
+        ThingDef limestoneDef = DefDatabase<ThingDef>.GetNamedSilentFail("BlocksLimestone") ?? plasteelDef;
+
+        if (wallDef == null || doorDef == null || plasteelDef == null)
+        {
+            return;
+        }
+
+        // One door on the inner wall ring where the walkway meets it, aligned
+        // with the walkway column; the outer wall ring keeps an open passage
+        // there instead. Mirrors the Gate Room's 2-thick ancient wall look
+        // (see ScenPart_StargateFacility.GenerateRoomStructure).
+        IntVec3 doorCell = new IntVec3(doorX, 0, platformRect.maxZ);
+        IntVec3 outerPassageCell = new IntVec3(doorX, 0, platformRect.maxZ + 1);
+        CellRect outerWallRect = platformRect.ExpandedBy(1);
+
+        // OUTER wall layer, keeping the walkway passage open. The passage cell
+        // itself is cleared like the Gate Room's outer doorway so nothing can
+        // silently seal the entrance.
+        ClearCellForBuilding(map, outerPassageCell);
+
+        foreach (IntVec3 cell in outerWallRect.EdgeCells)
+        {
+            if (!cell.InBounds(map)) continue;
+            if (cell == outerPassageCell) continue;
+
+            ClearCellForBuilding(map, cell);
+            SpawnClaimedThing(map, wallDef, cell, limestoneDef, Rot4.North);
+        }
+
+        // INNER wall layer, with the single door.
+        foreach (IntVec3 cell in platformRect.EdgeCells)
+        {
+            if (!cell.InBounds(map)) continue;
+
+            ClearCellForBuilding(map, cell);
+
+            if (cell == doorCell)
+            {
+                SpawnClaimedThing(map, doorDef, cell, limestoneDef, Rot4.North);
+            }
+            else
+            {
+                SpawnClaimedThing(map, wallDef, cell, limestoneDef, Rot4.North);
+            }
+        }
+
+        // BRIDGE: walled sides along the full walkway, linking the spire to the
+        // Gate Room. Existing walls are kept as-is (the walkway's outer rows
+        // already belong to the spire's outer ring and the Gate Room's own
+        // wall); the power line runs inside these walls (see below).
+        for (int z = walkwayRect.minZ; z <= walkwayRect.maxZ; z++)
+        {
+            IntVec3[] sideCells =
+            {
+                new IntVec3(walkwayRect.minX, 0, z),
+                new IntVec3(walkwayRect.maxX, 0, z)
+            };
+
+            foreach (IntVec3 side in sideCells)
+            {
+                if (!side.InBounds(map)) continue;
+                if (HasThingDef(map, side, ThingDefOf.Wall)) continue;
+
+                ClearCellForBuilding(map, side);
+                SpawnClaimedThing(map, wallDef, side, limestoneDef, Rot4.North);
+            }
+        }
+
+        PlaceDiningRoomPowerConduits(map, platformRect, walkwayRect, doorCell, outerPassageCell);
+    }
+
+    private static void PlaceDiningRoomPowerConduits(Map map, CellRect platformRect, CellRect walkwayRect, IntVec3 doorCell, IntVec3 outerPassageCell)
+    {
+        ThingDef conduitDef = ThingDefOf.PowerConduit;
+        if (conduitDef == null) return;
+
+        BlueprintSpawner spawner = new BlueprintSpawner(map);
+
+        // In-wall conduit rings inside BOTH wall layers, mirroring the Gate
+        // Room's "conduits inside the walls" pattern. The inner ring is
+        // interrupted only at the door and the outer ring only at its passage;
+        // both rings stay connected through the wall seam and the bridge.
+        spawner.SpawnConduitRing(
+            platformRect,
+            conduitDef,
+            claimForPlayer: true,
+            skipCells: new[] { doorCell }
+        );
+        spawner.SpawnConduitRing(
+            platformRect.ExpandedBy(1),
+            conduitDef,
+            claimForPlayer: true,
+            skipCells: new[] { outerPassageCell }
+        );
+
+        // The bridge's power line runs inside the bridge walls (both side
+        // columns), tying the dining rings into the Gate Room's perimeter grid.
+        for (int z = walkwayRect.minZ; z <= walkwayRect.maxZ; z++)
+        {
+            spawner.SpawnConduitAt(new IntVec3(walkwayRect.minX, 0, z), conduitDef, claimForPlayer: true);
+            spawner.SpawnConduitAt(new IntVec3(walkwayRect.maxX, 0, z), conduitDef, claimForPlayer: true);
+        }
+    }
+
+    private static void PlaceDiningRoomLamps(Map map, CellRect platformRect)
+    {
+        ThingDef lampDef = ThingDefOf.StandingLamp;
+        if (lampDef == null) return;
+
+        CellRect interior = platformRect.ContractedBy(1);
+
+        // Two lamps, centered along the room's length: one flush against the
+        // left (west) wall and one flush against the right (east) wall.
+        IntVec3[] lampPositions =
+        {
+            new IntVec3(interior.minX + 5, 0, interior.CenterCell.z),
+            new IntVec3(interior.maxX - 5, 0, interior.CenterCell.z)
+        };
+
+        foreach (IntVec3 pos in lampPositions)
+        {
+            if (!pos.InBounds(map)) continue;
+
+            ClearCellForBuilding(map, pos);
+            // StandingLamp is not madeFromStuff, so no stuff def is passed.
+            SpawnClaimedThing(map, lampDef, pos, null, Rot4.North);
+        }
+    }
+
+    private static void ClearCellForBuilding(Map map, IntVec3 cell)
+    {
+        if (!cell.InBounds(map)) return;
+
+        List<Thing> things = map.thingGrid.ThingsListAt(cell).ToList();
+
+        foreach (Thing thing in things)
+        {
+            if (thing is Pawn) continue;
+
+            // Same as ScenPart_StargateFacility.ClearCellForBuilding: clear
+            // walls, doors, geysers, buildings and plants, but preserve loose
+            // player items on the freshly-concreted platform.
+            if (thing.def == ThingDefOf.Wall ||
+                thing.def == ThingDefOf.Door ||
+                thing.def == ThingDefOf.SteamGeyser ||
+                thing.def == ThingDefOf.ChunkSlagSteel ||
+                thing.def == ThingDefOf.Filth_RubbleBuilding ||
+                thing.def.category == ThingCategory.Building ||
+                thing.def.category == ThingCategory.Plant)
+            {
+                thing.Destroy();
+            }
+        }
     }
 
     private static void ApplyRichSoil(Map map, IntVec3 center, CellRect gateRoomRect)
@@ -231,7 +418,7 @@ internal static class AtlantisRisingResearchComplete
         }
     }
 
-    private static int PlaceDiningFurniture(Map map, CellRect platformRect)
+    private static int PlaceDiningFurniture(Map map, CellRect platformRect, int centerX)
     {
         ThingDef tableDef = DefDatabase<ThingDef>.GetNamedSilentFail("Table2x4c");
         ThingDef chairDef = DefDatabase<ThingDef>.GetNamedSilentFail("DiningChair");
@@ -255,7 +442,7 @@ internal static class AtlantisRisingResearchComplete
         int placedTables = 0;
         BlueprintSpawner spawner = new BlueprintSpawner(map);
 
-        foreach (IntVec3 pos in GetPreferredTablePositions(platformRect))
+        foreach (IntVec3 pos in GetPreferredTablePositions(platformRect, centerX))
         {
             if (existingTables + placedTables >= TableTargetCount)
             {
@@ -298,14 +485,21 @@ internal static class AtlantisRisingResearchComplete
             .Count();
     }
 
-    private static IEnumerable<IntVec3> GetPreferredTablePositions(CellRect platformRect)
+    private static IEnumerable<IntVec3> GetPreferredTablePositions(CellRect platformRect, int centerX)
     {
-        IntVec3 center = platformRect.CenterCell;
+        // The 2x4 tables sit in a 2x2 grid inside the walled interior: two
+        // columns centered on the gate, one row near the north interior wall
+        // and one row two rows off the south interior wall (the south row sits
+        // one column further north so the walkway-side chairs clear the wall).
+        // GenAdj.OccupiedRect centers the footprint on the given position: for
+        // Table2x4c (2,4) at Rot4.East, a table centered at z occupies rows
+        // z-1..z and columns x-2..x+1 (verified against RimWorld 1.6).
+        CellRect interior = platformRect.ContractedBy(1);
 
-        yield return new IntVec3(center.x - 4, 0, center.z + 2);
-        yield return new IntVec3(center.x + 4, 0, center.z + 2);
-        yield return new IntVec3(center.x - 4, 0, center.z - 3);
-        yield return new IntVec3(center.x + 4, 0, center.z - 3);
+        yield return new IntVec3(centerX - 4, 0, interior.minZ + 3);
+        yield return new IntVec3(centerX + 4, 0, interior.minZ + 3);
+        yield return new IntVec3(centerX - 4, 0, interior.maxZ - 2);
+        yield return new IntVec3(centerX + 4, 0, interior.maxZ - 2);
     }
 
     private static bool TryPlaceTable(
@@ -482,7 +676,16 @@ internal static class AtlantisRisingResearchComplete
 
     private static Thing SpawnClaimedThing(Map map, ThingDef def, IntVec3 cell, ThingDef stuff, Rot4 rotation)
     {
-        Thing thing = ThingMaker.MakeThing(def, stuff);
+        // Only pass stuff for defs that actually use it — ThingMaker logs an
+        // error and nulls the stuff for non-madeFromStuff defs like StandingLamp.
+        // Mirrors BlueprintSpawner.SpawnFixed's actualStuff handling.
+        ThingDef actualStuff = stuff;
+        if (def != null && !def.MadeFromStuff)
+        {
+            actualStuff = null;
+        }
+
+        Thing thing = ThingMaker.MakeThing(def, actualStuff);
         Thing spawned = GenSpawn.Spawn(thing, cell, map, rotation, WipeMode.Vanish);
 
         if (spawned?.def.CanHaveFaction == true)
