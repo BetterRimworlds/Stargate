@@ -59,7 +59,7 @@ internal partial class ScenPart_StargateFacility : ScenPart
 
         GenerateRoomStructure(map, roomRect, outerWallRect);
         PlaceRoof(map, roomRect);
-        PlacePowerConduits(map, center, roomRect);
+        PlacePowerConduits(map, roomRect);
         PlaceStargate(map, center);
         PlaceSupportEquipment(map, center, roomRect);
         PlaceDiningArea(map, roomRect, center);

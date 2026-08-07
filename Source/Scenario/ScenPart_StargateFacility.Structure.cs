@@ -126,10 +126,12 @@ internal partial class ScenPart_StargateFacility
     private void PlaceSupportEquipment(Map map, IntVec3 center, CellRect roomRect)
     {
         // 1. Vanometric Power Cell (Royalty) - mandatory power source.
+        // Root one row north of the south wall so the cell sits directly
+        // adjacent to the wall conduit ring.
         ThingDef vanoDef = DefDatabase<ThingDef>.GetNamedSilentFail("VanometricPowerCell");
         if (vanoDef != null)
         {
-            IntVec3 vanoPos = new IntVec3(roomRect.maxX - 2, 0, roomRect.minZ + 2);
+            IntVec3 vanoPos = new IntVec3(roomRect.maxX - 2, 0, roomRect.minZ + 1);
             if (vanoPos.InBounds(map))
             {
                 ClearCellForBuilding(map, vanoPos);
