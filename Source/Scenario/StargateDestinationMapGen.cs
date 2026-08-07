@@ -9,7 +9,7 @@ public static partial class StargateDestinationMapGen
     // Must match ScenPart_StargateFacility constants exactly.
     private const int RoomSize = 15;
 
-    public static void Apply(Map map, string tileDescription)
+    public static void Apply(Map map, string tileDescription, Rot4 entranceSide)
     {
         // STEP 1: Build the facility first.
         // Always lay rich soil under the inner room footprint.
@@ -31,7 +31,7 @@ public static partial class StargateDestinationMapGen
                 break;
 
             case "Impassable":
-                GenerateImpassableSurroundings(map);
+                GenerateImpassableSurroundings(map, entranceSide);
                 break;
         }
     }

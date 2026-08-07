@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    <TerrainDef ParentName="FloorBase">
+        <defName>BR_AtlantisAncientFloor</defName>
+        <label>ancient Atlantean floor</label>
+        <description>A polished bronze-stone floor made from interlocking Ancient geometric plates.</description>
+
+        <texturePath>Terrain/AtlantisAncientFloor</texturePath>
+
+        <statBases>
+            <Beauty>4</Beauty>
+            <Cleanliness>2.5</Cleanliness>
+            <Flammability>0</Flammability>
+        </statBases>
+
+        <costList Inherit="False">
+            <Steel>2</Steel>
+            <Plasteel>1</Plasteel>
+            <Silver>2</Silver>
+            <ComponentIndustrial>1</ComponentIndustrial>
+        </costList>
+
+        <!-- No designationCategory — explicitly null so the inherited value from
+             FloorBase is cleared without an empty-def lookup. -->
+        <designationCategory Null="True" />
+        <!-- No researchPrerequisites needed -->
+        <!-- No constructEffect -->
+        <!-- No terrainAffordanceNeeded unless you specifically need one -->
+    </TerrainDef>
+</Defs>
