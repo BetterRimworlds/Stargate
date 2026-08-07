@@ -31,8 +31,12 @@ internal partial class ScenPart_StargateFacility
         ThingDef vanoDef = DefDatabase<ThingDef>.GetNamedSilentFail("VanometricPowerCell");
         if (vanoDef == null) return true;
 
-        // Same NW slot the shared layout uses for the Archotech ZPM.
-        IntVec3 vanoPos = new IntVec3(roomRect.minX + 2, 0, roomRect.maxZ - 2);
+        // Flush against the west wall (footprint rows maxZ-2..maxZ-1 sit one
+        // cell from the south wall) so the cell's root position is directly
+        // adjacent to the wall conduit ring. The shared ZPM slot at
+        // (minX + 2, maxZ - 2) sits one cell further from the ring and can end
+        // up outside the power grid.
+        IntVec3 vanoPos = new IntVec3(roomRect.minX + 1, 0, roomRect.maxZ - 2);
         if (!vanoPos.InBounds(map)) return true;
 
         CellRect interior = roomRect.ContractedBy(1);
