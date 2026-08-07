@@ -11,10 +11,10 @@ internal partial class ScenPart_StargateFacility
         ThingDef conduitDef = ThingDefOf.PowerConduit;
         if (conduitDef == null) return;
 
-        // Main deterministic conduit loop just inside the inner wall.
-        // This replaces the previous random broken-grid behavior.
-        CellRect conduitLoopRect = roomRect.ContractedBy(1);
-        foreach (IntVec3 cell in conduitLoopRect.EdgeCells)
+        // Main deterministic conduit loop in the inner wall itself. Conduits
+        // are allowed to share wall cells; do not contract the rect or replace
+        // the walls that were just built by GenerateRoomStructure().
+        foreach (IntVec3 cell in roomRect.EdgeCells)
         {
             TryPlaceConduit(map, cell);
         }
@@ -40,10 +40,28 @@ internal partial class ScenPart_StargateFacility
     private void TryPlaceConduit(Map map, IntVec3 cell)
     {
         if (!cell.InBounds(map)) return;
-        if (cell.Impassable(map)) return;
         if (ContainsThingDef(map, cell, ThingDefOf.PowerConduit)) return;
 
-        PlaceClaimed(map, ThingDefOf.PowerConduit, cell);
+        // RimWorld's normal conduit placement can coexist with a wall. Check
+        // the same wipe conditions used by BlueprintSpawner before spawning so
+        // no wall (or other building/item) is removed or replaced.
+        if (GenSpawn.WouldWipeAnythingWith(
+                cell,
+                Rot4.North,
+                ThingDefOf.PowerConduit,
+                map,
+                thing => thing.def.category == ThingCategory.Building
+                          || thing.def.category == ThingCategory.Item))
+        {
+            return;
+        }
+
+        Thing conduit = ThingMaker.MakeThing(ThingDefOf.PowerConduit);
+        Thing spawned = GenSpawn.Spawn(conduit, cell, map, Rot4.North, WipeMode.Vanish);
+        if (spawned != null && spawned.def.CanHaveFaction)
+        {
+            spawned.SetFaction(Faction.OfPlayer);
+        }
     }
 
     private void DrawConduitLine(Map map, IntVec3 start, IntVec3 end)
