@@ -91,13 +91,29 @@ public static class OceanBiomePatches
 
     private static void InvalidateBiomePlantCaches(BiomeDef biome)
     {
-        // BiomeDef keeps private [Unsaved] plant caches. Null them so the next
+        // BiomeDef keeps private [Unsaved] plant caches. Clear them so the next
         // AllWildPlants / CommonalityOfPlant access rebuilds from wildBiomes.
+        // Reference/nullable fields accept null; non-nullable value types (e.g.
+        // float cachedPlantCommonalitiesSum on RW 1.2–1.5) need a default.
         foreach (string fieldName in BiomePlantCacheFields)
         {
             FieldInfo field = AccessTools.Field(typeof(BiomeDef), fieldName);
             if (field == null) continue;
-            field.SetValue(biome, null);
+
+            object value = null;
+            if (field.FieldType.IsValueType && Nullable.GetUnderlyingType(field.FieldType) == null)
+            {
+                value = Activator.CreateInstance(field.FieldType);
+            }
+
+            try
+            {
+                field.SetValue(biome, value);
+            }
+            catch (Exception e)
+            {
+                Log.Warning($"BetterRimworlds.Stargate: Failed to clear BiomeDef.{fieldName}: {e.Message}");
+            }
         }
     }
 }
