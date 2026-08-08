@@ -3,6 +3,7 @@ using System.Linq;
 using BetterRimworlds.Utilities;
 using HarmonyLib;
 using RimWorld;
+using UnityEngine;
 using Verse;
 
 namespace BetterRimworlds.Stargate;
@@ -65,7 +66,8 @@ internal static class AtlantisRisingResearchComplete
             "Atlantis Rising",
             "The Atlantis platform has risen around the Stargate. Rich soil now surrounds the base, " +
             "and a southern dining spire now rises beyond the walkway, walled in limestone and roofed, " +
-            $"with power conduits, lamps, and {placedTables} of {TableTargetCount} tables placed.",
+            $"with power conduits, lamps, {placedTables} of {TableTargetCount} tables, " +
+            "and steel shelves stocked with packaged survival meals.",
             LetterDefOf.PositiveEvent
         );
     }
@@ -110,6 +112,7 @@ internal static class AtlantisRisingResearchComplete
         spawner.PlaceRoof(walkwayRect, outerBand: 0);
 
         placedTables = PlaceDiningFurniture(map, platformRect, gateRoomRect.CenterCell.x);
+        PlaceDiningRoomShelves(map, platformRect, gateRoomRect.CenterCell.x);
         return true;
     }
 
@@ -274,11 +277,12 @@ internal static class AtlantisRisingResearchComplete
 
         CellRect interior = platformRect.ContractedBy(1);
 
-        // Two lamps, centered along the room's length: one flush against the
-        // left (west) wall and one flush against the right (east) wall.
+        // Two lamps, centered along the room's length: one toward the left
+        // (west) wall and one toward the right (east) wall. The west lamp sits
+        // one cell further west to line up with the shifted table grid.
         IntVec3[] lampPositions =
         {
-            new IntVec3(interior.minX + 5, 0, interior.CenterCell.z),
+            new IntVec3(interior.minX + 4, 0, interior.CenterCell.z),
             new IntVec3(interior.maxX - 5, 0, interior.CenterCell.z)
         };
 
@@ -346,6 +350,10 @@ internal static class AtlantisRisingResearchComplete
 
         if (!HasThingDef(map, innerDoorCell, ThingDefOf.Door))
         {
+            // Seated in the south wall, so Building_Door.DoorPreDraw() re-derives
+            // this door's facing as north every frame — the rotation argument
+            // below is inert. Keep the door in a horizontal wall run or the
+            // facing flips to east. See GetAtlantisEntranceSide.
             SpawnClaimedThing(map, ThingDefOf.Door, innerDoorCell, ThingDefOf.Plasteel, Rot4.North);
         }
     }
@@ -478,6 +486,93 @@ internal static class AtlantisRisingResearchComplete
         return placedTables;
     }
 
+private static void PlaceDiningRoomShelves(Map map, CellRect platformRect, int centerX)
+    {
+        ThingDef shelfDef = DefDatabase<ThingDef>.GetNamedSilentFail("Shelf");
+        ThingDef mealDef = ThingDefOf.MealSurvivalPack;
+        ThingDef steelDef = ThingDefOf.Steel;
+
+        if (shelfDef == null || mealDef == null || steelDef == null)
+        {
+            Log.Warning(
+                "BetterRimworlds.Stargate: AtlantisRising could not place dining shelves " +
+                "because Shelf, MealSurvivalPack, or Steel was missing."
+            );
+            return;
+        }
+
+        // Packaged survival meals on steel shelves lining the south wall
+        // (opposite the walkway door). The 1.4+ shelves support 3 stacked
+        // items per storage cell; 1.2/1.3 shelves only support 1 stack per
+        // cell. Each stack is capped at mealDef.stackLimit, so we spawn
+        // multiple stacks per cell instead of one oversized stack.
+        #if RIMWORLD12 || RIMWORLD13
+        int shelfCount = 8;
+        int mealsPerShelf = 20;
+        int stacksPerCell = 1;
+        #else
+        int shelfCount = 4;
+        int mealsPerShelf = 60;
+        int stacksPerCell = 3;
+        #endif
+
+        int maxStackSize = mealDef.stackLimit;
+
+        CellRect interior = platformRect.ContractedBy(1);
+
+        // Shelves run lengthwise along the south interior wall (Rot4.North, so
+        // the occupied width is shelfDef.size.x per shelf), centered on the gate.
+        Rot4 shelfRot = Rot4.North;
+        int shelfWidth = shelfDef.size.x;
+        int startX = interior.CenterCell.x - ((shelfCount * shelfWidth) / 2);
+        int rowZ = interior.minZ;
+
+        for (int i = 0; i < shelfCount; i++)
+        {
+            IntVec3 pos = new IntVec3(startX + (i * shelfWidth), 0, rowZ);
+            CellRect shelfRect = GenAdj.OccupiedRect(pos, shelfRot, shelfDef.size);
+
+            if (!BlueprintSpawner.RectFullyInside(interior, shelfRect))
+            {
+                continue;
+            }
+
+            foreach (IntVec3 cell in shelfRect.Cells)
+            {
+                ClearCellForBuilding(map, cell);
+            }
+
+            SpawnClaimedThing(map, shelfDef, pos, steelDef, shelfRot);
+
+            // Distribute this shelf's meal count across its cells, and
+            // within each cell across up to `stacksPerCell` separate
+            // stacks, so no single stack exceeds mealDef.stackLimit.
+            int remaining = mealsPerShelf;
+
+            foreach (IntVec3 cell in shelfRect.Cells)
+            {
+                for (int s = 0; s < stacksPerCell && remaining > 0; s++)
+                {
+                    int stackCount = Mathf.Min(maxStackSize, remaining);
+                    remaining -= stackCount;
+
+                    Thing meals = ThingMaker.MakeThing(mealDef);
+                    meals.stackCount = stackCount;
+                    GenSpawn.Spawn(meals, cell, map, WipeMode.Vanish);
+                }
+            }
+
+            if (remaining > 0)
+            {
+                Log.Warning(
+                    $"BetterRimworlds.Stargate: AtlantisRising dining shelf could only place " +
+                    $"{mealsPerShelf - remaining}/{mealsPerShelf} meals " +
+                    $"(shelfRect.Area={shelfRect.Area}, stacksPerCell={stacksPerCell}, maxStackSize={maxStackSize})."
+                );
+            }
+        }
+    }
+
     private static int CountExistingTables(Map map, CellRect platformRect, ThingDef tableDef)
     {
         return map.listerThings.ThingsOfDef(tableDef)
@@ -487,19 +582,21 @@ internal static class AtlantisRisingResearchComplete
 
     private static IEnumerable<IntVec3> GetPreferredTablePositions(CellRect platformRect, int centerX)
     {
-        // The 2x4 tables sit in a 2x2 grid inside the walled interior: two
-        // columns centered on the gate, one row near the north interior wall
-        // and one row two rows off the south interior wall (the south row sits
-        // one column further north so the walkway-side chairs clear the wall).
+        // The 2x4 tables sit in a 2x2 grid inside the walled interior, pulled
+        // one column west of the gate center: two columns offset one cell to
+        // the west, one row near the north interior wall and one row two rows
+        // off the south interior wall (the south row sits one column further
+        // north so the walkway-side chairs clear the wall). Chairs follow the
+        // tables automatically (see PlaceTableChairs).
         // GenAdj.OccupiedRect centers the footprint on the given position: for
         // Table2x4c (2,4) at Rot4.East, a table centered at z occupies rows
         // z-1..z and columns x-2..x+1 (verified against RimWorld 1.6).
         CellRect interior = platformRect.ContractedBy(1);
 
-        yield return new IntVec3(centerX - 4, 0, interior.minZ + 3);
-        yield return new IntVec3(centerX + 4, 0, interior.minZ + 3);
-        yield return new IntVec3(centerX - 4, 0, interior.maxZ - 2);
-        yield return new IntVec3(centerX + 4, 0, interior.maxZ - 2);
+        yield return new IntVec3(centerX - 5, 0, interior.minZ + 3);
+        yield return new IntVec3(centerX + 3, 0, interior.minZ + 3);
+        yield return new IntVec3(centerX - 5, 0, interior.maxZ - 2);
+        yield return new IntVec3(centerX + 3, 0, interior.maxZ - 2);
     }
 
     private static bool TryPlaceTable(
