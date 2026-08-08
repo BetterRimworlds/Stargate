@@ -46,8 +46,9 @@ public static class ResearchProjectVisibilityPatches
 
         foreach (string memberName in VisibilityMemberNames)
         {
-            MethodInfo getter = AccessTools.PropertyGetter(typeof(ResearchProjectDef), memberName) ??
-                AccessTools.Method(typeof(ResearchProjectDef), $"get_{memberName}");
+            // AccessTools.PropertyGetter already returns the getter method for the
+            // property, so no get_<name> method fallback is needed here.
+            MethodInfo getter = AccessTools.PropertyGetter(typeof(ResearchProjectDef), memberName);
 
             if (getter != null)
             {
