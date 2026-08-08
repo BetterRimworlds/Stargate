@@ -83,19 +83,8 @@ internal partial class ScenPart_StargateFacility
 
     private void PlaceAtlantisSouthernResearchBench(Map map, IntVec3 center, CellRect roomRect)
     {
-        ThingDef benchDef = DefDatabase<ThingDef>.GetNamedSilentFail("SimpleResearchBench");
-        if (benchDef == null)
-        {
-            Log.Warning("BetterRimworlds.Stargate: SimpleResearchBench def missing; Atlantis research bench skipped.");
-            return;
-        }
-
+        ThingDef benchDef = DefDatabase<ThingDef>.GetNamed("SimpleResearchBench");
         ThingDef plasteelDef = ThingDefOf.Plasteel;
-        if (plasteelDef == null)
-        {
-            Log.Warning("BetterRimworlds.Stargate: Plasteel def missing; Atlantis research bench skipped.");
-            return;
-        }
 
         CellRect interior = roomRect.ContractedBy(1);
         // Face south so the interaction cell is north of the bench (into the room).
@@ -168,6 +157,8 @@ internal partial class ScenPart_StargateFacility
                 bestPos = candidate;
             }
         }
+
+        bestPos.x += 2;
 
         return bestPos;
     }
