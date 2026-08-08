@@ -10,8 +10,23 @@ using Verse.Sound;
 
 namespace BetterRimworlds.Stargate
 {
+    // Event-horizon / matter-stream stasis:
+    // RimWorld 1.6 auto-ticks every IThingHolder's contents each frame (new DoTick
+    // walk). Before 1.6, held things were only ticked if the holder explicitly
+    // called ThingOwnerTick, so buffer contents were timeless by accident.
+    //
+    // We restore lore-accurate stasis (Teal'c in the gate) via:
+    //   - ISuspendableThingHolder  → pawn.Suspended freezes needs/health/age
+    //   - IThingHolderTickable     → refuse to tick buffer contents at all (1.6+)
+    //   - StargateBuffer.dontTickContents (1.6+) as a third belt
     [StaticConstructorOnStartup]
+#if RIMWORLD16
+    class Building_Stargate : Building_Storage, IThingHolder, ISuspendableThingHolder, IThingHolderTickable
+#elif !RIMWORLD12
+    class Building_Stargate : Building_Storage, IThingHolder, ISuspendableThingHolder
+#else
     class Building_Stargate : Building_Storage, IThingHolder
+#endif
     {
 
         #region Constants
@@ -56,6 +71,22 @@ namespace BetterRimworlds.Stargate
         protected Map currentMap;
 
         #endregion
+
+#if !RIMWORLD12
+        /// <summary>
+        /// Matter-stream / event-horizon stasis. While true, held pawns report
+        /// Suspended and skip health, needs, age, and skill progression.
+        /// </summary>
+        public bool IsContentsSuspended => true;
+#endif
+
+#if RIMWORLD16
+        /// <summary>
+        /// Prevent RimWorld 1.6's automatic holder-content tick walk from advancing
+        /// anything in the buffer (rotting food, apparel wear, hediffs, etc.).
+        /// </summary>
+        public bool ShouldTickContents => false;
+#endif
 
         public Dictionary<string, SoundDef> stargateSounds = new Dictionary<string, SoundDef>()
         {

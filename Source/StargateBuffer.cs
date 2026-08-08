@@ -26,19 +26,36 @@ namespace BetterRimworlds.Stargate
         {
             this.maxStacks = 5000;
             this.contentsLookMode = LookMode.Deep;
+            this.EnableEventHorizonStasis();
         }
 
         public StargateBuffer(IThingHolder owner): base(owner)
         {
             this.maxStacks = 5000;
             this.contentsLookMode = LookMode.Deep;
+            this.EnableEventHorizonStasis();
         }
 
         public void Init()
         {
+            // Re-assert stasis after load: older saves may have scribed
+            // dontTickContents as false (the 1.6 default).
+            this.EnableEventHorizonStasis();
+
             this.calculateStoredMass();
             Log.Warning("Total stored mass: " + this.storedMass + " kg");
             this.Position = ((Building_Stargate)this.owner).Position;
+        }
+
+        /// <summary>
+        /// Event-horizon matter stream: no subjective time passes for anything
+        /// held in the buffer. In 1.6+, ThingOwner can refuse to tick contents.
+        /// </summary>
+        private void EnableEventHorizonStasis()
+        {
+#if RIMWORLD16
+            this.dontTickContents = true;
+#endif
         }
 
         public float findThingMass(Thing thing)
