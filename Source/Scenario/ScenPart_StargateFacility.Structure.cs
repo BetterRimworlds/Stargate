@@ -219,6 +219,12 @@ internal partial class ScenPart_StargateFacility
         // NOTE:
         // This places a functional door. If you want the sealed-ancient-ruin aesthetic,
         // swap ThingDefOf.Door back to ThingDefOf.Wall here.
+        //
+        // Do NOT try to force the facing by passing a rotation here: a 1x1 door
+        // ignores it. Building_Door.DoorPreDraw() re-derives Rotation from the
+        // adjacent cells before every draw. The facing follows from which wall
+        // the door sits in — north/south walls render north, east/west walls
+        // render east. See GetAtlantisEntranceSide.
         PlaceClaimed(map, ThingDefOf.Door, cell, material);
     }
 

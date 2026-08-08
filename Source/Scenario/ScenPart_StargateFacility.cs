@@ -54,6 +54,9 @@ internal partial class ScenPart_StargateFacility : ScenPart
         // decided here and threaded through both steps.
         _entranceSide = Rand.Element(Rot4.North, Rot4.South, Rot4.East, Rot4.West);
 
+        // Atlantis overrides the roll: its door must always render facing north.
+        _entranceSide = GetAtlantisEntranceSide(map, _entranceSide);
+
         // Handle ocean and impassable tiles.
         StargateDestinationMapGen.Apply(map, DescribeTile(map.Tile), _entranceSide);
 

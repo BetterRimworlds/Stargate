@@ -15,6 +15,23 @@ internal partial class ScenPart_StargateFacility
         return DescribeTile(map.Tile) == "Ocean";
     }
 
+    /// The Atlantis Gate Room door must ALWAYS render facing north, matching the
+    /// orientation everything else in the room is built with.
+    ///
+    /// A 1x1 door's rotation cannot be set — Building_Door.DoorPreDraw() runs
+    /// before every draw and overwrites it with DoorUtility.DoorRotationAt(),
+    /// which returns Rot4.North only when the east/west neighbours are the
+    /// impassable ones, and Rot4.East otherwise. (Same behaviour in 1.2-1.6;
+    /// in 1.2-1.4 the method lives on Building_Door itself.) Whatever Rot4 we
+    /// hand GenSpawn.Spawn is discarded on the first frame.
+    ///
+    /// So the only way to guarantee north is to seat the door in a horizontal
+    /// wall run — the north or south wall. Atlantis uses the NORTH wall.
+    private Rot4 GetAtlantisEntranceSide(Map map, Rot4 rolledSide)
+    {
+        return IsAtlantisFacility(map) ? Rot4.North : rolledSide;
+    }
+
     private TerrainDef GetAtlantisFloorDef(Map map)
     {
         return IsAtlantisFacility(map)
