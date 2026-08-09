@@ -14,10 +14,9 @@
         </statBases>
 
         <costList Inherit="False">
-            <Steel>2</Steel>
+            <Steel>15</Steel>
             <Plasteel>1</Plasteel>
-            <Silver>2</Silver>
-            <ComponentIndustrial>1</ComponentIndustrial>
+            <ComponentIndustrial>3</ComponentIndustrial>
         </costList>
 
         <!-- No designationCategory — explicitly null so the inherited value from
