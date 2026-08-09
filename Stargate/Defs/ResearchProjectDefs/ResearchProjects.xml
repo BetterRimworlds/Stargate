@@ -65,8 +65,8 @@ This tech enables the Archotech Teleporter tech, if you have that mod.</descript
         <defName>AtlantisRising</defName>
         <label>Atlantis Rising</label>
         <description>Recover the first traces of an ancient off-world facility and unlock the path to the deeper Atlantis infrastructure.</description>
-        <baseCost>2222</baseCost>
-        <techLevel>Spacer</techLevel>
+        <baseCost>555</baseCost>
+        <!--<techLevel>Spacer</techLevel>-->
         <researchViewX>5</researchViewX>
         <researchViewY>3</researchViewY>
         <modExtensions>
