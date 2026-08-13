@@ -27,6 +27,10 @@
             <displayName>BetterRimworlds CryoRegenesis</displayName>
             <downloadUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=2193849288</downloadUrl>
         </li>
+        <li>
+            <packageId>HopeSeekr.BetterRimworlds.LuminescentWalls</packageId>
+            <displayName>BetterRimworlds Luminescent Walls</displayName>
+        </li>
     </modDependencies>
     <author>HopeSeekr</author>
     <url>https://github.com/BetterRimworlds/Stargate</url>

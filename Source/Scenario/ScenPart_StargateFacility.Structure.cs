@@ -23,7 +23,15 @@ internal partial class ScenPart_StargateFacility
     private void GenerateRoomStructure(Map map, CellRect innerRect, CellRect outerRect)
     {
         string[] stoneTypes = { "BlocksGranite", "BlocksLimestone", "BlocksSlate" };
-        ThingDef wallMaterial = DefDatabase<ThingDef>.GetNamed(stoneTypes[Rand.Range(0, stoneTypes.Length)]);
+        // Atlantis uses limestone architecture; other destinations keep the random stone mix.
+        ThingDef wallMaterial = IsAtlantisFacility(map)
+            ? (DefDatabase<ThingDef>.GetNamedSilentFail("BlocksLimestone")
+               ?? DefDatabase<ThingDef>.GetNamed(stoneTypes[0]))
+            : DefDatabase<ThingDef>.GetNamed(stoneTypes[Rand.Range(0, stoneTypes.Length)]);
+
+        ThingDef illuminescentWallDef = IsAtlantisFacility(map)
+            ? LuminescentWallsUtility.GetWallDef()
+            : null;
 
         TerrainDef floorDef = GetGateRoomFloorDef(map);
 
@@ -40,7 +48,8 @@ internal partial class ScenPart_StargateFacility
             map.terrainGrid.SetTerrain(cell, floorDef);
         }
 
-        // Build OUTER wall layer.
+        // Build OUTER wall layer. Atlantis uses Illuminescent Limestone for
+        // both wall rings; other destinations keep the ordinary stone mix.
         foreach (IntVec3 cell in outerRect.EdgeCells)
         {
             if (!cell.InBounds(map)) continue;
@@ -50,10 +59,18 @@ internal partial class ScenPart_StargateFacility
             if (cell == outerDoorCell) continue;
 
             ClearCellForBuilding(map, cell);
-            PlaceClaimed(map, ThingDefOf.Wall, cell, wallMaterial);
+            if (illuminescentWallDef != null)
+            {
+                PlaceClaimed(map, illuminescentWallDef, cell);
+            }
+            else
+            {
+                PlaceClaimed(map, ThingDefOf.Wall, cell, wallMaterial);
+            }
         }
 
-        // Build INNER wall layer.
+        // Build INNER wall layer. On Atlantis the entire interior ring is
+        // Illuminescent Limestone so the room is lit by the wall surface itself.
         foreach (IntVec3 cell in innerRect.EdgeCells)
         {
             if (!cell.InBounds(map)) continue;
@@ -62,7 +79,16 @@ internal partial class ScenPart_StargateFacility
             if (cell == innerDoorCell) continue;
 
             ClearCellForBuilding(map, cell);
-            PlaceClaimed(map, ThingDefOf.Wall, cell, wallMaterial);
+
+            if (illuminescentWallDef != null)
+            {
+                // Dedicated wall def is not stuffable.
+                PlaceClaimed(map, illuminescentWallDef, cell);
+            }
+            else
+            {
+                PlaceClaimed(map, ThingDefOf.Wall, cell, wallMaterial);
+            }
         }
 
         // Doorway cells are sacred.
