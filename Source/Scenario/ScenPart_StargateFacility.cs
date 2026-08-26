@@ -54,15 +54,23 @@ internal partial class ScenPart_StargateFacility : ScenPart
         // decided here and threaded through both steps.
         _entranceSide = Rand.Element(Rot4.North, Rot4.South, Rot4.East, Rot4.West);
 
+        // Atlantis overrides the roll: its door must always render facing north.
+        _entranceSide = GetAtlantisEntranceSide(map, _entranceSide);
+
         // Handle ocean and impassable tiles.
         StargateDestinationMapGen.Apply(map, DescribeTile(map.Tile), _entranceSide);
 
         GenerateRoomStructure(map, roomRect, outerWallRect);
         PlaceRoof(map, roomRect);
-        PlacePowerConduits(map, center, roomRect);
+        PlacePowerConduits(map, roomRect);
         PlaceStargate(map, center);
         PlaceSupportEquipment(map, center, roomRect);
         PlaceDiningArea(map, roomRect, center);
+        // Destination-themed extras (Atlantis ocean / Tok'ra impassable) after
+        // shared furniture so BlueprintSpawner sees occupied cells, but before
+        // debris so random slag cannot block the southern research bench.
+        PlaceAtlantisFacilityExtras(map, center, roomRect);
+        PlaceTokraFacilityExtras(map, center, roomRect);
         AddFacilityDetails(map, roomRect, center);
         ClaimHomeArea(map, roomRect);
         SpawnColonists(map, center);

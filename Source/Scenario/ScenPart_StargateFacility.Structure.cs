@@ -11,25 +11,29 @@ internal partial class ScenPart_StargateFacility
     private Pawn _guardianPawn;
     private Rot4 _entranceSide;
 
+    private TerrainDef GetGateRoomFloorDef(Map map)
+    {
+        // Variant partials own destination detection and themed definitions;
+        // this shared layout only provides the neutral fallback.
+        return GetTokraFloorDef(map)
+            ?? GetAtlantisFloorDef(map)
+            ?? TerrainDefOf.Concrete;
+    }
+
     private void GenerateRoomStructure(Map map, CellRect innerRect, CellRect outerRect)
     {
         string[] stoneTypes = { "BlocksGranite", "BlocksLimestone", "BlocksSlate" };
-        ThingDef wallMaterial = DefDatabase<ThingDef>.GetNamed(stoneTypes[Rand.Range(0, stoneTypes.Length)]);
+        // Atlantis uses limestone architecture; other destinations keep the random stone mix.
+        ThingDef wallMaterial = IsAtlantisFacility(map)
+            ? (DefDatabase<ThingDef>.GetNamedSilentFail("BlocksLimestone")
+               ?? DefDatabase<ThingDef>.GetNamed(stoneTypes[0]))
+            : DefDatabase<ThingDef>.GetNamed(stoneTypes[Rand.Range(0, stoneTypes.Length)]);
 
-        // The Gate Room floor is themed per destination:
-        // Tok'ra cavern bases (impassable mountain tiles) get the Tok'ra
-        // flagstone, Atlantis (ocean tiles) gets the ancient Atlantean floor;
-        // surface facilities keep concrete.
-        TerrainDef floorDef = TerrainDefOf.Concrete;
-        string tileDescription = DescribeTile(map.Tile);
-        if (tileDescription == "Impassable")
-        {
-            floorDef = DefDatabase<TerrainDef>.GetNamed("BR_TokraTile");
-        }
-        else if (tileDescription == "Ocean")
-        {
-            floorDef = DefDatabase<TerrainDef>.GetNamed("BR_AtlantisAncientFloor");
-        }
+        ThingDef illuminescentWallDef = IsAtlantisFacility(map)
+            ? LuminescentWallsUtility.GetWallDef()
+            : null;
+
+        TerrainDef floorDef = GetGateRoomFloorDef(map);
 
         IntVec3 innerDoorCell = GetCenteredEdgeCell(innerRect, _entranceSide);
         IntVec3 outerDoorCell = GetCenteredEdgeCell(outerRect, _entranceSide);
@@ -44,7 +48,8 @@ internal partial class ScenPart_StargateFacility
             map.terrainGrid.SetTerrain(cell, floorDef);
         }
 
-        // Build OUTER wall layer.
+        // Build OUTER wall layer. Atlantis uses Illuminescent Limestone for
+        // both wall rings; other destinations keep the ordinary stone mix.
         foreach (IntVec3 cell in outerRect.EdgeCells)
         {
             if (!cell.InBounds(map)) continue;
@@ -54,10 +59,18 @@ internal partial class ScenPart_StargateFacility
             if (cell == outerDoorCell) continue;
 
             ClearCellForBuilding(map, cell);
-            PlaceClaimed(map, ThingDefOf.Wall, cell, wallMaterial);
+            if (illuminescentWallDef != null)
+            {
+                PlaceClaimed(map, illuminescentWallDef, cell);
+            }
+            else
+            {
+                PlaceClaimed(map, ThingDefOf.Wall, cell, wallMaterial);
+            }
         }
 
-        // Build INNER wall layer.
+        // Build INNER wall layer. On Atlantis the entire interior ring is
+        // Illuminescent Limestone so the room is lit by the wall surface itself.
         foreach (IntVec3 cell in innerRect.EdgeCells)
         {
             if (!cell.InBounds(map)) continue;
@@ -66,7 +79,16 @@ internal partial class ScenPart_StargateFacility
             if (cell == innerDoorCell) continue;
 
             ClearCellForBuilding(map, cell);
-            PlaceClaimed(map, ThingDefOf.Wall, cell, wallMaterial);
+
+            if (illuminescentWallDef != null)
+            {
+                // Dedicated wall def is not stuffable.
+                PlaceClaimed(map, illuminescentWallDef, cell);
+            }
+            else
+            {
+                PlaceClaimed(map, ThingDefOf.Wall, cell, wallMaterial);
+            }
         }
 
         // Doorway cells are sacred.
@@ -130,10 +152,12 @@ internal partial class ScenPart_StargateFacility
     private void PlaceSupportEquipment(Map map, IntVec3 center, CellRect roomRect)
     {
         // 1. Vanometric Power Cell (Royalty) - mandatory power source.
+        // Root one row north of the south wall so the cell sits directly
+        // adjacent to the wall conduit ring.
         ThingDef vanoDef = DefDatabase<ThingDef>.GetNamedSilentFail("VanometricPowerCell");
         if (vanoDef != null)
         {
-            IntVec3 vanoPos = new IntVec3(roomRect.maxX - 2, 0, roomRect.minZ + 2);
+            IntVec3 vanoPos = new IntVec3(roomRect.maxX - 2, 0, roomRect.minZ + 1);
             if (vanoPos.InBounds(map))
             {
                 ClearCellForBuilding(map, vanoPos);
@@ -141,22 +165,31 @@ internal partial class ScenPart_StargateFacility
             }
         }
 
-        // 2. Archotech ZPM at 75% charge, if mod present.
-        ThingDef zpmDef = DefDatabase<ThingDef>.GetNamedSilentFail("ArchotechZPM");
-        if (zpmDef != null)
+        // 2. Secondary power source. Destination-specific substitutions live
+        // in their variant partials; ordinary facilities keep the ZPM below.
+        if (PlaceAtlantisSecondaryPower(map, roomRect))
         {
-            IntVec3 zpmPos = new IntVec3(roomRect.minX + 2, 0, roomRect.maxZ - 2);
-            if (zpmPos.InBounds(map))
+            // Atlantis has no starting ZPM.
+        }
+        else
+        {
+            // Archotech ZPM at 75% charge, if mod present.
+            ThingDef zpmDef = DefDatabase<ThingDef>.GetNamedSilentFail("ArchotechZPM");
+            if (zpmDef != null)
             {
-                ClearCellForBuilding(map, zpmPos);
-
-                Thing zpm = PlaceClaimed(map, zpmDef, zpmPos);
-                if (zpm != null)
+                IntVec3 zpmPos = new IntVec3(roomRect.minX + 2, 0, roomRect.maxZ - 2);
+                if (zpmPos.InBounds(map))
                 {
-                    CompPowerBattery batteryComp = zpm.TryGetComp<CompPowerBattery>();
-                    if (batteryComp != null)
+                    ClearCellForBuilding(map, zpmPos);
+
+                    Thing zpm = PlaceClaimed(map, zpmDef, zpmPos);
+                    if (zpm != null)
                     {
-                        batteryComp.SetStoredEnergyPct(0.75f);
+                        CompPowerBattery batteryComp = zpm.TryGetComp<CompPowerBattery>();
+                        if (batteryComp != null)
+                        {
+                            batteryComp.SetStoredEnergyPct(0.75f);
+                        }
                     }
                 }
             }
@@ -212,6 +245,12 @@ internal partial class ScenPart_StargateFacility
         // NOTE:
         // This places a functional door. If you want the sealed-ancient-ruin aesthetic,
         // swap ThingDefOf.Door back to ThingDefOf.Wall here.
+        //
+        // Do NOT try to force the facing by passing a rotation here: a 1x1 door
+        // ignores it. Building_Door.DoorPreDraw() re-derives Rotation from the
+        // adjacent cells before every draw. The facing follows from which wall
+        // the door sits in — north/south walls render north, east/west walls
+        // render east. See GetAtlantisEntranceSide.
         PlaceClaimed(map, ThingDefOf.Door, cell, material);
     }
 

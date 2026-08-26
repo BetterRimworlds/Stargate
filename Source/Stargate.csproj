@@ -156,27 +156,27 @@
   <!-- References for Release v1.6 -->
   <ItemGroup Condition="'$(Configuration)' == 'Release v1.6'">
     <Reference Include="Assembly-CSharp">
-      <HintPath>/rimworld/1.6-steam/RimWorldLinux_Data/Managed/Assembly-CSharp.dll</HintPath>
+      <HintPath>/rimworld/1.6/RimWorldLinux_Data/Managed/Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>/rimworld/1.6-steam/RimWorldLinux_Data/Managed/UnityEngine.dll</HintPath>
+      <HintPath>/rimworld/1.6/RimWorldLinux_Data/Managed/UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>/rimworld/1.6-steam/RimWorldLinux_Data/Managed/UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>/rimworld/1.6/RimWorldLinux_Data/Managed/UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>/rimworld/1.6-steam/RimWorldLinux_Data/Managed/UnityEngine.IMGUIModule.dll</HintPath>
+      <HintPath>/rimworld/1.6/RimWorldLinux_Data/Managed/UnityEngine.IMGUIModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>/rimworld/1.6-steam/RimWorldLinux_Data/Managed/UnityEngine.TextRenderingModule.dll</HintPath>
+      <HintPath>/rimworld/1.6/RimWorldLinux_Data/Managed/UnityEngine.TextRenderingModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="0Harmony">
-      <HintPath>/rimworld/1.6-steam/Mods/Harmony/Current/Assemblies/0Harmony.dll</HintPath>
+      <HintPath>/rimworld/1.6/Mods/Harmony/Current/Assemblies/0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />

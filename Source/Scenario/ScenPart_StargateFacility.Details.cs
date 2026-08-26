@@ -11,21 +11,27 @@ internal partial class ScenPart_StargateFacility
 {
     private void AddFacilityDetails(Map map, CellRect roomRect, IntVec3 center)
     {
-        IntVec3[] lampPositions = new[]
+        // Atlantis interiors are lit by Illuminescent Limestone wall surfaces,
+        // so free-standing lamps are unnecessary there. Other destinations keep
+        // the conventional corner-lamp layout.
+        if (!IsAtlantisFacility(map) || LuminescentWallsUtility.GetWallDef() == null)
         {
-            new IntVec3(roomRect.minX + 3, 0, roomRect.minZ + 3),
-            new IntVec3(roomRect.maxX - 3, 0, roomRect.minZ + 3),
-            new IntVec3(roomRect.minX + 3, 0, roomRect.maxZ - 3),
-            new IntVec3(roomRect.maxX - 3, 0, roomRect.maxZ - 3)
-        };
+            IntVec3[] lampPositions = new[]
+            {
+                new IntVec3(roomRect.minX + 3, 0, roomRect.minZ + 3),
+                new IntVec3(roomRect.maxX - 3, 0, roomRect.minZ + 3),
+                new IntVec3(roomRect.minX + 3, 0, roomRect.maxZ - 3),
+                new IntVec3(roomRect.maxX - 3, 0, roomRect.maxZ - 3)
+            };
 
-        foreach (IntVec3 pos in lampPositions)
-        {
-            if (!pos.InBounds(map)) continue;
-            if (pos.DistanceTo(center) <= WooshRadius) continue;
+            foreach (IntVec3 pos in lampPositions)
+            {
+                if (!pos.InBounds(map)) continue;
+                if (pos.DistanceTo(center) <= WooshRadius) continue;
 
-            ClearCellForBuilding(map, pos);
-            PlaceClaimed(map, ThingDefOf.StandingLamp, pos);
+                ClearCellForBuilding(map, pos);
+                PlaceClaimed(map, ThingDefOf.StandingLamp, pos);
+            }
         }
 
         // Ancient debris - strictly outside the woosh radius.

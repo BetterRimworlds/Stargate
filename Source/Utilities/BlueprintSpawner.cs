@@ -108,30 +108,92 @@ public class BlueprintSpawner
         Log.Warning($"BetterRimworlds.Stargate: Blueprint failed to stack {def.defName} at {pos}: no empty target or adjacent cell for the remaining {count} items.");
     }
 
-    public void SpawnConduitRing(CellRect secretRoomRect, ThingDef conduitDef)
+    /// <summary>
+    /// Places conduits around the edge cells of <paramref name="rect"/> — an
+    /// in-wall ring for a room's wall layer. Conduits may share cells with
+    /// walls; cells that already hold a conduit are skipped, and a cell is
+    /// skipped whenever spawning would destroy an existing building or item
+    /// (filth/plants may still be wiped by GenSpawn as normal).
+    /// </summary>
+    /// <param name="claimForPlayer">Claim spawned conduits for the player faction.</param>
+    /// <param name="skipCells">Optional cells to leave un-conduited (e.g. doorways).</param>
+    public void SpawnConduitRing(CellRect rect, ThingDef conduitDef, bool claimForPlayer = false, ICollection<IntVec3> skipCells = null)
     {
         if (conduitDef == null) return;
 
-        foreach (IntVec3 cell in secretRoomRect.EdgeCells)
+        foreach (IntVec3 cell in rect.EdgeCells)
+        {
+            if (skipCells != null && skipCells.Contains(cell)) continue;
+
+            SpawnConduitAt(cell, conduitDef, claimForPlayer);
+        }
+    }
+
+    /// <summary>
+    /// Places a single conduit at <paramref name="cell"/> with the same guards
+    /// as <see cref="SpawnConduitRing"/>: skips cells that already hold a
+    /// conduit and cells where spawning would destroy an existing building or
+    /// item. Returns true when a conduit was spawned.
+    /// </summary>
+    public bool SpawnConduitAt(IntVec3 cell, ThingDef conduitDef, bool claimForPlayer = false)
+    {
+        if (conduitDef == null) return false;
+        if (!cell.InBounds(map)) return false;
+        if (ContainsThingOfDef(cell, conduitDef)) return false;
+
+        // Conduits can share cells with walls. Only skip when spawning would
+        // destroy an existing building or item; filth/plants may still be
+        // wiped by GenSpawn as normal.
+        if (GenSpawn.WouldWipeAnythingWith(
+                cell,
+                Rot4.North,
+                conduitDef,
+                map,
+                t => t.def.category == ThingCategory.Building
+                     || t.def.category == ThingCategory.Item))
+        {
+            return false;
+        }
+
+        Thing conduit = ThingMaker.MakeThing(conduitDef);
+        Thing spawned = GenSpawn.Spawn(conduit, cell, map, Rot4.North, WipeMode.Vanish);
+        if (spawned != null && spawned.def.CanHaveFaction && claimForPlayer)
+        {
+            spawned.SetFaction(Faction.OfPlayer);
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Places a constructed roof over <paramref name="rect"/> and, optionally,
+    /// over a surrounding band of cells (the outer wall ring of a double-walled
+    /// room). Mirrors ScenPart_StargateFacility.PlaceRoof: cells in the main
+    /// rect are roofed unconditionally, while band cells are only filled where
+    /// no roof exists so mountain roofs and player-built roofs just outside the
+    /// structure are preserved.
+    /// </summary>
+    public void PlaceRoof(CellRect rect, int outerBand = 1)
+    {
+        if (rect == CellRect.Empty) return;
+
+        RoofDef roof = RoofDefOf.RoofConstructed;
+
+        foreach (IntVec3 cell in rect.Cells)
         {
             if (!cell.InBounds(map)) continue;
-            if (ContainsThingOfDef(cell, conduitDef)) continue;
+            map.roofGrid.SetRoof(cell, roof);
+        }
 
-            // Conduits can share cells with walls. Only skip when spawning would
-            // destroy an existing building or item; filth/plants may still be
-            // wiped by GenSpawn as normal.
-            if (GenSpawn.WouldWipeAnythingWith(
-                    cell,
-                    Rot4.North,
-                    conduitDef,
-                    map,
-                    t => t.def.category == ThingCategory.Building
-                         || t.def.category == ThingCategory.Item))
+        if (outerBand <= 0) return;
+
+        foreach (IntVec3 cell in rect.ExpandedBy(outerBand).Cells)
+        {
+            if (!cell.InBounds(map)) continue;
+            if (map.roofGrid.RoofAt(cell) == null)
             {
-                continue;
+                map.roofGrid.SetRoof(cell, roof);
             }
-
-            GenSpawn.Spawn(ThingMaker.MakeThing(conduitDef), cell, map, WipeMode.Vanish);
         }
     }
 

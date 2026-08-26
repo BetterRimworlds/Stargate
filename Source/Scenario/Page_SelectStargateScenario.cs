@@ -57,7 +57,8 @@ public class Page_SelectStargateScenario : Page
             listing,
             StargateScenarioKind.AtlantisRising,
             "Atlantis Rising",
-            "Force an ocean tile and generate an Atlantis-style underwater facility."
+            "Force an ocean tile and generate an Atlantis-style underwater facility.",
+            "WARNING: ~20% completely implemented!!"
         );
 
         listing.Gap(8f);
@@ -78,7 +79,8 @@ public class Page_SelectStargateScenario : Page
         Listing_Standard listing,
         StargateScenarioKind kind,
         string label,
-        string description
+        string description,
+        string warning = null
     )
     {
         if (listing.RadioButton(label, selectedKind == kind))
@@ -88,6 +90,12 @@ public class Page_SelectStargateScenario : Page
 
         Text.Font = GameFont.Tiny;
         listing.Label(description);
+        if (!string.IsNullOrEmpty(warning))
+        {
+            GUI.color = Color.yellow;
+            listing.Label(warning);
+            GUI.color = Color.white;
+        }
         Text.Font = GameFont.Small;
     }
 
