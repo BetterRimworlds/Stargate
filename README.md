@@ -1,11 +1,21 @@
 # Rimworld Stargate
-WARNING: This mod uses the Rimworld Base Save Functionality in ways that it was never designed to support, 
-mainly saving specific things into a separate file instead of saving everything on the map to one file at 
-once. Because of this there may be adverse effects. The main one that I have found is that after traveling 
-through the Stargate Social opinions relating to that colonist will be lost, they will effectively be 
-meeting everyone for the first time again. At this time I do not know of a practical way to resolve this issue.
 
-The Stargate system allows you to transport materials over the great distances between colonies.
+RimWorld Stargate is not just a themed transport building. It is the core of a larger Stargate 
+expansion framework for RimWorld: a cross-world traversal, persistence, scenario-generation, and 
+long-horizon campaign system.
+
+It provides:
+
+- A real Stargate transport and recall system
+- Off-world team persistence across saves
+- Atlantis and Tok'ra style starting worlds
+- A shared-seed pseudo-multiplayer planets
+- Story continuity systems designed for centuries-long and millennia-long campaigns
+
+When combined with the other Better RimWorlds Stargate mods such as ZPM, Zatgun, CryoRegenesis, 
+Atlantean Teleporter Room, Wraith Dematerializer, and ALZ-112 uplift systems, this becomes 
+effectively a DLC-scale interconnected expansion suite.
+
 ![Stargate](https://github.com/BetterRimworlds/Rimworld-Stargate/assets/1125541/375be511-ea8c-4964-bb56-93689ceb6535)
 
 Demo Video: https://youtu.be/PR_j4uGLeGw
