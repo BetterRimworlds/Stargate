@@ -6,6 +6,7 @@ using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
+using BetterRimworlds.Utilities;
 
 namespace BetterRimworlds.Stargate;
 
@@ -352,9 +353,9 @@ internal sealed class StargateDailyPlanetConditions
 {
     internal static StargateDailyPlanetConditions Generate()
     {
-        string seedString = StargateSeedUtility.GetDailySeed();
+        string seedString = DailySeedUtility.GetDailySeed();
 
-        float planetCoverage = StargateSeedUtility.WithDailySubSeed(
+        float planetCoverage = DailySeedUtility.WithDailySubSeed(
             "planet-coverage",
             () =>
             {
@@ -363,17 +364,17 @@ internal sealed class StargateDailyPlanetConditions
             }
         );
 
-        OverallRainfall rainfall = StargateSeedUtility.WithDailySubSeed(
+        OverallRainfall rainfall = DailySeedUtility.WithDailySubSeed(
             "overall-rainfall",
             RandomEnumValue<OverallRainfall>
         );
 
-        OverallTemperature temperature = StargateSeedUtility.WithDailySubSeed(
+        OverallTemperature temperature = DailySeedUtility.WithDailySubSeed(
             "overall-temperature",
             RandomEnumValue<OverallTemperature>
         );
 
-        OverallPopulation population = StargateSeedUtility.WithDailySubSeed(
+        OverallPopulation population = DailySeedUtility.WithDailySubSeed(
             "overall-population",
             LoreWeightedPopulation
         );
