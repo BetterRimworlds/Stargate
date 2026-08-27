@@ -1,6 +1,7 @@
 // ==== Source/Scenario/ScenPart_StargateFacility.cs ====
 using RimWorld;
 using Verse;
+using BetterRimworlds.Utilities;
 
 namespace BetterRimworlds.Stargate;
 
@@ -144,7 +145,7 @@ internal partial class ScenPart_StargateFacility : ScenPart
             "===========================================\n\n" +
             "STARGATE DESTINATION SELECTED\n\n" +
             "Scenario:           " + DescribeScenarioKind(StargateAutomationPatches.SelectedScenarioKind) + "\n" +
-            "Daily planet seed:  " + StargateSeedUtility.GetDailySeed() + "\n" +
+            "Daily planet seed:  " + DailySeedUtility.GetDailySeed() + "\n" +
             "Selected tile:      " + selectedTile + "\n" +
             "Tile kind:          " + DescribeTile(selectedTile) + "\n\n" +
             "Same planet. Different Stargate.\n" +

@@ -111,7 +111,7 @@ internal static class DailySeedUtility
    ///
    /// Use this when deriving a daily planet setting:
    ///
-   ///     OverallRainfall rainfall = StargateSeedUtility.WithDailySubSeed(
+   ///     OverallRainfall rainfall = DailySeedUtility.WithDailySubSeed(
    ///         "overall-rainfall",
    ///         () => RandomEnumValue<OverallRainfall>()
    ///     );
