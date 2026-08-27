@@ -11,7 +11,7 @@ internal static class LuminescentWallsUtility
 {
     internal static ThingDef GetWallDef()
     {
-        return DefDatabase<ThingDef>.GetNamedSilentFail("BR_IlluminescentLimestoneWall");
+        return DefDatabase<ThingDef>.GetNamedSilentFail("BR_LuminescentLimestoneWall");
     }
 
     internal static bool IsAnyWall(ThingDef def)
@@ -27,7 +27,7 @@ internal static class LuminescentWallsUtility
         }
 
         if (def.defName != null
-            && def.defName.StartsWith("BR_Illuminescent")
+            && def.defName.StartsWith("BR_Luminescent")
             && def.defName.EndsWith("Wall"))
         {
             return true;
