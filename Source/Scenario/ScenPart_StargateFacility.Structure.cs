@@ -29,7 +29,7 @@ internal partial class ScenPart_StargateFacility
                ?? DefDatabase<ThingDef>.GetNamed(stoneTypes[0]))
             : DefDatabase<ThingDef>.GetNamed(stoneTypes[Rand.Range(0, stoneTypes.Length)]);
 
-        ThingDef illuminescentWallDef = IsAtlantisFacility(map)
+        ThingDef luminescentWallDef = IsAtlantisFacility(map)
             ? LuminescentWallsUtility.GetWallDef()
             : null;
 
@@ -48,7 +48,7 @@ internal partial class ScenPart_StargateFacility
             map.terrainGrid.SetTerrain(cell, floorDef);
         }
 
-        // Build OUTER wall layer. Atlantis uses Illuminescent Limestone for
+        // Build OUTER wall layer. Atlantis uses Luminescent Limestone for
         // both wall rings; other destinations keep the ordinary stone mix.
         foreach (IntVec3 cell in outerRect.EdgeCells)
         {
@@ -59,9 +59,9 @@ internal partial class ScenPart_StargateFacility
             if (cell == outerDoorCell) continue;
 
             ClearCellForBuilding(map, cell);
-            if (illuminescentWallDef != null)
+            if (luminescentWallDef != null)
             {
-                PlaceClaimed(map, illuminescentWallDef, cell);
+                PlaceClaimed(map, luminescentWallDef, cell);
             }
             else
             {
@@ -70,7 +70,7 @@ internal partial class ScenPart_StargateFacility
         }
 
         // Build INNER wall layer. On Atlantis the entire interior ring is
-        // Illuminescent Limestone so the room is lit by the wall surface itself.
+        // Luminescent Limestone so the room is lit by the wall surface itself.
         foreach (IntVec3 cell in innerRect.EdgeCells)
         {
             if (!cell.InBounds(map)) continue;
@@ -80,10 +80,10 @@ internal partial class ScenPart_StargateFacility
 
             ClearCellForBuilding(map, cell);
 
-            if (illuminescentWallDef != null)
+            if (luminescentWallDef != null)
             {
                 // Dedicated wall def is not stuffable.
-                PlaceClaimed(map, illuminescentWallDef, cell);
+                PlaceClaimed(map, luminescentWallDef, cell);
             }
             else
             {

@@ -11,7 +11,7 @@ internal partial class ScenPart_StargateFacility
 {
     private void AddFacilityDetails(Map map, CellRect roomRect, IntVec3 center)
     {
-        // Atlantis interiors are lit by Illuminescent Limestone wall surfaces,
+        // Atlantis interiors are lit by Luminescent Limestone wall surfaces,
         // so free-standing lamps are unnecessary there. Other destinations keep
         // the conventional corner-lamp layout.
         if (!IsAtlantisFacility(map) || LuminescentWallsUtility.GetWallDef() == null)
