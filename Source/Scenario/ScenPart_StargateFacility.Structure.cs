@@ -165,35 +165,10 @@ internal partial class ScenPart_StargateFacility
             }
         }
 
-        // 2. Secondary power source. Destination-specific substitutions live
-        // in their variant partials; ordinary facilities keep the ZPM below.
-        if (PlaceAtlantisSecondaryPower(map, roomRect))
-        {
-            // Atlantis has no starting ZPM.
-        }
-        else
-        {
-            // Archotech ZPM at 75% charge, if mod present.
-            ThingDef zpmDef = DefDatabase<ThingDef>.GetNamedSilentFail("ArchotechZPM");
-            if (zpmDef != null)
-            {
-                IntVec3 zpmPos = new IntVec3(roomRect.minX + 2, 0, roomRect.maxZ - 2);
-                if (zpmPos.InBounds(map))
-                {
-                    ClearCellForBuilding(map, zpmPos);
-
-                    Thing zpm = PlaceClaimed(map, zpmDef, zpmPos);
-                    if (zpm != null)
-                    {
-                        CompPowerBattery batteryComp = zpm.TryGetComp<CompPowerBattery>();
-                        if (batteryComp != null)
-                        {
-                            batteryComp.SetStoredEnergyPct(0.75f);
-                        }
-                    }
-                }
-            }
-        }
+        // 2. Atlantis receives a second vanometric power cell; all other
+        // Stargate Rooms keep only the shared cell above. The Secret Lab owns
+        // the facility's single ZPM.
+        PlaceAtlantisSecondaryPower(map, roomRect);
 
         // 3. DHD placement.
         ThingDef dhdDef = DefDatabase<ThingDef>.GetNamedSilentFail("StargateDHD");

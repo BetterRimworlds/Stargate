@@ -161,7 +161,7 @@ internal static class SecretLab
         ThingDef devilstrandDef     = DefDatabase<ThingDef>.GetNamed("DevilstrandCloth");
         ThingDef analyzerDef        = DefDatabase<ThingDef>.GetNamed("MultiAnalyzer");
         ThingDef lampDef            = ThingDefOf.StandingLamp;
-        ThingDef vanoDef            = DefDatabase<ThingDef>.GetNamed("VanometricPowerCell");
+        ThingDef zpmDef             = DefDatabase<ThingDef>.GetNamed("ArchotechZPM");
         ThingDef conduitDef         = ThingDefOf.PowerConduit;
         ThingDef cryoDef            = DefDatabase<ThingDef>.GetNamedSilentFail("CryoRegenesisCasket");
         ThingDef hospitalBedDef     = DefDatabase<ThingDef>.GetNamed("HospitalBed");
@@ -195,7 +195,9 @@ internal static class SecretLab
 
         const string roomName = "Lab";
 
-        spawner.SpawnFixed(vanoDef,            spawner.At(2, 9), spawner.Rot(Rot4.East), interior);
+        // Single Archotech ZPM at 10% charge; keep it in the established power-cell slot.
+        Thing zpm = spawner.SpawnFixed(zpmDef, spawner.At(2, 9), spawner.Rot(Rot4.East), interior);
+        zpm?.TryGetComp<CompPowerBattery>()?.SetStoredEnergyPct(0.10f);
 
         spawner.SpawnFixed(researchDef,        spawner.At(5, 5), spawner.Rot(Rot4.East), interior);
         spawner.SpawnFixed(analyzerDef,        spawner.At(5, 8), spawner.Rot(Rot4.North), interior);
