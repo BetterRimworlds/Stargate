@@ -5,7 +5,7 @@ using BetterRimworlds.Utilities;
 
 namespace BetterRimworlds.Stargate;
 
-/// Shared Secret Lab used by the Tok'ra cavern base and the Atlantis Hidden Lab.
+/// Shared Secret Lab used by the Tok'ra cavern base and Atlantis (Janus's Lab).
 /// Owns site planning, the plasteel shell, and interior furnishings so destination
 /// mapgen does not embed laboratory construction.
 internal static class SecretLab
@@ -22,6 +22,11 @@ internal static class SecretLab
     {
         public CellRect RoomRect;
         public Rot4 Side;
+
+        /// True when the surrounding protected band also needs roofing (cavern
+        /// maps exclude the whole protected rect from their mountain fill, so
+        /// even the ring outside the lab shell would otherwise sit under open sky).
+        public bool RoofProtectedBand;
 
         public CellRect ProtectedRect => RoomRect.ExpandedBy(2);
     }
@@ -55,12 +60,13 @@ internal static class SecretLab
         return new Plan
         {
             RoomRect = secretRoomRect,
-            Side = side
+            Side = side,
+            RoofProtectedBand = true
         };
     }
 
     /// Floors the planned footprint, builds the luminescent plasteel shell, then furnishes the interior.
-    /// Atlantis Hidden Lab can pass a custom <see cref="Plan"/> instead of using
+    /// Atlantis (Janus's Lab) can pass a custom <see cref="Plan"/> instead of using
     /// <see cref="PlanAdjacentTo"/>.
     public static CellRect Generate(Map map, Plan plan)
     {
@@ -112,6 +118,35 @@ internal static class SecretLab
                 ? ThingMaker.MakeThing(luminescentPlasteelWall)
                 : ThingMaker.MakeThing(ThingDefOf.Wall, ThingDefOf.Plasteel);
             GenSpawn.Spawn(wall, wallCell, map, WipeMode.Vanish);
+        }
+
+        // Roof the lab footprint. The cavern generator excludes the protected rect
+        // from its mountain fill, so on maps with no pre-existing roof over the
+        // footprint the completed lab would otherwise sit under open sky, losing
+        // its sealed/indoor behavior and exposing its equipment.
+        RoofDef roof = RoofDefOf.RoofConstructed;
+
+        foreach (IntVec3 roofCell in secretRoomRect.Cells)
+        {
+            if (roofCell.InBounds(map))
+            {
+                map.roofGrid.SetRoof(roofCell, roof);
+            }
+        }
+
+        // Cover the protected band too so no exposed ring is left between the lab
+        // shell and the surrounding mountain roof (fills only where no roof exists,
+        // mirroring BlueprintSpawner.PlaceRoof).
+        if (plan.RoofProtectedBand)
+        {
+            foreach (IntVec3 bandCell in plan.ProtectedRect.Cells)
+            {
+                if (!bandCell.InBounds(map)) continue;
+                if (map.roofGrid.RoofAt(bandCell) == null)
+                {
+                    map.roofGrid.SetRoof(bandCell, roof);
+                }
+            }
         }
 
         CellRect interior = new CellRect(
@@ -171,23 +206,6 @@ internal static class SecretLab
         ThingDef advCompDef         = DefDatabase<ThingDef>.GetNamed("ComponentSpacer");
         ThingDef mealDef            = DefDatabase<ThingDef>.GetNamed("MealSurvivalPack");
 
-        void SpawnLamps(params IntVec3[] cells)
-        {
-            if (lampDef == null) return;
-
-            foreach (IntVec3 cell in cells.Distinct())
-            {
-                if (!cell.InBounds(map)) continue;
-                if (!interior.Contains(cell)) continue;
-
-                CellRect rect = new CellRect(cell.x, cell.z, 1, 1);
-                if (!spawner.RectClear(rect)) continue;
-
-                spawner.ReserveRect(rect);
-                GenSpawn.Spawn(ThingMaker.MakeThing(lampDef), cell, map, WipeMode.Vanish);
-            }
-        }
-
         // ===== Layout (East-frame reference; At() and Rot() rotate it for the current side). =====
         //
         // Interior is 7 wide (x: 0..6) × 10 tall (z: 0..9). (0, 0) is the south-west cell,
@@ -196,7 +214,7 @@ internal static class SecretLab
         const string roomName = "Lab";
 
         // Single Archotech ZPM at 10% charge; keep it in the established power-cell slot.
-        Thing zpm = spawner.SpawnFixed(zpmDef, spawner.At(2, 9), spawner.Rot(Rot4.East), interior);
+        Thing zpm = spawner.SpawnFixed(zpmDef, spawner.At(3, 8), spawner.Rot(Rot4.North), interior);
         zpm?.TryGetComp<CompPowerBattery>()?.SetStoredEnergyPct(0.10f);
 
         spawner.SpawnFixed(researchDef,        spawner.At(5, 5), spawner.Rot(Rot4.East), interior);
@@ -215,8 +233,6 @@ internal static class SecretLab
 
         spawner.SpawnStack(glitterworldMedDef,    spawner.At(2, 0), 25, roomName);
         spawner.SpawnStack(glitterworldMedDef,    spawner.At(3, 0), 25, roomName);
-
-        SpawnLamps(spawner.At(3, 3), spawner.At(3, 6));
 
         spawner.SpawnStack(advCompDef,            spawner.At(0, 9), 25, roomName);
 
