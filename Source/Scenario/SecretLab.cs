@@ -1,8 +1,5 @@
 // ==== Source/Scenario/SecretLab.cs ====
-using System.Collections.Generic;
-using System.Linq;
 using RimWorld;
-using UnityEngine;
 using Verse;
 using BetterRimworlds.Utilities;
 
@@ -62,7 +59,7 @@ internal static class SecretLab
         };
     }
 
-    /// Floors the planned footprint, builds the plasteel shell, then furnishes the interior.
+    /// Floors the planned footprint, builds the luminescent plasteel shell, then furnishes the interior.
     /// Atlantis Hidden Lab can pass a custom <see cref="Plan"/> instead of using
     /// <see cref="PlanAdjacentTo"/>.
     public static CellRect Generate(Map map, Plan plan)
@@ -75,8 +72,7 @@ internal static class SecretLab
             return secretRoomRect;
         }
 
-        TerrainDef sterileTile = DefDatabase<TerrainDef>.GetNamedSilentFail("SterileTile")
-                                 ?? TerrainDefOf.Concrete;
+        TerrainDef sterileTile = DefDatabase<TerrainDef>.GetNamed("SterileTile");
 
         foreach (IntVec3 cell in secretRoomRect.Cells)
         {
@@ -94,6 +90,8 @@ internal static class SecretLab
 
         // Pure plasteel perimeter walls with one plasteel door on the approach side.
         IntVec3 doorCell = DoorCellFor(secretRoomRect, side);
+        ThingDef luminescentPlasteelWall =
+            DefDatabase<ThingDef>.GetNamedSilentFail("BR_LuminescentPlasteelWall");
 
         foreach (IntVec3 wallCell in secretRoomRect.EdgeCells)
         {
@@ -110,7 +108,9 @@ internal static class SecretLab
                 continue;
             }
 
-            Thing wall = ThingMaker.MakeThing(ThingDefOf.Wall, ThingDefOf.Plasteel);
+            Thing wall = luminescentPlasteelWall != null
+                ? ThingMaker.MakeThing(luminescentPlasteelWall)
+                : ThingMaker.MakeThing(ThingDefOf.Wall, ThingDefOf.Plasteel);
             GenSpawn.Spawn(wall, wallCell, map, WipeMode.Vanish);
         }
 
@@ -158,7 +158,7 @@ internal static class SecretLab
 
         ThingDef researchDef        = DefDatabase<ThingDef>.GetNamed("HiTechResearchBench");
         ThingDef armchairDef        = DefDatabase<ThingDef>.GetNamed("Armchair");
-        ThingDef devilstrandDef     = DefDatabase<ThingDef>.GetNamed("DevilstrandCloth");
+        ThingDef hyperweaveDef      = DefDatabase<ThingDef>.GetNamed("Hyperweave");
         ThingDef analyzerDef        = DefDatabase<ThingDef>.GetNamed("MultiAnalyzer");
         ThingDef lampDef            = ThingDefOf.StandingLamp;
         ThingDef zpmDef             = DefDatabase<ThingDef>.GetNamed("ArchotechZPM");
@@ -201,9 +201,15 @@ internal static class SecretLab
 
         spawner.SpawnFixed(researchDef,        spawner.At(5, 5), spawner.Rot(Rot4.East), interior);
         spawner.SpawnFixed(analyzerDef,        spawner.At(5, 8), spawner.Rot(Rot4.North), interior);
-        spawner.SpawnFixed(armchairDef,        spawner.At(4, 5), spawner.Rot(Rot4.East), interior, devilstrandDef, QualityCategory.Legendary);
+        spawner.SpawnFixed(armchairDef,        spawner.At(4, 5), spawner.Rot(Rot4.East), interior, hyperweaveDef, QualityCategory.Legendary);
 
-        spawner.SpawnFixed(cryoDef,            spawner.At(6, 0), spawner.Rot(Rot4.West), interior);
+        if (cryoDef != null) {
+            spawner.SpawnFixed(cryoDef, spawner.At(6, 0), spawner.Rot(Rot4.West), interior);
+        }
+        else {
+            Log.Warning("[Stargate] SecretLabPlacement: CryoRegenesisCasket def not found; skipping cryo casket placement.");
+        }
+
         spawner.SpawnFixed(hospitalBedDef,     spawner.At(0, 0), spawner.Rot(Rot4.East), interior, ThingDefOf.Steel);
         spawner.SpawnFixed(vitalsMonitorDef,   spawner.At(0, 1), spawner.Rot(Rot4.East), interior);
 
@@ -225,10 +231,5 @@ internal static class SecretLab
         }
 
         spawner.SpawnConduitRing(secretRoomRect, conduitDef);
-    }
-
-    public static bool ContainsThingOfDef(Map map, IntVec3 cell, ThingDef def)
-    {
-        return map.thingGrid.ThingsListAt(cell).Any(t => t.def == def);
     }
 }
