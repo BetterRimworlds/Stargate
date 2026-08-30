@@ -66,7 +66,7 @@ internal static class AtlantisRisingResearchComplete
             "Atlantis Rising",
             "The Atlantis platform has risen around the Stargate. Rich soil now surrounds the base, " +
             "and a southern dining spire now rises beyond the walkway, walled in limestone and roofed, " +
-            $"with power conduits, Illuminescent Limestone architectural lighting, {placedTables} of {TableTargetCount} tables, " +
+            $"with power conduits, Luminescent Limestone architectural lighting, {placedTables} of {TableTargetCount} tables, " +
             "and steel shelves stocked with packaged survival meals.",
             LetterDefOf.PositiveEvent
         );
@@ -100,7 +100,7 @@ internal static class AtlantisRisingResearchComplete
 
         // The dining spire: a double-walled perimeter (Gate Room style) with
         // in-wall power-conduit rings, a door on the walkway side, and a full
-        // Illuminescent Limestone interior wall ring for architectural lighting
+        // Luminescent Limestone interior wall ring for architectural lighting
         // (falling back to standing lamps if the def is missing).
         BuildDiningRoomShell(map, platformRect, gateRoomRect.CenterCell.x, walkwayRect);
         if (LuminescentWallsUtility.GetWallDef() == null)
@@ -171,8 +171,8 @@ internal static class AtlantisRisingResearchComplete
         ThingDef plasteelDef = ThingDefOf.Plasteel;
         // The spire and bridge walls are limestone, per the Atlantis design.
         ThingDef limestoneDef = DefDatabase<ThingDef>.GetNamedSilentFail("BlocksLimestone") ?? plasteelDef;
-        // Illuminescent Limestone on every interior / corridor wall cell.
-        ThingDef illuminescentWallDef = LuminescentWallsUtility.GetWallDef();
+        // Luminescent Limestone on every interior / corridor wall cell.
+        ThingDef luminescentWallDef = LuminescentWallsUtility.GetWallDef();
 
         if (wallDef == null || doorDef == null || plasteelDef == null)
         {
@@ -189,7 +189,7 @@ internal static class AtlantisRisingResearchComplete
 
         // OUTER wall layer, keeping the walkway passage open. The passage cell
         // itself is cleared like the Gate Room's outer doorway so nothing can
-        // silently seal the entrance. Atlantis uses Illuminescent Limestone
+        // silently seal the entrance. Atlantis uses Luminescent Limestone
         // for both wall rings.
         ClearCellForBuilding(map, outerPassageCell);
 
@@ -199,9 +199,9 @@ internal static class AtlantisRisingResearchComplete
             if (cell == outerPassageCell) continue;
 
             ClearCellForBuilding(map, cell);
-            if (illuminescentWallDef != null)
+            if (luminescentWallDef != null)
             {
-                SpawnClaimedThing(map, illuminescentWallDef, cell, null, Rot4.North);
+                SpawnClaimedThing(map, luminescentWallDef, cell, null, Rot4.North);
             }
             else
             {
@@ -210,7 +210,7 @@ internal static class AtlantisRisingResearchComplete
         }
 
         // INNER wall layer, with the single door. The entire interior ring is
-        // Illuminescent Limestone so the dining room is lit by the architecture.
+        // Luminescent Limestone so the dining room is lit by the architecture.
         foreach (IntVec3 cell in platformRect.EdgeCells)
         {
             if (!cell.InBounds(map)) continue;
@@ -221,9 +221,9 @@ internal static class AtlantisRisingResearchComplete
             {
                 SpawnClaimedThing(map, doorDef, cell, limestoneDef, Rot4.North);
             }
-            else if (illuminescentWallDef != null)
+            else if (luminescentWallDef != null)
             {
-                SpawnClaimedThing(map, illuminescentWallDef, cell, null, Rot4.North);
+                SpawnClaimedThing(map, luminescentWallDef, cell, null, Rot4.North);
             }
             else
             {
@@ -235,7 +235,7 @@ internal static class AtlantisRisingResearchComplete
         // Gate Room. Existing walls are kept as-is (the walkway's outer rows
         // already belong to the spire's outer ring and the Gate Room's own
         // wall); the power line runs inside these walls (see below).
-        // Bridge side walls are fully Illuminescent Limestone so the corridor
+        // Bridge side walls are fully Luminescent Limestone so the corridor
         // is lit by the architecture end-to-end.
         for (int z = walkwayRect.minZ; z <= walkwayRect.maxZ; z++)
         {
@@ -252,9 +252,9 @@ internal static class AtlantisRisingResearchComplete
 
                 ClearCellForBuilding(map, side);
 
-                if (illuminescentWallDef != null)
+                if (luminescentWallDef != null)
                 {
-                    SpawnClaimedThing(map, illuminescentWallDef, side, null, Rot4.North);
+                    SpawnClaimedThing(map, luminescentWallDef, side, null, Rot4.North);
                 }
                 else
                 {

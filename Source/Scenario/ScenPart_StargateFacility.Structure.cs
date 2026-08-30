@@ -29,7 +29,7 @@ internal partial class ScenPart_StargateFacility
                ?? DefDatabase<ThingDef>.GetNamed(stoneTypes[0]))
             : DefDatabase<ThingDef>.GetNamed(stoneTypes[Rand.Range(0, stoneTypes.Length)]);
 
-        ThingDef illuminescentWallDef = IsAtlantisFacility(map)
+        ThingDef luminescentWallDef = IsAtlantisFacility(map)
             ? LuminescentWallsUtility.GetWallDef()
             : null;
 
@@ -48,7 +48,7 @@ internal partial class ScenPart_StargateFacility
             map.terrainGrid.SetTerrain(cell, floorDef);
         }
 
-        // Build OUTER wall layer. Atlantis uses Illuminescent Limestone for
+        // Build OUTER wall layer. Atlantis uses Luminescent Limestone for
         // both wall rings; other destinations keep the ordinary stone mix.
         foreach (IntVec3 cell in outerRect.EdgeCells)
         {
@@ -59,9 +59,9 @@ internal partial class ScenPart_StargateFacility
             if (cell == outerDoorCell) continue;
 
             ClearCellForBuilding(map, cell);
-            if (illuminescentWallDef != null)
+            if (luminescentWallDef != null)
             {
-                PlaceClaimed(map, illuminescentWallDef, cell);
+                PlaceClaimed(map, luminescentWallDef, cell);
             }
             else
             {
@@ -70,7 +70,7 @@ internal partial class ScenPart_StargateFacility
         }
 
         // Build INNER wall layer. On Atlantis the entire interior ring is
-        // Illuminescent Limestone so the room is lit by the wall surface itself.
+        // Luminescent Limestone so the room is lit by the wall surface itself.
         foreach (IntVec3 cell in innerRect.EdgeCells)
         {
             if (!cell.InBounds(map)) continue;
@@ -80,10 +80,10 @@ internal partial class ScenPart_StargateFacility
 
             ClearCellForBuilding(map, cell);
 
-            if (illuminescentWallDef != null)
+            if (luminescentWallDef != null)
             {
                 // Dedicated wall def is not stuffable.
-                PlaceClaimed(map, illuminescentWallDef, cell);
+                PlaceClaimed(map, luminescentWallDef, cell);
             }
             else
             {
@@ -101,7 +101,7 @@ internal partial class ScenPart_StargateFacility
         // Exactly one door, centered, randomly oriented N/S/E/W by entrance side.
         // Placing the door on the inner wall preserves the 2-thick ancient wall look
         // while preventing the outer wall from blocking it.
-        PlaceDoor(map, innerDoorCell, wallMaterial);
+        Building_Door door = PlaceDoor(map, innerDoorCell, wallMaterial);
     }
 
     private void PlaceStargate(Map map, IntVec3 center)
@@ -165,35 +165,10 @@ internal partial class ScenPart_StargateFacility
             }
         }
 
-        // 2. Secondary power source. Destination-specific substitutions live
-        // in their variant partials; ordinary facilities keep the ZPM below.
-        if (PlaceAtlantisSecondaryPower(map, roomRect))
-        {
-            // Atlantis has no starting ZPM.
-        }
-        else
-        {
-            // Archotech ZPM at 75% charge, if mod present.
-            ThingDef zpmDef = DefDatabase<ThingDef>.GetNamedSilentFail("ArchotechZPM");
-            if (zpmDef != null)
-            {
-                IntVec3 zpmPos = new IntVec3(roomRect.minX + 2, 0, roomRect.maxZ - 2);
-                if (zpmPos.InBounds(map))
-                {
-                    ClearCellForBuilding(map, zpmPos);
-
-                    Thing zpm = PlaceClaimed(map, zpmDef, zpmPos);
-                    if (zpm != null)
-                    {
-                        CompPowerBattery batteryComp = zpm.TryGetComp<CompPowerBattery>();
-                        if (batteryComp != null)
-                        {
-                            batteryComp.SetStoredEnergyPct(0.75f);
-                        }
-                    }
-                }
-            }
-        }
+        // 2. Atlantis receives a second vanometric power cell; all other
+        // Stargate Rooms keep only the shared cell above. The Secret Lab owns
+        // the facility's single ZPM.
+        PlaceAtlantisSecondaryPower(map, roomRect);
 
         // 3. DHD placement.
         ThingDef dhdDef = DefDatabase<ThingDef>.GetNamedSilentFail("StargateDHD");
@@ -223,7 +198,7 @@ internal partial class ScenPart_StargateFacility
                 casket.TryAcceptThing(_guardianPawn, false);
             }
         }
-        
+
     }
 
     private Pawn GetGuardianPawn()
@@ -236,7 +211,7 @@ internal partial class ScenPart_StargateFacility
         return Find.GameInitData.startingAndOptionalPawns.FirstOrDefault();
     }
 
-    private void PlaceDoor(Map map, IntVec3 cell, ThingDef material)
+    private Building_Door PlaceDoor(Map map, IntVec3 cell, ThingDef material)
     {
         // We use ClearCellForBuilding instead of ClearCellForDoorway
         // to ensure it clears the concrete floor too, if you don't want it under the wall.
@@ -251,7 +226,26 @@ internal partial class ScenPart_StargateFacility
         // adjacent cells before every draw. The facing follows from which wall
         // the door sits in — north/south walls render north, east/west walls
         // render east. See GetAtlantisEntranceSide.
-        PlaceClaimed(map, ThingDefOf.Door, cell, material);
+        var door = PlaceClaimed(map, ThingDefOf.Door, cell, material) as Building_Door;
+
+        // // 1. Grab the private/protected fields and methods via reflection
+        // var type = typeof(Building_Door);
+        // var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        //
+        // var holdOpenField = type.GetField("holdOpenInt", flags);
+        // var doorOpenMethod = type.GetMethod("DoorOpen", flags);
+        //
+        // if (holdOpenField != null && doorOpenMethod != null)
+        // {
+        //     // 2. Set holdOpenInt to true so it stays open forever
+        //     holdOpenField.SetValue(door, true);
+        //
+        //     // 3. Invoke DoorOpen(int ticksToClose)
+        //     // We pass 110 as the default argument value seen in your decompiled code
+        //     doorOpenMethod.Invoke(door, new object[] { 1100000000 });
+        // }
+
+        return door;
     }
 
     private void PlaceRoof(Map map, CellRect roomRect)
