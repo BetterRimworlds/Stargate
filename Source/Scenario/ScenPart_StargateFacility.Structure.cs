@@ -165,10 +165,13 @@ internal partial class ScenPart_StargateFacility
             }
         }
 
-        // 2. Atlantis receives a second vanometric power cell; all other
-        // Stargate Rooms keep only the shared cell above. The Secret Lab owns
-        // the facility's single ZPM.
-        PlaceAtlantisSecondaryPower(map, roomRect);
+        // 2. Atlantis receives a second vanometric power cell. Other
+        // destinations fall back to a ZPM, except the impassable Tok'ra base
+        // where the Secret Lab owns the facility's single ZPM.
+        if (!PlaceAtlantisSecondaryPower(map, roomRect) && !IsTokraFacility(map))
+        {
+            PlaceFacilityZpm(map, roomRect);
+        }
 
         // 3. DHD placement.
         ThingDef dhdDef = DefDatabase<ThingDef>.GetNamedSilentFail("StargateDHD");
@@ -199,6 +202,19 @@ internal partial class ScenPart_StargateFacility
             }
         }
 
+    }
+
+    private void PlaceFacilityZpm(Map map, CellRect roomRect)
+    {
+        ThingDef zpmDef = DefDatabase<ThingDef>.GetNamedSilentFail("ArchotechZPM");
+        if (zpmDef == null) return;
+
+        IntVec3 zpmPos = new IntVec3(roomRect.minX + 2, 0, roomRect.maxZ - 2);
+        if (!zpmPos.InBounds(map)) return;
+
+        ClearCellForBuilding(map, zpmPos);
+        Thing zpm = PlaceClaimed(map, zpmDef, zpmPos);
+        zpm?.TryGetComp<CompPowerBattery>()?.SetStoredEnergyPct(0.75f);
     }
 
     private Pawn GetGuardianPawn()
