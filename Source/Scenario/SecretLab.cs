@@ -108,6 +108,7 @@ internal static class SecretLab
         spawner.SpawnConduitRing(
             secretRoomRect,
             ThingDefOf.PowerConduit,
+            claimForPlayer: true,
             skipCells: new[] { doorCell }
         );
 
@@ -122,14 +123,22 @@ internal static class SecretLab
             if (wallCell == doorCell)
             {
                 Thing door = ThingMaker.MakeThing(ThingDefOf.Door, ThingDefOf.Plasteel);
-                GenSpawn.Spawn(door, wallCell, map, side, WipeMode.Vanish);
+                Thing spawnedDoor = GenSpawn.Spawn(door, wallCell, map, side, WipeMode.Vanish);
+                if (spawnedDoor != null && spawnedDoor.def.CanHaveFaction)
+                {
+                    spawnedDoor.SetFaction(Faction.OfPlayer);
+                }
                 continue;
             }
 
             Thing wall = luminescentPlasteelWall != null
                 ? ThingMaker.MakeThing(luminescentPlasteelWall)
                 : ThingMaker.MakeThing(ThingDefOf.Wall, ThingDefOf.Plasteel);
-            GenSpawn.Spawn(wall, wallCell, map, WipeMode.Vanish);
+            Thing spawnedWall = GenSpawn.Spawn(wall, wallCell, map, WipeMode.Vanish);
+            if (spawnedWall != null && spawnedWall.def.CanHaveFaction)
+            {
+                spawnedWall.SetFaction(Faction.OfPlayer);
+            }
         }
 
         // Roof the lab footprint. The cavern generator excludes the protected rect
@@ -224,8 +233,20 @@ internal static class SecretLab
 
         const string roomName = "Lab";
 
-        // Single Archotech ZPM at 10% charge; keep it in the established power-cell slot.
-        Thing zpm = spawner.SpawnFixed(zpmDef, spawner.At(3, 8), spawner.Rot(Rot4.North), interior);
+        // Single Archotech ZPM at 10% charge. Its graphic is a vertical 1x2
+        // Graphic_Single, not a rotatable Graphic_Multi, so RimWorld stretches
+        // the texture across both cells when the building is rotated East/West.
+        // North- and south-facing labs would do exactly that, so keep the ZPM
+        // upright against the north wall there instead.
+        IntVec3 zpmPos = spawner.At(3, 8);
+        Rot4 zpmRot = spawner.Rot(Rot4.North);
+        if (side == Rot4.North || side == Rot4.South)
+        {
+            zpmPos = new IntVec3(interior.maxX - 2, 0, interior.maxZ - 1);
+            zpmRot = Rot4.North;
+        }
+
+        Thing zpm = spawner.SpawnFixed(zpmDef, zpmPos, zpmRot, interior);
         zpm?.TryGetComp<CompPowerBattery>()?.SetStoredEnergyPct(0.10f);
 
         spawner.SpawnFixed(researchDef,        spawner.At(5, 5), spawner.Rot(Rot4.East), interior);
