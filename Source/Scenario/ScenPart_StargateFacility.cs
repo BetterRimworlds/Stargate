@@ -1,6 +1,7 @@
 // ==== Source/Scenario/ScenPart_StargateFacility.cs ====
 using RimWorld;
 using Verse;
+using BetterRimworlds.Utilities;
 
 namespace BetterRimworlds.Stargate;
 
@@ -60,9 +61,15 @@ internal partial class ScenPart_StargateFacility : ScenPart
         // Handle ocean and impassable tiles.
         StargateDestinationMapGen.Apply(map, DescribeTile(map.Tile), _entranceSide);
 
+        // Lay the conduit ring BEFORE the walls. RimWorld connects a powered
+        // building to the first transmitter that spawns near it, so building the
+        // walls first left every luminescent wall wired to whichever conduit was
+        // created first - often clear across the room. Conduits may share wall
+        // cells, so the ring is placed first and the walls are then built over
+        // it, letting each wall connect to its own cell's conduit immediately.
+        PlacePowerConduits(map, roomRect);
         GenerateRoomStructure(map, roomRect, outerWallRect);
         PlaceRoof(map, roomRect);
-        PlacePowerConduits(map, roomRect);
         PlaceStargate(map, center);
         PlaceSupportEquipment(map, center, roomRect);
         PlaceDiningArea(map, roomRect, center);
@@ -73,6 +80,11 @@ internal partial class ScenPart_StargateFacility : ScenPart
         PlaceTokraFacilityExtras(map, center, roomRect);
         AddFacilityDetails(map, roomRect, center);
         ClaimHomeArea(map, roomRect);
+
+        // Walls are built before the power ring, so reconnect each luminescent
+        // wall to its own hidden conduit before any wire can be drawn.
+        LuminescentWallPower.PowerAll(map);
+
         SpawnColonists(map, center);
 
         // Defer the fog override until RimWorld has finished its default passes.
@@ -144,7 +156,7 @@ internal partial class ScenPart_StargateFacility : ScenPart
             "===========================================\n\n" +
             "STARGATE DESTINATION SELECTED\n\n" +
             "Scenario:           " + DescribeScenarioKind(StargateAutomationPatches.SelectedScenarioKind) + "\n" +
-            "Daily planet seed:  " + StargateSeedUtility.GetDailySeed() + "\n" +
+            "Daily planet seed:  " + DailySeedUtility.GetDailySeed() + "\n" +
             "Selected tile:      " + selectedTile + "\n" +
             "Tile kind:          " + DescribeTile(selectedTile) + "\n\n" +
             "Same planet. Different Stargate.\n" +

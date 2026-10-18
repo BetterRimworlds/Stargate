@@ -1,3 +1,6 @@
+**v12.x (unreleased)**
+* **[2026-10-18]** Extended Janus's Lab power connection to the Atlantis gate room by one conduit so the lab's power grid reaches the main base.
+
 **v11.0.0: 2025-07-08**
 * **[2025-07-08 23:50:33 CDT]** Massively refactored the relationship restoration to count for existing gate traveler implants.
 * **[2025-07-08 23:49:22 CDT]** Added support for Rimworld v1.6.

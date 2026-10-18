@@ -75,9 +75,9 @@ This tech enables the Archotech Teleporter tech, if you have that mod.</descript
         <tab>Stargate</tab>
     </ResearchProjectDef>
     <ResearchProjectDef>
-        <defName>HiddenLab</defName>
-        <label>Hidden Lab</label>
-        <description>Expose a concealed laboratory hidden beneath the surface and restore its research capacity.</description>
+        <defName>SecretLab</defName>
+        <label>Janus's Lab</label>
+        <description>Uncover Janus's concealed laboratory on the reserved eastern site of the Atlantis map and restore its research capacity.</description>
         <baseCost>3</baseCost>
         <techLevel>Spacer</techLevel>
         <researchViewX>6</researchViewX>
@@ -106,7 +106,7 @@ This tech enables the Archotech Teleporter tech, if you have that mod.</descript
         </modExtensions>
         <prerequisites>
             <li>AtlantisRising</li>
-            <li>HiddenLab</li>
+            <li>SecretLab</li>
         </prerequisites>
         <tab>Stargate</tab>
     </ResearchProjectDef>

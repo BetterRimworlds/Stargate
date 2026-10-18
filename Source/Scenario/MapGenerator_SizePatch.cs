@@ -78,7 +78,7 @@ public static class MapGenerator_SizePatch
 
         if (tile.WaterCovered)
         {
-            mapSize = new IntVec3(90, 1, 90);
+            mapSize = new IntVec3(120, 1, 120);
             return;
         }
 
