@@ -246,9 +246,13 @@ internal static class LabOfJanus
         // room and Secret Lab rings both rely on it), so this cell is the single
         // conduit that joins the lab run to the main base grid. Starting at
         // maxX + 2 left a one-cell gap and the lab stayed on its own network.
+        //
+        // Keep the paved approach aligned with the lab door. The lab ring skips
+        // the door cell itself, so after the straight run add a one-cell elbow
+        // beside the door that reaches the nearest ring conduit.
+        int z = labDoor.z;
         int minX = gateRoomRect.maxX + 1;
         int maxX = labDoor.x - 1;
-        int z = labRect.CenterCell.z;
         BlueprintSpawner spawner = new BlueprintSpawner(map);
 
         for (int x = minX; x <= maxX; x++)
@@ -265,8 +269,54 @@ internal static class LabOfJanus
             }
 
             PrepareConnectionCell(map, cell);
+            PaveConnectionFlank(map, cell + IntVec3.North);
+            PaveConnectionFlank(map, cell + IntVec3.South);
             spawner.SpawnConduitAt(cell, conduitDef, claimForPlayer: true);
         }
+
+        if (!TryPlaceRingElbow(map, spawner, conduitDef, labDoor, z + 1))
+        {
+            TryPlaceRingElbow(map, spawner, conduitDef, labDoor, z - 1);
+        }
+    }
+
+    /// <summary>
+    /// Joins the straight approach run to the lab ring around the skipped door
+    /// cell. The elbow sits in the run's column and ends beside a lab wall
+    /// conduit. It is conduit-only: the paved approach stays aligned with the
+    /// door rather than extending past it.
+    /// </summary>
+    private static bool TryPlaceRingElbow(
+        Map map,
+        BlueprintSpawner spawner,
+        ThingDef conduitDef,
+        IntVec3 labDoor,
+        int z)
+    {
+        IntVec3 ringCell = new IntVec3(labDoor.x, 0, z);
+        IntVec3 elbowCell = new IntVec3(labDoor.x - 1, 0, z);
+
+        if (!elbowCell.InBounds(map) || !ringCell.InBounds(map))
+        {
+            return false;
+        }
+
+        if (!map.thingGrid.ThingsListAt(ringCell).Any(thing => IsConduitDef(thing.def)))
+        {
+            return false;
+        }
+
+        if (map.thingGrid.ThingsListAt(elbowCell).Any(thing => IsConduitDef(thing.def)))
+        {
+            return true;
+        }
+
+        if (!CanShareCellWithConduit(map, elbowCell))
+        {
+            return false;
+        }
+
+        return spawner.SpawnConduitAt(elbowCell, conduitDef, claimForPlayer: true);
     }
 
     /// <summary>
@@ -325,8 +375,9 @@ internal static class LabOfJanus
 
     /// <summary>
     /// Floors, roofs, and claims a platform cell for a lab connection conduit.
-    /// Wall cells are left untouched: the conduit simply shares the existing
-    /// base wall, so no terrain, roof, or home-area changes are made there.
+    /// The approach is paved with Tiled Limestone. Wall cells are left untouched:
+    /// the conduit simply shares the existing base wall, so no terrain, roof, or
+    /// home-area changes are made there.
     /// </summary>
     private static void PrepareConnectionCell(Map map, IntVec3 cell)
     {
@@ -335,12 +386,28 @@ internal static class LabOfJanus
             return;
         }
 
-        map.terrainGrid.SetTerrain(cell, TerrainDefOf.Concrete);
+        map.terrainGrid.SetTerrain(cell, DefDatabase<TerrainDef>.GetNamed("TileLimestone"));
         map.areaManager.Home[cell] = true;
         if (map.roofGrid.RoofAt(cell) == null)
         {
             map.roofGrid.SetRoof(cell, RoofDefOf.RoofConstructed);
         }
+    }
+
+    /// <summary>
+    /// Pours the concrete strips flanking the Tiled Limestone approach. Cells
+    /// already holding a building, including the gate room's outer wall, are
+    /// left untouched.
+    /// </summary>
+    private static void PaveConnectionFlank(Map map, IntVec3 cell)
+    {
+        if (!cell.InBounds(map)) return;
+        if (map.thingGrid.ThingsListAt(cell).Any(thing => thing.def.category == ThingCategory.Building))
+        {
+            return;
+        }
+
+        map.terrainGrid.SetTerrain(cell, TerrainDefOf.Concrete);
     }
 
     private static void ClaimHomeArea(Map map, CellRect labRect)
