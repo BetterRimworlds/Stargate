@@ -62,6 +62,10 @@ internal partial class ScenPart_StargateFacility
         {
             if (thing is Pawn) continue;
 
+            // Conduits are laid before the walls so each wall can connect to its
+            // own cell's conduit on spawn; never clear them here.
+            if (PowerConduitUtility.IsConduit(thing)) continue;
+
             if (thing.def == ThingDefOf.Wall ||
                 thing.def == ThingDefOf.Door ||
                 thing.def == ThingDefOf.SteamGeyser ||

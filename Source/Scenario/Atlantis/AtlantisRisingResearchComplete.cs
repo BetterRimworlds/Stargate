@@ -117,6 +117,11 @@ internal static class AtlantisRisingResearchComplete
 
         placedTables = PlaceDiningFurniture(map, platformRect, gateRoomRect.CenterCell.x);
         PlaceDiningRoomShelves(map, platformRect, gateRoomRect.CenterCell.x);
+
+        // The spire's luminescent walls are spawned before its conduit rings, so
+        // RimWorld can leave them wired to a distant conduit. Re-home each wall
+        // onto its own hidden conduit so no wire is drawn.
+        LuminescentWallPower.PowerAll(map);
         return true;
     }
 
@@ -186,6 +191,13 @@ internal static class AtlantisRisingResearchComplete
         IntVec3 doorCell = new IntVec3(doorX, 0, platformRect.maxZ);
         IntVec3 outerPassageCell = new IntVec3(doorX, 0, platformRect.maxZ + 1);
         CellRect outerWallRect = platformRect.ExpandedBy(1);
+
+        // Conduits go in first. RimWorld connects a powered building to the
+        // first transmitter that spawns near it and never upgrades that link, so
+        // building the walls first left each luminescent wall wired to a distant
+        // conduit. Conduits may share wall cells; laying them first lets every
+        // wall connect to its own cell's conduit as it spawns.
+        PlaceDiningRoomPowerConduits(map, platformRect, walkwayRect, doorCell, outerPassageCell);
 
         // OUTER wall layer, keeping the walkway passage open. The passage cell
         // itself is cleared like the Gate Room's outer doorway so nothing can
@@ -262,8 +274,6 @@ internal static class AtlantisRisingResearchComplete
                 }
             }
         }
-
-        PlaceDiningRoomPowerConduits(map, platformRect, walkwayRect, doorCell, outerPassageCell);
     }
 
     private static void PlaceDiningRoomPowerConduits(Map map, CellRect platformRect, CellRect walkwayRect, IntVec3 doorCell, IntVec3 outerPassageCell)
@@ -334,6 +344,10 @@ internal static class AtlantisRisingResearchComplete
         foreach (Thing thing in things)
         {
             if (thing is Pawn) continue;
+
+            // Conduits are placed before the walls so each luminescent wall
+            // connects to its own cell's conduit on spawn; preserve them.
+            if (PowerConduitUtility.IsConduit(thing)) continue;
 
             // Same as ScenPart_StargateFacility.ClearCellForBuilding: clear
             // walls, doors, geysers, buildings and plants, but preserve loose

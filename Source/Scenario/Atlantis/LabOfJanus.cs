@@ -124,6 +124,11 @@ internal static class LabOfJanus
             ClaimHomeArea(map, labRect);
             PlacePlatformConnection(map, gateRoomRect, labRect);
 
+            // The lab shell is spawned without a faction, then claimed above, so
+            // give its luminescent walls their hidden conduits now that they are
+            // player-owned and the connection run exists.
+            LuminescentWallPower.PowerAll(map);
+
             IntVec3 unfogRoot = SecretLab.DoorCellFor(labRect, Rot4.East) + IntVec3.East;
             if (unfogRoot.InBounds(map))
             {
@@ -232,10 +237,16 @@ internal static class LabOfJanus
 
     private static void PlacePlatformConnection(Map map, CellRect gateRoomRect, CellRect labRect)
     {
-        ThingDef conduitDef = ThingDefOf.PowerConduit;
+        ThingDef conduitDef = GetConnectionConduitDef();
         IntVec3 labDoor = SecretLab.DoorCellFor(labRect, Rot4.East);
-        // Stay outside the gate-room outer wall; never punch through existing buildings.
-        int minX = gateRoomRect.maxX + 2;
+        // The gate room's conduit ring is embedded in its inner wall layer
+        // (gateRoomRect.EdgeCells), so the platform run has to start on the gate
+        // room's OUTER wall cell (maxX + 1) to be cardinally adjacent to that
+        // ring. Conduits share wall cells throughout this codebase (the gate
+        // room and Secret Lab rings both rely on it), so this cell is the single
+        // conduit that joins the lab run to the main base grid. Starting at
+        // maxX + 2 left a one-cell gap and the lab stayed on its own network.
+        int minX = gateRoomRect.maxX + 1;
         int maxX = labDoor.x - 1;
         int z = labRect.CenterCell.z;
         BlueprintSpawner spawner = new BlueprintSpawner(map);
@@ -243,31 +254,92 @@ internal static class LabOfJanus
         for (int x = minX; x <= maxX; x++)
         {
             IntVec3 cell = new IntVec3(x, 0, z);
-            if (!cell.InBounds(map) || cell == labDoor || HasPlayerBlockingThing(map, cell))
+            if (!cell.InBounds(map) || cell == labDoor)
             {
                 continue;
             }
 
-            map.terrainGrid.SetTerrain(cell, TerrainDefOf.Concrete);
-            map.areaManager.Home[cell] = true;
-            if (map.roofGrid.RoofAt(cell) == null)
-            {
-                map.roofGrid.SetRoof(cell, RoofDefOf.RoofConstructed);
-            }
-
-            if (conduitDef == null)
+            if (!CanShareCellWithConduit(map, cell))
             {
                 continue;
             }
 
-            if (map.thingGrid.ThingsListAt(cell).Any(thing =>
-                    thing is Pawn ||
-                    (thing.def.category == ThingCategory.Building && thing.def != conduitDef)))
-            {
-                continue;
-            }
-
+            PrepareConnectionCell(map, cell);
             spawner.SpawnConduitAt(cell, conduitDef, claimForPlayer: true);
+        }
+    }
+
+    /// <summary>
+    /// Hidden conduits were added in RimWorld 1.5 and are the preferred link
+    /// between the lab and the base: they are invisible, tougher, and immune to
+    /// short circuits. Older supported versions (1.2-1.4) have no such def, so
+    /// they fall back to the regular power conduit.
+    /// </summary>
+    private static ThingDef GetConnectionConduitDef()
+    {
+        return DefDatabase<ThingDef>.GetNamedSilentFail("HiddenConduit") ?? ThingDefOf.PowerConduit;
+    }
+
+    /// <summary>
+    /// True when a connection conduit may occupy <paramref name="cell"/>: empty
+    /// floor, an existing conduit, or a wall cell. Conduits coexist with walls —
+    /// the gate-room and Secret Lab wall rings depend on it — so a wall must not
+    /// block the run; any other pawn or building still does.
+    /// </summary>
+    private static bool CanShareCellWithConduit(Map map, IntVec3 cell)
+    {
+        foreach (Thing thing in map.thingGrid.ThingsListAt(cell))
+        {
+            if (thing is Pawn)
+            {
+                return false;
+            }
+
+            if (thing.def.category != ThingCategory.Building)
+            {
+                continue;
+            }
+
+            if (IsConduitDef(thing.def) || IsConduitShareableWall(thing))
+            {
+                continue;
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool IsConduitDef(ThingDef def)
+    {
+        return def == ThingDefOf.PowerConduit
+            || def.defName == "HiddenConduit"
+            || def.defName == "WaterproofConduit";
+    }
+
+    private static bool IsConduitShareableWall(Thing thing)
+    {
+        return thing?.def != null && LuminescentWallsUtility.IsAnyWall(thing.def);
+    }
+
+    /// <summary>
+    /// Floors, roofs, and claims a platform cell for a lab connection conduit.
+    /// Wall cells are left untouched: the conduit simply shares the existing
+    /// base wall, so no terrain, roof, or home-area changes are made there.
+    /// </summary>
+    private static void PrepareConnectionCell(Map map, IntVec3 cell)
+    {
+        if (map.thingGrid.ThingsListAt(cell).Any(IsConduitShareableWall))
+        {
+            return;
+        }
+
+        map.terrainGrid.SetTerrain(cell, TerrainDefOf.Concrete);
+        map.areaManager.Home[cell] = true;
+        if (map.roofGrid.RoofAt(cell) == null)
+        {
+            map.roofGrid.SetRoof(cell, RoofDefOf.RoofConstructed);
         }
     }
 

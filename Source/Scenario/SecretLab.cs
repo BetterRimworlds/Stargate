@@ -99,12 +99,24 @@ internal static class SecretLab
         ThingDef luminescentPlasteelWall =
             DefDatabase<ThingDef>.GetNamedSilentFail("BR_LuminescentPlasteelWall");
 
+        // Conduits before walls: RimWorld links a powered building to the first
+        // transmitter that spawns nearby and never upgrades that link, so walls
+        // built first ended up wired to distant conduits. Conduits may share
+        // wall cells, so the ring goes down first (skipping the doorway) and each
+        // luminescent wall connects to its own cell's conduit when it spawns.
+        BlueprintSpawner spawner = new BlueprintSpawner(map);
+        spawner.SpawnConduitRing(
+            secretRoomRect,
+            ThingDefOf.PowerConduit,
+            skipCells: new[] { doorCell }
+        );
+
         foreach (IntVec3 wallCell in secretRoomRect.EdgeCells)
         {
             if (!wallCell.InBounds(map)) continue;
 
             Thing existing = map.thingGrid.ThingsListAt(wallCell)
-                .FirstOrDefault(t => t.def.destroyable);
+                .FirstOrDefault(t => t.def.destroyable && !PowerConduitUtility.IsConduit(t));
             existing?.Destroy(DestroyMode.Vanish);
 
             if (wallCell == doorCell)
@@ -197,7 +209,6 @@ internal static class SecretLab
         ThingDef analyzerDef        = DefDatabase<ThingDef>.GetNamed("MultiAnalyzer");
         ThingDef lampDef            = ThingDefOf.StandingLamp;
         ThingDef zpmDef             = DefDatabase<ThingDef>.GetNamed("ArchotechZPM");
-        ThingDef conduitDef         = ThingDefOf.PowerConduit;
         ThingDef cryoDef            = DefDatabase<ThingDef>.GetNamedSilentFail("CryoRegenesisCasket");
         ThingDef hospitalBedDef     = DefDatabase<ThingDef>.GetNamed("HospitalBed");
         ThingDef vitalsMonitorDef   = DefDatabase<ThingDef>.GetNamed("VitalsMonitor");
@@ -246,6 +257,7 @@ internal static class SecretLab
             spawner.SpawnStack(mealDef, spawner.At(2, z), 10, roomName);
         }
 
-        spawner.SpawnConduitRing(secretRoomRect, conduitDef);
+        // The power ring is laid down in Generate() before the shell walls, so
+        // each wall connects to its own cell's conduit as it spawns.
     }
 }
