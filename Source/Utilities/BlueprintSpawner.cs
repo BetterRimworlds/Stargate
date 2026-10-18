@@ -108,13 +108,11 @@ public class BlueprintSpawner
         Log.Warning($"BetterRimworlds.Stargate: Blueprint failed to stack {def.defName} at {pos}: no empty target or adjacent cell for the remaining {count} items.");
     }
 
-    /// <summary>
     /// Places conduits around the edge cells of <paramref name="rect"/> — an
     /// in-wall ring for a room's wall layer. Conduits may share cells with
     /// walls; cells that already hold a conduit are skipped, and a cell is
     /// skipped whenever spawning would destroy an existing building or item
     /// (filth/plants may still be wiped by GenSpawn as normal).
-    /// </summary>
     /// <param name="claimForPlayer">Claim spawned conduits for the player faction.</param>
     /// <param name="skipCells">Optional cells to leave un-conduited (e.g. doorways).</param>
     public void SpawnConduitRing(CellRect rect, ThingDef conduitDef, bool claimForPlayer = false, ICollection<IntVec3> skipCells = null)
@@ -129,12 +127,10 @@ public class BlueprintSpawner
         }
     }
 
-    /// <summary>
     /// Places a single conduit at <paramref name="cell"/> with the same guards
     /// as <see cref="SpawnConduitRing"/>: skips cells that already hold a
     /// conduit and cells where spawning would destroy an existing building or
     /// item. Returns true when a conduit was spawned.
-    /// </summary>
     public bool SpawnConduitAt(IntVec3 cell, ThingDef conduitDef, bool claimForPlayer = false)
     {
         if (conduitDef == null) return false;
@@ -165,14 +161,12 @@ public class BlueprintSpawner
         return true;
     }
 
-    /// <summary>
     /// Places a constructed roof over <paramref name="rect"/> and, optionally,
     /// over a surrounding band of cells (the outer wall ring of a double-walled
     /// room). Mirrors ScenPart_StargateFacility.PlaceRoof: cells in the main
     /// rect are roofed unconditionally, while band cells are only filled where
     /// no roof exists so mountain roofs and player-built roofs just outside the
     /// structure are preserved.
-    /// </summary>
     public void PlaceRoof(CellRect rect, int outerBand = 1)
     {
         if (rect == CellRect.Empty) return;
