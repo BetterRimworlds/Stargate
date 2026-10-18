@@ -445,7 +445,10 @@ namespace BetterRimworlds.Stargate
         private void RemoveFromDeadPawnsList(Pawn pawn)
         {
             Pawn pawnToRemove = Find.WorldPawns.AllPawnsDead
-                .FirstOrDefault(p => p.thingIDNumber == pawn.thingIDNumber);
+                .FirstOrDefault(p =>
+                    p != null
+                    && p.thingIDNumber == pawn.thingIDNumber
+                    && StargatePawnService.IsSamePawnRecord(pawn, p));
             if (pawnToRemove != null)
             {
                 // Log.Warning("17");
