@@ -1,5 +1,8 @@
 // ==== Source/Saving/StargateLoadIdRemapper.cs ====
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using RimWorld;
 using Verse;
 
 namespace BetterRimworlds.Stargate.Saving;
@@ -17,6 +20,23 @@ namespace BetterRimworlds.Stargate.Saving;
 /// sequence so future GetNextHediffID() values cannot reuse them.
 public static class StargateLoadIdRemapper
 {
+    /// Describes one inbound pawn whose numeric ID changed. The saved name is
+    /// included so a relationship snapshot can be updated only when it really
+    /// points at that pawn, not at an unrelated thing that reused the old ID.
+    public sealed class PawnIdRemap
+    {
+        public readonly int PreviousId;
+        public readonly int NewId;
+        public readonly Name PawnName;
+
+        public PawnIdRemap(int previousId, int newId, Name pawnName)
+        {
+            this.PreviousId = previousId;
+            this.NewId = newId;
+            this.PawnName = pawnName;
+        }
+    }
+
     public static void RemapImportedThingLoadIds(IEnumerable<Thing> things)
     {
         if (things == null)
@@ -44,6 +64,159 @@ public static class StargateLoadIdRemapper
             Log.Message(
                 $"[Stargate] Remapped {remappedCount} hediff loadID(s) for imported Stargate cargo."
             );
+        }
+    }
+
+    /// Gives imported pawns a destination-world thingIDNumber when their saved ID
+    /// is already used by another pawn. Cross-world buffers carry IDs from the
+    /// origin save's sequence, which can collide with unrelated pawns here.
+    public static int RemapCollidingPawnThingIds(IEnumerable<Pawn> importedPawns)
+    {
+        return RemapCollidingPawnThingIds(importedPawns, out _);
+    }
+
+    public static int RemapCollidingPawnThingIds(
+        IEnumerable<Pawn> importedPawns,
+        out List<PawnIdRemap> remaps)
+    {
+        remaps = new List<PawnIdRemap>();
+
+        if (importedPawns == null || Find.UniqueIDsManager == null)
+        {
+            return 0;
+        }
+
+        List<Pawn> inbound = importedPawns.Where(pawn => pawn != null).ToList();
+
+        if (inbound.Count == 0)
+        {
+            return 0;
+        }
+
+        // Pawn.GetHashCode() uses thingIDNumber, so use reference identity: two
+        // distinct imported pawns with the same ID must still both be considered.
+        var inboundSet = new HashSet<Pawn>(inbound, ReferenceEqualityComparer.Instance);
+        var usedIds = new HashSet<int>();
+
+        foreach (Pawn pawn in PawnsFinder.All_AliveOrDead)
+        {
+            if (pawn != null && !inboundSet.Contains(pawn))
+            {
+                usedIds.Add(pawn.thingIDNumber);
+            }
+        }
+
+        foreach (Pawn pawn in Find.WorldPawns.AllPawnsAliveOrDead)
+        {
+            if (pawn != null && !inboundSet.Contains(pawn))
+            {
+                usedIds.Add(pawn.thingIDNumber);
+            }
+        }
+
+        int remappedCount = 0;
+
+        foreach (Pawn pawn in inbound)
+        {
+            if (usedIds.Add(pawn.thingIDNumber))
+            {
+                continue;
+            }
+
+            int previousId = pawn.thingIDNumber;
+            int newId;
+
+            do
+            {
+                newId = Find.UniqueIDsManager.GetNextThingID();
+            }
+            while (!usedIds.Add(newId));
+
+            pawn.thingIDNumber = newId;
+            remaps.Add(new PawnIdRemap(previousId, newId, pawn.Name));
+            remappedCount++;
+
+            Log.Warning(
+                $"[Stargate] Remapped duplicate pawn thingID {previousId} -> {newId} " +
+                $"({pawn.LabelShortCap}) to avoid cross-world ID collisions."
+            );
+        }
+
+        return remappedCount;
+    }
+
+    /// Rewrites snapshot relation IDs after their pawns were remapped. A
+    /// name check prevents a relation from being reassigned to a different
+    /// pawn that merely shared the old numeric ID.
+    public static int ApplyPawnIdRemapsToRelationships(
+        IEnumerable<StargateRelation> relationships,
+        IReadOnlyList<PawnIdRemap> remaps)
+    {
+        if (relationships == null || remaps == null || remaps.Count == 0)
+        {
+            return 0;
+        }
+
+        var remapsByPreviousId = new Dictionary<int, List<PawnIdRemap>>();
+
+        foreach (PawnIdRemap remap in remaps)
+        {
+            if (!remapsByPreviousId.TryGetValue(remap.PreviousId, out List<PawnIdRemap> candidates))
+            {
+                candidates = new List<PawnIdRemap>();
+                remapsByPreviousId[remap.PreviousId] = candidates;
+            }
+
+            candidates.Add(remap);
+        }
+
+        int updatedCount = 0;
+
+        foreach (StargateRelation relationship in relationships)
+        {
+            if (relationship == null
+                || !remapsByPreviousId.TryGetValue(relationship.pawnID, out List<PawnIdRemap> candidates))
+            {
+                continue;
+            }
+
+            PawnIdRemap match = candidates.FirstOrDefault(candidate =>
+                NamesEqual(candidate.PawnName, relationship.pawnName));
+
+            if (match == null || relationship.pawnID == match.NewId)
+            {
+                continue;
+            }
+
+            relationship.pawnID = match.NewId;
+            updatedCount++;
+        }
+
+        return updatedCount;
+    }
+
+    private static bool NamesEqual(Name first, Name second)
+    {
+        if (first == null || second == null)
+        {
+            return first == null && second == null;
+        }
+
+        return first.Equals(second);
+    }
+
+    private sealed class ReferenceEqualityComparer : IEqualityComparer<Pawn>
+    {
+        public static readonly ReferenceEqualityComparer Instance = new ReferenceEqualityComparer();
+
+        public bool Equals(Pawn x, Pawn y)
+        {
+            return ReferenceEquals(x, y);
+        }
+
+        public int GetHashCode(Pawn obj)
+        {
+            return RuntimeHelpers.GetHashCode(obj);
         }
     }
 
