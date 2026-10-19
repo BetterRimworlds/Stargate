@@ -329,37 +329,9 @@ namespace BetterRimworlds.Stargate
             // (for example, only the father of a two-parent child), so merge into
             // the saved snapshot instead of replacing it. In that case the snapshot
             // is the better source.
-            var snapshot = new List<StargateRelation>(this.relationships ?? new List<StargateRelation>());
-
-            foreach (var liveGroup in directRelations.GroupBy(rel => rel.def))
-            {
-                string relationshipName = liveGroup.Key.defName;
-
-                bool liveHasNewRelation = liveGroup.Any(rel =>
-                    !snapshot.Any(existing =>
-                        existing != null &&
-                        existing.relationship == relationshipName &&
-                        existing.pawnID == rel.otherPawn.thingIDNumber));
-
-                // If the live tracker contains a relation the snapshot does not,
-                // the live data is newer and replaces the saved entries for this
-                // def. Otherwise the live data is a subset of the snapshot and
-                // may be the damaged result of an older rebuild, so keep the
-                // richer snapshot.
-                if (!liveHasNewRelation)
-                {
-                    continue;
-                }
-
-                snapshot.RemoveAll(existing => existing != null && existing.relationship == relationshipName);
-
-                foreach (DirectPawnRelation rel in liveGroup)
-                {
-                    snapshot.Add(new StargateRelation(rel.otherPawn, relationshipName, rel));
-                }
-            }
-
-            this.relationships = snapshot;
+            this.relationships = Services.StargateRelationshipSnapshot.Merge(
+                this.relationships,
+                directRelations.Select(rel => new StargateRelation(rel.otherPawn, rel.def.defName, rel)));
         }
 
         private void RefreshRelationships()

@@ -48,7 +48,7 @@ namespace BetterRimworlds.Stargate.Services
 
                 bool addedRelationship = false;
 
-                foreach (var relationship in gateTravelImplant.relationships)
+                foreach (var relationship in gateTravelImplant.relationships.ToList())
                 {
                     if (relationship == null)
                     {
@@ -93,6 +93,15 @@ namespace BetterRimworlds.Stargate.Services
                     if (pawnRelationDef.implied)
                     {
                         Log.Warning($"Skipping implied relation '{pawnRelationDef.defName}' for {pawn.LabelShort}; it is generated automatically.");
+                        continue;
+                    }
+
+                    if (StargateRelationshipSnapshot.HasConflictingLiveRelation(
+                        pawn, pawn2, pawnRelationDef.defName))
+                    {
+                        // The counterpart may still have an old snapshot even
+                        // after the first pawn's snapshot has been repaired.
+                        gateTravelImplant.relationships.Remove(relationship);
                         continue;
                     }
 
