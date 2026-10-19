@@ -14,6 +14,12 @@ namespace BetterRimworlds.Stargate.Services
         {
             return (first == "Spouse" && second == "ExSpouse")
                 || (first == "ExSpouse" && second == "Spouse")
+                || (first == "Spouse" && second == "Fiance")
+                || (first == "Fiance" && second == "Spouse")
+                || (first == "Spouse" && second == "Lover")
+                || (first == "Lover" && second == "Spouse")
+                || (first == "Lover" && second == "Fiance")
+                || (first == "Fiance" && second == "Lover")
                 || (first == "ExLover" && (second == "Lover" || second == "Fiance"))
                 || (second == "ExLover" && (first == "Lover" || first == "Fiance"));
         }
@@ -29,16 +35,34 @@ namespace BetterRimworlds.Stargate.Services
             snapshot.RemoveAll(existing => existing != null && current.Any(rel =>
                 existing.pawnID == rel.pawnID && Incompatible(existing.relationship, rel.relationship)));
 
-            foreach (var group in current.GroupBy(rel => rel.relationship))
+            foreach (var rel in current)
             {
-                if (!group.Any(rel => !snapshot.Any(existing => existing != null
-                    && existing.relationship == rel.relationship && existing.pawnID == rel.pawnID)))
+                if (rel == null)
                 {
                     continue;
                 }
 
-                snapshot.RemoveAll(existing => existing != null && existing.relationship == group.Key);
-                snapshot.AddRange(group);
+                // Merge each live pair individually. Multi-valued relation types
+                // (Parent, Child, Sibling, Kin, ExSpouse) legitimately hold many
+                // entries, so wholesale replacement by relationship type would
+                // drop saved counterparts that are merely not visible in the
+                // partially loaded live tracker.
+                bool alreadyKnown = snapshot.Any(existing => existing != null
+                    && existing.relationship == rel.relationship
+                    && existing.pawnID == rel.pawnID);
+
+                if (alreadyKnown)
+                {
+                    continue;
+                }
+
+                // Positive live evidence supersedes conflicting saved states for
+                // the same pawn only (engagement -> marriage, breakup, divorce).
+                snapshot.RemoveAll(existing => existing != null
+                    && existing.pawnID == rel.pawnID
+                    && Incompatible(existing.relationship, rel.relationship));
+
+                snapshot.Add(rel);
             }
 
             return snapshot;
