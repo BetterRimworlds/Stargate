@@ -7,7 +7,6 @@ using Verse;
 
 namespace BetterRimworlds.Stargate;
 
-/// <summary>
 /// Ocean (and Lake) tiles have an empty wild-plant set. Vanilla trees set
 /// <c>mustBeWildToSow</c>, so <see cref="Command_SetPlantToGrow.IsPlantAvailable"/>
 /// hides them unless the map biome reports the plant with commonality &gt; 0 via
@@ -16,7 +15,6 @@ namespace BetterRimworlds.Stargate;
 /// Register oak on those biomes through <see cref="PlantProperties.wildBiomes"/>
 /// (public on all supported RimWorld versions; <c>BiomeDef.wildPlants</c> is private
 /// before 1.6) so Atlantis garden soil can grow trees after TreeSowing is researched.
-/// </summary>
 [StaticConstructorOnStartup]
 public static class OceanBiomePatches
 {

@@ -280,12 +280,10 @@ internal static class LabOfJanus
         }
     }
 
-    /// <summary>
     /// Joins the straight approach run to the lab ring around the skipped door
     /// cell. The elbow sits in the run's column and ends beside a lab wall
     /// conduit. It is conduit-only: the paved approach stays aligned with the
     /// door rather than extending past it.
-    /// </summary>
     private static bool TryPlaceRingElbow(
         Map map,
         BlueprintSpawner spawner,
@@ -319,23 +317,19 @@ internal static class LabOfJanus
         return spawner.SpawnConduitAt(elbowCell, conduitDef, claimForPlayer: true);
     }
 
-    /// <summary>
     /// Hidden conduits were added in RimWorld 1.5 and are the preferred link
     /// between the lab and the base: they are invisible, tougher, and immune to
     /// short circuits. Older supported versions (1.2-1.4) have no such def, so
     /// they fall back to the regular power conduit.
-    /// </summary>
     private static ThingDef GetConnectionConduitDef()
     {
         return DefDatabase<ThingDef>.GetNamedSilentFail("HiddenConduit") ?? ThingDefOf.PowerConduit;
     }
 
-    /// <summary>
     /// True when a connection conduit may occupy <paramref name="cell"/>: empty
     /// floor, an existing conduit, or a wall cell. Conduits coexist with walls —
     /// the gate-room and Secret Lab wall rings depend on it — so a wall must not
     /// block the run; any other pawn or building still does.
-    /// </summary>
     private static bool CanShareCellWithConduit(Map map, IntVec3 cell)
     {
         foreach (Thing thing in map.thingGrid.ThingsListAt(cell))
@@ -373,12 +367,10 @@ internal static class LabOfJanus
         return thing?.def != null && LuminescentWallsUtility.IsAnyWall(thing.def);
     }
 
-    /// <summary>
     /// Floors, roofs, and claims a platform cell for a lab connection conduit.
     /// The approach is paved with Tiled Limestone. Wall cells are left untouched:
     /// the conduit simply shares the existing base wall, so no terrain, roof, or
     /// home-area changes are made there.
-    /// </summary>
     private static void PrepareConnectionCell(Map map, IntVec3 cell)
     {
         if (map.thingGrid.ThingsListAt(cell).Any(IsConduitShareableWall))
@@ -394,11 +386,9 @@ internal static class LabOfJanus
         }
     }
 
-    /// <summary>
     /// Pours the concrete strips flanking the Tiled Limestone approach. Cells
     /// already holding a building, including the gate room's outer wall, are
     /// left untouched.
-    /// </summary>
     private static void PaveConnectionFlank(Map map, IntVec3 cell)
     {
         if (!cell.InBounds(map)) return;

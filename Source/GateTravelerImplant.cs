@@ -277,40 +277,89 @@ namespace BetterRimworlds.Stargate
             this.lastKnownChronologicalAgeTicks = currentChronologicalTicks;
         }
 
-        private void RefreshRelationships()
+        /// Refreshes the travel snapshot from the pawn's current direct relations.
+        /// Called before the relations tracker is replaced during rematerialization.
+        /// <param name="allowEmpty">
+        /// When true, the live relation list replaces the saved snapshot, including
+        /// clearing it when empty (used when a pawn genuinely enters the gate).
+        /// When false, an empty or unresolved list leaves the saved snapshot intact
+        /// (used while loading a buffer, where cross-world references may not
+        /// resolve).
+        /// </param>
+        public void RefreshRelationshipsForStargateEntry(bool allowEmpty = false)
         {
-            if (this.pawn?.relations?.DirectRelations == null)
+            var directRelations = this.pawn?.relations?.DirectRelations;
+
+            if (directRelations == null)
             {
                 return;
             }
 
-            foreach (DirectPawnRelation rel in this.pawn.relations.DirectRelations)
+            if (directRelations.Count == 0)
             {
-                Pawn otherPawn = rel.otherPawn;
-
-                if (otherPawn == null)
+                if (allowEmpty)
                 {
-                    continue;
+                    this.relationships = new List<StargateRelation>();
                 }
 
-                string relationshipName = rel.def.defName;
-
-                bool alreadyStored = this.relationships.Any(existing =>
-                    existing.pawnID == otherPawn.thingIDNumber &&
-                    existing.relationship == relationshipName
-                );
-
-                if (alreadyStored)
-                {
-                    continue;
-                }
-
-                this.relationships.Add(new StargateRelation(
-                    otherPawn,
-                    relationshipName,
-                    rel
-                ));
+                return;
             }
+
+            foreach (DirectPawnRelation rel in directRelations)
+            {
+                if (rel?.def == null || rel.otherPawn == null)
+                {
+                    Log.Warning($"Skipping relationship refresh for {this.pawn.LabelShort}; a direct relation did not resolve.");
+                    return;
+                }
+            }
+
+            // A spawned pawn entering the gate has a complete live relation list,
+            // so it is authoritative. Rebuild the snapshot from scratch instead of
+            // merging, which also removes relation types that ended since the last
+            // transit (for example, a Spouse that became an ExSpouse on divorce).
+            // Merging by live def cannot see a def that disappeared entirely.
+            if (allowEmpty)
+            {
+                this.RefreshRelationships();
+                return;
+            }
+
+            // Buffer loads and world-pawn repairs may see an incomplete live list
+            // (for example, only the father of a two-parent child), so merge into
+            // the saved snapshot instead of replacing it. In that case the snapshot
+            // is the better source.
+            this.relationships = Services.StargateRelationshipSnapshot.Merge(
+                this.relationships,
+                directRelations.Select(rel => new StargateRelation(rel.otherPawn, rel.def.defName, rel)));
+        }
+
+        private void RefreshRelationships()
+        {
+            var directRelations = this.pawn?.relations?.DirectRelations;
+            var snapshot = new List<StargateRelation>();
+
+            if (directRelations != null)
+            {
+                foreach (DirectPawnRelation rel in directRelations)
+                {
+                    if (rel?.def == null || rel.otherPawn == null)
+                    {
+                        continue;
+                    }
+
+                    snapshot.Add(new StargateRelation(
+                        rel.otherPawn,
+                        rel.def.defName,
+                        rel
+                    ));
+                }
+            }
+
+            // Replace the whole snapshot. A pawn may have several direct
+            // relations of the same def (for example, two Parent relations),
+            // so keep every entry instead of merging by def name.
+            this.relationships = snapshot;
         }
     }
 }

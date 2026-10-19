@@ -73,18 +73,14 @@ namespace BetterRimworlds.Stargate
         #endregion
 
 #if !RIMWORLD12
-        /// <summary>
         /// Matter-stream / event-horizon stasis. While true, held pawns report
         /// Suspended and skip health, needs, age, and skill progression.
-        /// </summary>
         public bool IsContentsSuspended => true;
 #endif
 
 #if RIMWORLD16
-        /// <summary>
         /// Prevent RimWorld 1.6's automatic holder-content tick walk from advancing
         /// anything in the buffer (rotting food, apparel wear, hediffs, etc.).
-        /// </summary>
         public bool ShouldTickContents => false;
 #endif
 

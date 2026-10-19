@@ -139,6 +139,12 @@ namespace BetterRimworlds.Stargate
             SetPawnFaction(pawn);
             // Log.Warning("4");
 
+            // A RoyalTitle stores its faction as an origin-world loadID. When the
+            // destination world has a different Empire (or no matching faction),
+            // that reference is null and the pawn's Bio/Social tabs throw. Rebind
+            // titles by title def before any UI or PostLoadInit logic reads them.
+            StargateRoyalTitleService.RepairFactionReferences(pawn);
+
             FixPawnCrownType(pawn);
             // Log.Warning("6");
 
@@ -439,7 +445,10 @@ namespace BetterRimworlds.Stargate
         private void RemoveFromDeadPawnsList(Pawn pawn)
         {
             Pawn pawnToRemove = Find.WorldPawns.AllPawnsDead
-                .FirstOrDefault(p => p.thingIDNumber == pawn.thingIDNumber);
+                .FirstOrDefault(p =>
+                    p != null
+                    && p.thingIDNumber == pawn.thingIDNumber
+                    && StargatePawnService.IsSamePawnRecord(pawn, p));
             if (pawnToRemove != null)
             {
                 // Log.Warning("17");

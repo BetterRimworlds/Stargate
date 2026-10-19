@@ -1,6 +1,7 @@
 // ==== Source/StargateBuffer.cs ====
 
 using BetterRimworlds.Stargate.Saving;
+using BetterRimworlds.Stargate.Services;
 using RimWorld;
 using Verse;
 
@@ -47,10 +48,8 @@ namespace BetterRimworlds.Stargate
             this.Position = ((Building_Stargate)this.owner).Position;
         }
 
-        /// <summary>
         /// Event-horizon matter stream: no subjective time passes for anything
         /// held in the buffer. In 1.6+, ThingOwner can refuse to tick contents.
-        /// </summary>
         private void EnableEventHorizonStasis()
         {
 #if RIMWORLD16
@@ -131,12 +130,9 @@ namespace BetterRimworlds.Stargate
             this.SetRequiredStargatePower();
 
             // Increase the maxStacks size for every Pawn, as they don't affect the dispersion area.
-            if (item is Pawn pawn)
+            if (item is Pawn)
             {
-                // Increase the maxStacks size for every Pawn, as they don't affect the dispersion area.
                 ++this.maxStacks;
-
-                this.AttachGateTravelerImplant(pawn);
             }
             else
             {
@@ -146,11 +142,26 @@ namespace BetterRimworlds.Stargate
                 }
             }
 
+            // A pawn entering from the map still has its live relations. A pawn
+            // re-added after a failed placement has already had them cleared for
+            // rematerialization, so only snapshot genuine map entries.
+            bool wasSpawned = item.Spawned;
+
             // Clear its existing Holder (the actual Stargate).
             item.holdingOwner = null;
             if (!base.TryAdd(item, canMergeWithExistingStacks))
             {
                 return false;
+            }
+
+            if (item is Pawn pawnInBuffer)
+            {
+                GateTravelerImplant implant = StargatePawnService.AttachGateTravelerImplant(pawnInBuffer);
+
+                if (wasSpawned)
+                {
+                    implant?.RefreshRelationshipsForStargateEntry(allowEmpty: true);
+                }
             }
 
             if (item.Spawned)
@@ -215,153 +226,14 @@ namespace BetterRimworlds.Stargate
             this.Clear();
         }
 
-        private static IEnumerable<Pawn> GetAllAlivePawns()
-        {
-            #if RIMWORLD16
-            return PawnsFinder.AllMapsCaravansAndTravellingTransporters_Alive;
-            #else
-            return PawnsFinder.AllMapsCaravansAndTravelingTransportPods_Alive;
-            #endif
-        }
-
         public void RebuildRelationships()
         {
-            var implantDef = HediffDef.Named("GateTravelerImplant");
-            var pawnsWithGateTravelerImplant = GetAllAlivePawns()
-                .Where(pawn => pawn.health.hediffSet.HasHediff(implantDef))
-                .ToList();
-
-            // Now you can do whatever you need with that list:
-            foreach (var pawn in pawnsWithGateTravelerImplant)
-            {
-                var gateTravelImplant = (GateTravelerImplant)pawn.health.hediffSet.hediffs.Find(h => h.def == implantDef);
-                if (gateTravelImplant == null) continue;
-
-                foreach (var relationship in gateTravelImplant.relationships)
-                {
-                    Log.Message($"Processing relationship for {pawn.LabelShort}: {relationship.relationship} with {relationship.pawnName}.");
-
-                    var pawn2 = GetAllAlivePawns().FirstOrDefault(p => p.thingIDNumber == relationship.pawnID);
-
-                    if (pawn2 == null)
-                    {
-                        pawn2 = Find.WorldPawns.AllPawnsAliveOrDead.FirstOrDefault(p => p.thingIDNumber == relationship.pawnID);
-                        if (pawn2 == null)
-                        {
-                            Log.Warning($"Could not find pawn {relationship.pawnName} ({relationship.pawnID}). Generating a 'Missing' record.");
-                            pawn2 = StargateBuffer.GenerateMissingRelationshipRecord(relationship.pawnID, relationship.pawnName, relationship.pawnGender);
-                        }
-                    }
-
-                    PawnRelationDef pawnRelationDef = DefDatabase<PawnRelationDef>.GetNamedSilentFail(relationship.relationship);
-
-                    if (pawnRelationDef == null)
-                    {
-                        Log.Error($"Could not find PawnRelationDef named '{relationship.relationship}'. Skipping.");
-                        continue;
-                    }
-
-                    // =================================================================
-                    // START OF THE FIX
-                    // =================================================================
-
-                    // Find any existing direct relationship of this type (e.g., "Spouse").
-                    // THIS IS THE CORRECTED LINE: We use LINQ's FirstOrDefault on the DirectRelations list.
-                    var existingRelation = pawn.relations.DirectRelations.FirstOrDefault(rel => rel.def == pawnRelationDef);
-
-                    if (existingRelation != null)
-                    {
-                        // If the existing relation is already with the correct pawn, do nothing.
-                        if (existingRelation.otherPawn == pawn2)
-                        {
-                            Log.Message($"Correct relationship between {pawn.LabelShort} and {pawn2.LabelShort} already exists. Skipping.");
-                            continue;
-                        }
-
-                        // Otherwise, remove the old, stale relationship (e.g., Lu -> "Missing" Ryan)
-                        Log.Warning($"Found a stale relationship ({pawnRelationDef.defName}) for {pawn.LabelShort} with {existingRelation.otherPawn.LabelShort}. Removing it.");
-                        pawn.relations.RemoveDirectRelation(existingRelation);
-                    }
-
-                    // Now, add the new, correct relationship.
-                    Log.Message($"Adding direct relation {pawnRelationDef.defName} between {pawn.LabelShort} and {pawn2.LabelShort}.");
-                    pawn.relations.AddDirectRelation(pawnRelationDef, pawn2);
-                    // Clear thoughts and memories to recalculate mood based on the new relation.
-                    pawn.ClearMind(true);
-
-                    // =================================================================
-                    // END OF THE FIX
-                    // =================================================================
-                }
-            }
+            StargatePawnService.RebuildRelationships();
         }
 
         public static Pawn GenerateMissingRelationshipRecord(int thingID, Name pawnName, Gender pawnGender)
         {
-            NameTriple fullName = null;
-            Log.Warning("1");
-            if (pawnName is NameTriple)
-            {
-                fullName = (NameTriple) pawnName;
-            }
-
-            Log.Warning("2");
-
-            // Create a pawn generation request.
-            // Here we use PawnKindDefOf.Colonist as a placeholder.
-            // You may wish to use another kind that fits your mod better.
-            PawnGenerationRequest request = new PawnGenerationRequest(
-                kind: PawnKindDefOf.Colonist,
-                faction: null, // No faction: it’s not really “alive” in this game.
-                context: PawnGenerationContext.NonPlayer,
-                fixedLastName: fullName?.Last,
-                fixedGender: pawnGender,
-                forceGenerateNewPawn: true
-            );
-
-            Log.Warning("3");
-            Pawn missingPawn = PawnGenerator.GeneratePawn(request);
-            Log.Warning("4");
-            missingPawn.relations.everSeenByPlayer = true;
-
-            // Set the pawn's name to what we want.
-            missingPawn.Name = pawnName;
-
-            // Now override the automatically-assigned thingIDNumber with our saved thingID.
-            missingPawn.thingIDNumber = thingID;
-
-            // Ensure the pawn is not spawned anywhere.
-            if (missingPawn.Spawned)
-            {
-                Log.Warning("5");
-                missingPawn.DeSpawn();
-            }
-            Log.Warning("6");
-
-            // Now destroy the pawn so that she/he is marked as "Missing" and can never respawn.
-            missingPawn.Destroy();
-            Log.Warning("7");
-
-            return missingPawn;
-        }
-
-        private void AttachGateTravelerImplant(Pawn pawn)
-        {
-            HediffDef gateTravelerImplant = HediffDef.Named("GateTravelerImplant");
-
-            // Find any existing implant hediff
-            Hediff existingImplant = pawn.health.hediffSet.hediffs
-                .FirstOrDefault(h => h.def == gateTravelerImplant);
-
-            GateTravelerImplant implant = existingImplant as GateTravelerImplant;
-            if (implant == null)
-            {
-                BodyPartRecord brain = pawn.RaceProps.body.AllParts.Find(bpr => bpr.def.defName == "Brain");
-
-                implant = pawn.health.AddHediff(gateTravelerImplant, brain) as GateTravelerImplant;
-            }
-
-            implant?.RecordStargateBufferEntry();
+            return StargatePawnService.GenerateMissingRelationshipRecord(thingID, pawnName, pawnGender);
         }
 
         private void PreparePawnsForStargateSerialization()
@@ -397,19 +269,11 @@ namespace BetterRimworlds.Stargate
 
         public static bool ClearExistingWorldPawn(Pawn pawn)
         {
-            // See if the pawn exists in the Dead WorldPawns, and if so, remove the record, because now she/he is back!
-            Pawn pawnToRemove = Find.WorldPawns.AllPawnsDead.FirstOrDefault(p => p.thingIDNumber == pawn.thingIDNumber);
-            if (pawnToRemove != null)
-            {
-                Log.Warning("Pawn with ID " + pawn.thingIDNumber + " already exists in the world.");
-                Messages.Message($"Removed dead world pawn: {pawn.Name.ToStringFull}", MessageTypeDefOf.NeutralEvent);
-
-                // pawnToRemove.Discard();
-                Find.WorldPawns.RemovePawn(pawnToRemove);
-                return true;
-            }
-
-            return false;
+            // Only the genuine returning traveler's dead/placeholder record may
+            // be cleared. An unrelated destination pawn that happens to share
+            // the origin-world ID must stay in the world so RemapCollidingPawnThingIds
+            // sees the collision and gives the incoming pawn a new ID.
+            return StargatePawnService.ClearExistingWorldPawn(pawn);
         }
 
         public bool isOffworldTeleportEvent()
@@ -439,10 +303,57 @@ namespace BetterRimworlds.Stargate
             var loadResponse = SaveThings.load(ref inboundBuffer, this.StargateBufferFilePath);
             originalTimelineTicks = loadResponse.Item1;
 
-            foreach (Pawn pawn in inboundBuffer.OfType<Pawn>())
+            List<Pawn> inboundPawns = inboundBuffer.OfType<Pawn>().ToList();
+
+            // Remove matching dead world-pawn records first so a returning
+            // traveler can keep their original ID when it is still available.
+            // ClearExistingWorldPawn matches identity (name, gender and def),
+            // not just the reused ID, so an unrelated dead pawn stays put and
+            // the collision scan below remaps the incoming pawn instead.
+            foreach (Pawn pawn in inboundPawns)
             {
-                // Clear any existing world pawn record for this pawn.
                 ClearExistingWorldPawn(pawn);
+            }
+
+            // Cross-world buffers carry IDs from the origin save. If an ID is
+            // already used here, give the incoming pawn a destination-world ID
+            // instead of letting two pawns share one ID.
+            StargateLoadIdRemapper.RemapCollidingPawnThingIds(
+                inboundPawns,
+                out List<StargateLoadIdRemapper.PawnIdRemap> pawnIdRemaps);
+
+            foreach (Pawn pawn in inboundPawns)
+            {
+                GateTravelerImplant implant = pawn.health?.hediffSet?.hediffs
+                    .OfType<GateTravelerImplant>()
+                    .FirstOrDefault();
+
+                // A co-traveler's snapshot still holds the origin-world ID. Update
+                // it before merging live relations, otherwise a remapped parent or
+                // child is either dropped or resolved to an unrelated pawn.
+                if (implant?.relationships != null && pawnIdRemaps.Count > 0)
+                {
+                    int updatedRelationshipIds =
+                        StargateLoadIdRemapper.ApplyPawnIdRemapsToRelationships(
+                            implant.relationships,
+                            pawnIdRemaps);
+
+                    if (updatedRelationshipIds > 0)
+                    {
+                        Log.Message(
+                            $"[Stargate] Updated {updatedRelationshipIds} relationship ID(s) "
+                            + $"for {pawn.LabelShortCap} after remapping co-travelers."
+                        );
+                    }
+                }
+
+                // The pawns loaded from the buffer file still have the direct
+                // relations they had when they stepped through the gate. Capture
+                // them now, before rematerialization replaces the relations
+                // tracker, so any relations changed since the last transit are
+                // not lost and stale snapshots are repaired. This also records
+                // any thingIDs remapped above.
+                implant?.RefreshRelationshipsForStargateEntry();
             }
 
             // Log.Warning("Number of items in the wormhole: " + inboundBuffer.Count);

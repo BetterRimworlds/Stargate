@@ -1,4 +1,6 @@
 **v12.x (unreleased)**
+* **[2026-10-18]** Fixed Stargate travel collapsing multiple relations of the same type, which turned a mother into a stepmother and dropped other family links.
+* **[2026-10-18]** Relationship repair now includes world pawns left behind on other planets, so children remain linked to a parent who travels without them.
 * **[2026-10-18]** Extended Janus's Lab power connection to the Atlantis gate room by one conduit so the lab's power grid reaches the main base.
 
 **v11.0.0: 2025-07-08**
